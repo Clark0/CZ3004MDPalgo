@@ -1,4 +1,4 @@
-package constants;
+package mdpalgo.constants;
 
 import java.awt.*;
 

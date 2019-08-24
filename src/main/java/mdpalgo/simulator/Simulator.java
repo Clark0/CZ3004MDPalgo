@@ -1,8 +1,8 @@
-package simulator;
+package mdpalgo.simulator;
 
-import constants.Direction;
-import models.Grid;
-import models.Robot;
+import mdpalgo.models.Grid;
+import mdpalgo.models.Robot;
+import mdpalgo.constants.Direction;
 
 import javax.swing.*;
 import java.awt.*;
@@ -27,8 +27,8 @@ public class Simulator {
     private static final boolean realRun = false;
 
     public void simulate() {
-        robot = new Robot(Grid.START_ROW, Grid.START_COL, Direction.Sorth);
-        exploredMap = new Grid();
+        robot = new Robot(Grid.START_ROW, Grid.START_COL, Direction.SOUTH);
+        exploredMap = Grid.initCurrentGrid();
         arena = new Arena(exploredMap, robot);
 
         displayEverything();

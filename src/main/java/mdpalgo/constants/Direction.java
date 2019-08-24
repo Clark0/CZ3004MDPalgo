@@ -1,10 +1,10 @@
-package constants;
+package mdpalgo.constants;
 
 public enum Direction {
-    North(0, 0, -1),
-    East(1, 1, 0),
-    Sorth(2, 0, 1),
-    West(3, -1, 0);
+    NORTH(0, 0, 1),
+    EAST(1, 1, 0),
+    SOUTH(2, 0, -1),
+    WEST(3, -1, 0);
 
     private final int ordinal;
     private final int deltaX;
@@ -35,12 +35,12 @@ public enum Direction {
 
     public int[] getFrontRight(int x, int y) {
         int[] frontPos = forward(x, y);
-        return turnRight().forward(frontPos[0], frontPos[1]);
+        return getRight(frontPos[0], frontPos[1]);
     }
 
     public int[] getFrontLeft(int x, int y) {
         int[] frontPos = forward(x, y);
-        return turnLeft().forward(frontPos[0], frontPos[1]);
+        return getLeft(frontPos[0], frontPos[1]);
     }
 
     public Direction rotate(Movement movement) {
@@ -56,6 +56,10 @@ public enum Direction {
 
     public int[] forward(int x, int y, int step) {
         return new int[]{x + deltaX * step, y + deltaY * step};
+    }
+
+    public int[] backward(int x, int y, int step) {
+        return new int[]{x - deltaX * step, y - deltaY * step};
     }
 
     public int[] forward(int x, int y) {

@@ -1,7 +1,7 @@
-package models;
+package mdpalgo.models;
 
-import constants.Direction;
-import constants.Movement;
+import mdpalgo.constants.Direction;
+import mdpalgo.constants.Movement;
 
 
 public class Robot {
@@ -32,9 +32,11 @@ public class Robot {
 
     public void move(Movement movement, int steps) {
         this.direction = this.direction.rotate(movement);
-        int[] newPosition = this.direction.forward(posRow, posCol, steps);
-        this.posRow = newPosition[0];
-        this.posCol = newPosition[1];
+        if (movement == Movement.FORWARD) {
+            int[] newPosition = this.direction.forward(posRow, posCol, steps);
+            this.posRow = newPosition[0];
+            this.posCol = newPosition[1];
+        }
     }
 
     public void move(Movement movement) {
@@ -43,8 +45,8 @@ public class Robot {
 
     public int[] sense(Grid currentGrid, Grid realGrid) {
         int[] result = new int[6];
-        sensorRight.sense(posRow, posCol, direction.turnRight(), currentGrid, realGrid);
-        sensorLeft.sense(posRow, posCol, direction.turnLeft(), currentGrid, realGrid);
+        sensorRight.sense(direction.getFrontRight(posRow, posCol), direction.turnRight(), currentGrid, realGrid);
+        sensorLeft.sense(direction.getFrontLeft(posRow, posCol), direction.turnLeft(), currentGrid, realGrid);
         int[][] head = getHead();
         for (int i = 0; i < 3; i++) {
             sensorsFront[i].sense(head[i], direction, currentGrid, realGrid);
@@ -53,19 +55,34 @@ public class Robot {
         return result;
     }
 
+    public boolean isSafeMovement(Movement movement, Grid grid) {
+        Direction newDirection = this.direction.rotate(movement);
+        int[] newPos = newDirection.forward(this.posRow, this.posCol);
+        int[] newPosRight = newDirection.getFrontRight(this.posRow, this.posCol);
+        int[] newPosLeft = newDirection.getFrontLeft(this.posRow, this.posCol);
+        return !grid.isVirtualWall(newPos[0], newPos[1])
+                && grid.isExplored(newPos[0], newPos[1])
+                && !grid.isObstacle(newPos[0], newPos[1])
+                && grid.isExplored(newPosRight[0], newPosRight[1])
+                && !grid.isObstacle(newPosRight[0], newPosRight[1])
+                && grid.isExplored(newPosLeft[0], newPosLeft[1])
+                && !grid.isObstacle(newPosLeft[0], newPosLeft[1]);
+
+    }
+
     public int[] getRight() {
-        return direction.turnRight().forward(posRow, posCol);
+        return direction.getRight(posRow, posCol);
     }
 
     public int[] getLeft() {
-        return direction.turnLeft().forward(posRow, posCol);
+        return direction.getLeft(posRow, posCol);
     }
 
     public int[][] getHead() {
         int[] centerHead = direction.forward(posRow, posCol);
         int[] rightHead = direction.getFrontRight(posRow, posCol);
         int[] leftHead = direction.getFrontLeft(posRow, posCol);
-        return new int[][]{leftHead, rightHead, centerHead};
+        return new int[][]{leftHead, centerHead, rightHead};
     }
 
     public Direction getDirection() {

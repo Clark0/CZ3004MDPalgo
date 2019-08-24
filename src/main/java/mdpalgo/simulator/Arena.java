@@ -1,15 +1,15 @@
-package simulator;
+package mdpalgo.simulator;
 
-import constants.Direction;
-import constants.GraphicsConstants;
-import models.Grid;
-import models.Robot;
+import mdpalgo.constants.Direction;
+import mdpalgo.constants.GraphicsConstants;
+import mdpalgo.models.Grid;
+import mdpalgo.models.Robot;
 
 import javax.swing.*;
 import java.awt.*;
 
-import static models.Grid.ROWS;
-import static models.Grid.COLS;
+import static mdpalgo.models.Grid.ROWS;
+import static mdpalgo.models.Grid.COLS;
 
 
 public class Arena extends JPanel {
@@ -63,16 +63,16 @@ public class Arena extends JPanel {
         g.setColor(GraphicsConstants.C_ROBOT_DIR);
         Direction d = robot.getDirection();
         switch (d) {
-            case North:
+            case NORTH:
                 g.fillOval(c * GraphicsConstants.CELL_SIZE + 10 + GraphicsConstants.MAP_X_OFFSET, GraphicsConstants.MAP_H - r * GraphicsConstants.CELL_SIZE - 15, GraphicsConstants.ROBOT_DIR_W, GraphicsConstants.ROBOT_DIR_H);
                 break;
-            case East:
+            case EAST:
                 g.fillOval(c * GraphicsConstants.CELL_SIZE + 35 + GraphicsConstants.MAP_X_OFFSET, GraphicsConstants.MAP_H - r * GraphicsConstants.CELL_SIZE + 10, GraphicsConstants.ROBOT_DIR_W, GraphicsConstants.ROBOT_DIR_H);
                 break;
-            case Sorth:
+            case SOUTH:
                 g.fillOval(c * GraphicsConstants.CELL_SIZE + 10 + GraphicsConstants.MAP_X_OFFSET, GraphicsConstants.MAP_H - r * GraphicsConstants.CELL_SIZE + 35, GraphicsConstants.ROBOT_DIR_W, GraphicsConstants.ROBOT_DIR_H);
                 break;
-            case West:
+            case WEST:
                 g.fillOval(c * GraphicsConstants.CELL_SIZE - 15 + GraphicsConstants.MAP_X_OFFSET, GraphicsConstants.MAP_H - r * GraphicsConstants.CELL_SIZE + 10, GraphicsConstants.ROBOT_DIR_W, GraphicsConstants.ROBOT_DIR_H);
                 break;
         }
