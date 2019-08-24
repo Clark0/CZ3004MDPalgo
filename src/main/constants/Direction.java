@@ -55,7 +55,7 @@ public enum Direction {
     }
 
     public int[] forward(int x, int y, int step) {
-        return new int[]{x + deltaX, y + deltaY};
+        return new int[]{x + deltaX * step, y + deltaY * step};
     }
 
     public int[] forward(int x, int y) {

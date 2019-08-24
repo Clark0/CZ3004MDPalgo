@@ -22,6 +22,7 @@ public class Sensor {
 
             currentGrid.setExplored(x, y);
             if (realGrid.isObstacle(x, y)){
+                currentGrid.setObstacle(x, y);
                 return i;
             }
         }

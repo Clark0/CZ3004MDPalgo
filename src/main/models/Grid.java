@@ -7,6 +7,7 @@ public class Grid {
     private int rows;
     private int cols;
     private int[][] grid;
+    private int exploredCount;
 
     public static final int ROWS = 20;
     public static final int COLS = 15;
@@ -14,6 +15,7 @@ public class Grid {
     public static final int START_ROW = 1;
     public static final int START_COL = 1;
 
+    private static final int UNKNOWN = 0;
     private static final int EXPLORED = 1;
     private static final int OBSTACLE = 2;
     private static final int VIRTUAL_WALL = 3;
@@ -22,12 +24,14 @@ public class Grid {
         this.rows = ROWS;
         this.cols = COLS;
         this.grid = new int[rows][cols];
+        this.exploredCount = 0;
     }
 
     public Grid(int rows, int cols, int[][] grid) {
         this.rows = rows;
         this.cols = cols;
         this.grid = grid;
+        this.exploredCount = 0;
     }
 
     public static Grid loadGridFromFile(String fileName) {
@@ -41,6 +45,9 @@ public class Grid {
 
     public boolean setObstacle(int x, int y) {
         if (isValid(x, y)) {
+            if (!isExplored(x, y)) {
+                this.exploredCount++;
+            }
             this.grid[x][y] = OBSTACLE;
             return true;
         }
@@ -56,6 +63,9 @@ public class Grid {
 
     public boolean setExplored(int x, int y) {
         if (isValid(x, y)) {
+            if (!isExplored(x, y)) {
+                this.exploredCount++;
+            }
             this.grid[x][y] = EXPLORED;
             return true;
         }
@@ -77,5 +87,15 @@ public class Grid {
         return (row <= ROWS + 1 && row >= ROWS - 1 && col <= COLS + 1 && col >= COLS - 1);
     }
 
+    public int getCell(int i, int j) {
+        return grid[i][j];
+    }
 
+    public boolean isUnknown(int i, int j) {
+        return grid[i][j] == UNKNOWN;
+    }
+
+    public int countExplored() {
+        return this.exploredCount;
+    }
 }

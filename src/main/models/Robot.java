@@ -32,7 +32,7 @@ public class Robot {
 
     public void move(Movement movement, int steps) {
         this.direction = this.direction.rotate(movement);
-        int[] newPosition = this.direction.forward(posCol, posRow, steps);
+        int[] newPosition = this.direction.forward(posRow, posCol, steps);
         this.posRow = newPosition[0];
         this.posCol = newPosition[1];
     }
@@ -41,7 +41,7 @@ public class Robot {
         this.move(movement, 1);
     }
 
-    public int[] sensor(Grid currentGrid, Grid realGrid) {
+    public int[] sense(Grid currentGrid, Grid realGrid) {
         int[] result = new int[6];
         sensorRight.sense(posRow, posCol, direction.turnRight(), currentGrid, realGrid);
         sensorLeft.sense(posRow, posCol, direction.turnLeft(), currentGrid, realGrid);
