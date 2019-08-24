@@ -1,5 +1,6 @@
 package mdpalgo.utils;
 
+import mdpalgo.constants.Direction;
 import mdpalgo.models.Grid;
 import mdpalgo.models.Robot;
 
@@ -75,6 +76,23 @@ public class ArenaPrintUtil {
             System.out.print(s + " ");
         } else {
             System.out.print(s + "  ");
+        }
+    }
+
+    public static void printDirection(Direction direction) {
+        switch (direction) {
+            case NORTH:
+                print(">");
+                break;
+            case SOUTH:
+                print("<");
+                break;
+            case EAST:
+                print("V");
+                break;
+            case WEST:
+                print("^");
+                break;
         }
     }
 }

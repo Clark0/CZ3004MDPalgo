@@ -1,6 +1,5 @@
 package mdpalgo.algorithm;
 
-import mdpalgo.constants.Direction;
 import mdpalgo.constants.Movement;
 import mdpalgo.models.Grid;
 import mdpalgo.models.Robot;
@@ -32,7 +31,7 @@ public class Exploration {
             nextMove();
             System.out.println("Area explored" + currentGrid.countExplored());
             try {
-                Thread.sleep(500);
+                Thread.sleep(100);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

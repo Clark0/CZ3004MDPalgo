@@ -1,6 +1,7 @@
 package mdpalgo;
 
 import mdpalgo.algorithm.Exploration;
+import mdpalgo.algorithm.FastestPath;
 import mdpalgo.constants.Direction;
 import mdpalgo.models.Grid;
 import mdpalgo.models.Robot;
@@ -18,5 +19,7 @@ public class Main {
         int timeLimit = 60;
         Exploration exploration = new Exploration(currentGrid, realGrid, robot, timeLimit);
         exploration.explore();
+        FastestPath fastestPath = new FastestPath(currentGrid, realGrid, robot, Grid.START_ROW, Grid.START_COL);
+        fastestPath.findFastestPath();
     }
 }

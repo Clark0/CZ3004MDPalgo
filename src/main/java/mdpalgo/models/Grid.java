@@ -1,5 +1,6 @@
 package mdpalgo.models;
 
+import com.sun.rowset.internal.Row;
 import mdpalgo.utils.GridDescriptor;
 
 
@@ -15,6 +16,9 @@ public class Grid {
     public static final int GRID_SIZE = ROWS * COLS;
     public static final int START_ROW = 1;
     public static final int START_COL = 1;
+
+    public static final int GOAL_ROW = ROWS - 2;
+    public static final int GOAL_COL = COLS - 2;
 
     private static final int UNKNOWN = 0;
     private static final int EXPLORED = 1;
