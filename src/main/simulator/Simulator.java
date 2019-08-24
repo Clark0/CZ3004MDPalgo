@@ -19,6 +19,7 @@ public class Simulator {
 
     private static Grid realMap = null;              // real map
     private static Grid exploredMap = null;          // exploration map
+    private static Arena arena = null;
 
     private static int timeLimit = 3600;            // time limit
     private static int coverageLimit = 300;         // coverage limit
@@ -27,9 +28,8 @@ public class Simulator {
 
     public void simulate() {
         robot = new Robot(Grid.START_ROW, Grid.START_COL, Direction.Sorth);
-
         exploredMap = new Grid();
-        Arena arena = new Arena(exploredMap, robot);
+        arena = new Arena(exploredMap, robot);
 
         displayEverything();
 
@@ -69,10 +69,11 @@ public class Simulator {
     }
 
     private static void initMainLayout() {
+        // TODO
         if (!realRun) {
-            _mapCards.add(realMap, "REAL_MAP");
+            _mapCards.add(arena, "REAL_MAP");
         }
-        _mapCards.add(exploredMap, "EXPLORATION");
+        _mapCards.add(arena, "EXPLORATION");
 
         CardLayout cl = ((CardLayout) _mapCards.getLayout());
         if (!realRun) {
@@ -109,10 +110,10 @@ public class Simulator {
                     loadMapButton.addMouseListener(new MouseAdapter() {
                         public void mousePressed(MouseEvent e) {
                             loadMapDialog.setVisible(false);
-                            loadMapFromDisk(realMap, loadTF.getText());
+                            realMap = Grid.loadGridFromFile(loadTF.getText());
                             CardLayout cl = ((CardLayout) _mapCards.getLayout());
                             cl.show(_mapCards, "REAL_MAP");
-                            realMap.repaint();
+                            arena.repaint();
                         }
                     });
 
@@ -125,5 +126,176 @@ public class Simulator {
             _buttons.add(btn_LoadMap);
         }
 
+        // FastestPath Class for Multithreading
+        class FastestPath extends SwingWorker<Integer, String> {
+            @Override
+            protected Integer doInBackground() {
+                robot.setRobotPosition(Grid.START_ROW, Grid.START_COL);
+                arena.repaint();
+//
+//                if (realRun) {
+//                    while (true) {
+//                        System.out.println("Waiting for FP_START...");
+//                        String msg = comm.recvMsg();
+//                        if (msg.equals(CommMgr.FP_START)) break;
+//                    }
+//                }
+//
+//                FastestPathAlgo fastestPath;
+//                fastestPath = new FastestPathAlgo(exploredMap, bot);
+//
+//                fastestPath.runFastestPath(RobotConstants.GOAL_ROW, RobotConstants.GOAL_COL);
+//
+                return 222;
+            }
+        }
 
+        // Exploration Class for Multithreading
+        class Exploration extends SwingWorker<Integer, String> {
+            @Override
+            protected Integer doInBackground() throws Exception {
+//                int row, col;
+//
+//                row = RobotConstants.START_ROW;
+//                col = RobotConstants.START_COL;
+//
+//                bot.setRobotPos(row, col);
+//                exploredMap.repaint();
+//
+//                ExplorationAlgo exploration;
+//                exploration = new ExplorationAlgo(exploredMap, realMap, bot, coverageLimit, timeLimit);
+//
+//                if (realRun) {
+//                    CommMgr.getCommMgr().sendMsg(null, CommMgr.BOT_START);
+//                }
+//
+//                exploration.runExploration();
+//                generateMapDescriptor(exploredMap);
+//
+//                if (realRun) {
+//                    new FastestPath().execute();
+//                }
+//
+                return 111;
+            }
+        }
+
+        // Exploration Button
+        JButton btn_Exploration = new JButton("Exploration");
+        formatButton(btn_Exploration);
+        btn_Exploration.addMouseListener(new MouseAdapter() {
+            public void mousePressed(MouseEvent e) {
+                CardLayout cl = ((CardLayout) _mapCards.getLayout());
+                cl.show(_mapCards, "EXPLORATION");
+                new Exploration().execute();
+            }
+        });
+        _buttons.add(btn_Exploration);
+
+        // Fastest Path Button
+        JButton btn_FastestPath = new JButton("Fastest Path");
+        formatButton(btn_FastestPath);
+        btn_FastestPath.addMouseListener(new MouseAdapter() {
+            public void mousePressed(MouseEvent e) {
+                CardLayout cl = ((CardLayout) _mapCards.getLayout());
+                cl.show(_mapCards, "EXPLORATION");
+                new FastestPath().execute();
+            }
+        });
+        _buttons.add(btn_FastestPath);
+
+
+        // TimeExploration Class for Multithreading
+        class TimeExploration extends SwingWorker<Integer, String> {
+            @Override
+            protected Integer doInBackground() throws Exception {
+                robot.setRobotPosition(Grid.START_ROW, Grid.START_COL);
+                arena.repaint();
+
+//                ExplorationAlgo timeExplo = new ExplorationAlgo(exploredMap, realMap, bot, coverageLimit, timeLimit);
+//                timeExplo.runExploration();
+//
+//                generateMapDescriptor(exploredMap);
+
+                return 333;
+            }
+        }
+
+        // Time-limited Exploration Button
+        JButton btn_TimeExploration = new JButton("Time-Limited");
+        formatButton(btn_TimeExploration);
+        btn_TimeExploration.addMouseListener(new MouseAdapter() {
+            public void mousePressed(MouseEvent e) {
+                JDialog timeExploDialog = new JDialog(_appFrame, "Time-Limited Exploration", true);
+                timeExploDialog.setSize(400, 60);
+                timeExploDialog.setLayout(new FlowLayout());
+                final JTextField timeTF = new JTextField(5);
+                JButton timeSaveButton = new JButton("Run");
+
+                timeSaveButton.addMouseListener(new MouseAdapter() {
+                    public void mousePressed(MouseEvent e) {
+                        timeExploDialog.setVisible(false);
+                        String time = timeTF.getText();
+                        String[] timeArr = time.split(":");
+                        timeLimit = (Integer.parseInt(timeArr[0]) * 60) + Integer.parseInt(timeArr[1]);
+                        CardLayout cl = ((CardLayout) _mapCards.getLayout());
+                        cl.show(_mapCards, "EXPLORATION");
+                        new TimeExploration().execute();
+                    }
+                });
+
+                timeExploDialog.add(new JLabel("Time Limit (in MM:SS): "));
+                timeExploDialog.add(timeTF);
+                timeExploDialog.add(timeSaveButton);
+                timeExploDialog.setVisible(true);
+            }
+        });
+        _buttons.add(btn_TimeExploration);
+
+
+        // CoverageExploration Class for Multithreading
+        class CoverageExploration extends SwingWorker<Integer, String> {
+            @Override
+            protected Integer doInBackground() throws Exception {
+                robot.setRobotPosition(Grid.START_ROW, Grid.START_COL);
+                arena.repaint();
+//
+//                ExplorationAlgo coverageExplo = new ExplorationAlgo(exploredMap, realMap, bot, coverageLimit, timeLimit);
+//                coverageExplo.runExploration();
+//
+//                generateMapDescriptor(exploredMap);
+
+                return 444;
+            }
+        }
+
+        // Coverage-limited Exploration Button
+        JButton btn_CoverageExploration = new JButton("Coverage-Limited");
+        formatButton(btn_CoverageExploration);
+        btn_CoverageExploration.addMouseListener(new MouseAdapter() {
+            public void mousePressed(MouseEvent e) {
+                JDialog coverageExploDialog = new JDialog(_appFrame, "Coverage-Limited Exploration", true);
+                coverageExploDialog.setSize(400, 60);
+                coverageExploDialog.setLayout(new FlowLayout());
+                final JTextField coverageTF = new JTextField(5);
+                JButton coverageSaveButton = new JButton("Run");
+
+                coverageSaveButton.addMouseListener(new MouseAdapter() {
+                    public void mousePressed(MouseEvent e) {
+                        coverageExploDialog.setVisible(false);
+                        coverageLimit = (int) ((Integer.parseInt(coverageTF.getText())) * Grid.GRID_SIZE / 100.0);
+                        new CoverageExploration().execute();
+                        CardLayout cl = ((CardLayout) _mapCards.getLayout());
+                        cl.show(_mapCards, "EXPLORATION");
+                    }
+                });
+
+                coverageExploDialog.add(new JLabel("Coverage Limit (% of maze): "));
+                coverageExploDialog.add(coverageTF);
+                coverageExploDialog.add(coverageSaveButton);
+                coverageExploDialog.setVisible(true);
+            }
+        });
+        _buttons.add(btn_CoverageExploration);
     }
+}

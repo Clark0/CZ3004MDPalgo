@@ -79,4 +79,9 @@ public class Robot {
     public int getPosCol() {
         return posCol;
     }
+
+    public void setRobotPosition(int x, int y) {
+        this.posRow = x;
+        this.posCol = y;
+    }
 }

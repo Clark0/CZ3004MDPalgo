@@ -2,15 +2,15 @@ package models;
 
 import utils.GridDescriptor;
 
-import javax.swing.*;
 
-public class Grid extends JPanel {
+public class Grid {
     private int rows;
     private int cols;
     private int[][] grid;
 
     public static final int ROWS = 20;
     public static final int COLS = 15;
+    public static final int GRID_SIZE = ROWS * COLS;
     public static final int START_ROW = 1;
     public static final int START_COL = 1;
 
