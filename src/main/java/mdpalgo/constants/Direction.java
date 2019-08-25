@@ -25,12 +25,29 @@ public enum Direction {
         return null;
     }
 
-    public static int getDirectionDiff(Direction d1, Direction d2) {
-        int diff = Math.abs(d1.ordinal - d2.ordinal);
+    public static int getDirectionDiff(Direction currentDirection, Direction targetDirection) {
+        int diff = targetDirection.ordinal - currentDirection.ordinal;
         if (diff == 3)
             // 3 turns equals 1 turn
+            diff = -1;
+        else if (diff == -3)
             diff = 1;
         return diff;
+    }
+
+    public static Movement getMovementByDirections(Direction currentDirection, Direction targetDirection) {
+        int diff = getDirectionDiff(targetDirection, currentDirection);
+        switch (diff) {
+            case 1:
+                return Movement.RIGHT;
+            case -1:
+                return Movement.LEFT;
+            case 0:
+                return Movement.FORWARD;
+            case 2:
+                return Movement.BACKWARD;
+        }
+        throw new RuntimeException("Unexpected direction");
     }
 
     public Direction turnRight() {
@@ -65,6 +82,8 @@ public enum Direction {
                 return turnLeft();
             case RIGHT:
                 return turnRight();
+            case BACKWARD:
+                return turnRight().turnRight();
             default:
                 return this;
         }
@@ -88,10 +107,10 @@ public enum Direction {
         System.out.println(Direction.getDirectionByDelta(0, -1));
         System.out.println(Direction.getDirectionByDelta(-1, 0));
 
-        System.out.println(Direction.getDirectionDiff(Direction.NORTH, Direction.SOUTH));
-        System.out.println(Direction.getDirectionDiff(Direction.NORTH, Direction.EAST));
-        System.out.println(Direction.getDirectionDiff(Direction.NORTH, Direction.WEST));
-        System.out.println(Direction.getDirectionDiff(Direction.NORTH, Direction.NORTH));
+        System.out.println(Direction.getMovementByDirections(Direction.NORTH, Direction.SOUTH));
+        System.out.println(Direction.getMovementByDirections(Direction.NORTH, Direction.EAST));
+        System.out.println(Direction.getMovementByDirections(Direction.NORTH, Direction.WEST));
+        System.out.println(Direction.getMovementByDirections(Direction.NORTH, Direction.NORTH));
 
     }
 

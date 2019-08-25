@@ -30,17 +30,27 @@ public class Robot {
         }
     }
 
-    public void move(Movement movement, int steps) {
-        this.direction = this.direction.rotate(movement);
-        if (movement == Movement.FORWARD) {
-            int[] newPosition = this.direction.forward(posRow, posCol, steps);
-            this.posRow = newPosition[0];
-            this.posCol = newPosition[1];
+    public void move(Movement movement, int step) {
+        if (step <= 0) {
+            move(movement);
+            return;
         }
+
+        // Move the robot 'step' steps in any case
+        this.direction = this.direction.rotate(movement);
+        int[] newPosition = this.direction.forward(posRow, posCol, step);
+        this.posRow = newPosition[0];
+        this.posCol = newPosition[1];
     }
 
     public void move(Movement movement) {
-        this.move(movement, 1);
+        this.direction = this.direction.rotate(movement);
+        if (movement == Movement.FORWARD) {
+            // Only the Forward command will move the robot
+            int[] newPosition = this.direction.forward(posRow, posCol);
+            this.posRow = newPosition[0];
+            this.posCol = newPosition[1];
+        }
     }
 
     public int[] sense(Grid currentGrid, Grid realGrid) {

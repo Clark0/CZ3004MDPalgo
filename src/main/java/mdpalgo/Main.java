@@ -20,6 +20,6 @@ public class Main {
         Exploration exploration = new Exploration(currentGrid, realGrid, robot, timeLimit);
         exploration.explore();
         FastestPath fastestPath = new FastestPath(currentGrid, realGrid, robot, Grid.START_ROW, Grid.START_COL);
-        fastestPath.findFastestPath();
+        fastestPath.runFastestPath();
     }
 }

@@ -1,25 +1,28 @@
 package mdpalgo.algorithm;
 
 import mdpalgo.constants.Direction;
+import mdpalgo.constants.Movement;
 import mdpalgo.models.Grid;
 import mdpalgo.models.Robot;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.PriorityQueue;
-import java.util.Stack;
 
-import static mdpalgo.utils.ArenaPrintUtil.*;
+import static mdpalgo.utils.ArenaPrintUtil.printFastestPath;
 
 
 public class FastestPath {
     public class State implements Comparable<State> {
-        State parent = null;
-        int row;
-        int col;
+        public int row;
+        public int col;
+        public Direction direction;
         double heuristic;
         double cost;
-        Direction direction;
+        State parent = null;
+
 
         State(int row, int col, Direction direction) {
             this.row = row;
@@ -82,7 +85,7 @@ public class FastestPath {
     }
 
     private double calculateCost(Direction relativeDirection, State state) {
-        int directionDiff = Direction.getDirectionDiff(relativeDirection, state.direction);
+        int directionDiff = Math.abs(Direction.getDirectionDiff(relativeDirection, state.direction));
         return state.cost + directionDiff * TURN_COST + MOVE_COST;
     }
 
@@ -90,11 +93,18 @@ public class FastestPath {
         return state.row == this.goalRow && state.col == this.goalCol;
     }
 
-    private boolean reachable(int x, int y) {
+    private boolean reachable(int x, int y, Direction direction) {
+        int[] right = direction.getRight(x, y);
+        int[] left = direction.getLeft(x, y);
         return currentGrid.isValid(x, y)
                 && currentGrid.isExplored(x, y)
                 && !currentGrid.isObstacle(x, y)
-                && !currentGrid.isVirtualWall(x, y);
+                && !currentGrid.isVirtualWall(x, y)
+                && currentGrid.isExplored(right[0], right[1])
+                && !currentGrid.isObstacle(right[0], right[1])
+                && currentGrid.isExplored(left[0], left[1])
+                && !currentGrid.isObstacle(left[0], left[1]);
+
     }
 
     private boolean isVisited(int x, int y) {
@@ -110,19 +120,19 @@ public class FastestPath {
         for (int i = 0; i < neighbourX.length; i++) {
             int x = state.row + neighbourX[i];
             int y = state.col + neighbourY[i];
-            if (reachable(x, y)) {
+            Direction direction = Direction.getDirectionByDelta(neighbourX[i], neighbourY[i]);
+            if (reachable(x, y, direction)) {
                 neighbours.add(new State(x, y, state));
             }
         }
         return neighbours;
     }
 
-    public State findFastestPath() {
+    public List<State> findFastestPath() {
         while (!pq.isEmpty()) {
             State currentState = pq.poll();
             if (isGoalState(currentState)) {
-                printFastestPath(constructPath(currentState));
-                return currentState;
+                return constructPath(currentState);
             }
 
             List<State> neighbours = getNeighbours(currentState);
@@ -137,48 +147,49 @@ public class FastestPath {
         return null;
     }
 
-    public List<State> constructPath(State state) {
-        Stack<State> stateStack = new Stack<>();
+    public void runFastestPath() {
+        List<State> path = this.findFastestPath();
+        if (path == null) {
+            throw new RuntimeException("Unable to find the fastest path");
+        }
+        printFastestPath(path, this.currentGrid, this.robot);
+        executePath(path);
+    }
+
+    public void executePath(List<State> path) {
+        printFastestPath(path, currentGrid, robot);
+        for (State state : path) {
+            Direction direction = state.direction;
+            Movement movement = Direction.getMovementByDirections(direction, robot.getDirection());
+            // Move robot 1 step
+            robot.move(movement , 1);
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            printFastestPath(path, currentGrid, robot);
+        }
+    }
+
+    private List<State> constructPath(State state) {
+        List<State> states = new LinkedList<>();
         while (state != null) {
-            stateStack.push(state);
+            states.add(state);
             state = state.parent;
         }
-        return stateStack;
+        Collections.reverse(states);
+        // remove the initial state
+        states.remove(0);
+        return states;
     }
 
-    public void printFastestPath(List<State> states) {
-        for (int i = 0; i < Grid.ROWS + 1; i++) {
-            for (int j = 0; j < Grid.COLS + 1; j++) {
-                if (i == 0 && j == 0) {
-                    print(" ");
-                } else if (i == 0) {
-                    print(String.valueOf(j - 1));
-                } else if (j == 0) {
-                    print(String.valueOf(i - 1));
-                } else {
-                    boolean printed = false;
-                    for (State state : states) {
-                        if (state.row == i-1 && state.col == j-1) {
-                            printDirection(state.direction);
-                            printed = true;
-                        }
-                    }
-                    if (!printed)
-                        printCell(i-1, j-1, this.currentGrid);
-                }
-            }
 
-            System.out.println();
-        }
-
-        System.out.println();
-    }
 
     public static void main(String[] args) {
         Grid realGrid = Grid.loadGridFromFile("map1");
         Robot robot = new Robot(Grid.START_ROW, Grid.START_COL, Direction.NORTH);
         FastestPath fastestPath = new FastestPath(realGrid, realGrid, robot);
-        State state = fastestPath.findFastestPath();
-        System.out.println(state.row + " " + state.col);
+        fastestPath.runFastestPath();
     }
 }

@@ -1,8 +1,11 @@
 package mdpalgo.utils;
 
+import mdpalgo.algorithm.FastestPath;
 import mdpalgo.constants.Direction;
 import mdpalgo.models.Grid;
 import mdpalgo.models.Robot;
+
+import java.util.List;
 
 public class ArenaPrintUtil {
     public static void refreshArena(Grid grid, Robot robot) {
@@ -37,7 +40,47 @@ public class ArenaPrintUtil {
         System.out.println();
     }
 
+    public static void printFastestPath(List<FastestPath.State> states, Grid currentGrid) {
+        printFastestPath(states, currentGrid, null);
+    }
+
+
+    public static void printFastestPath(List<FastestPath.State> states, Grid grid, Robot robot) {
+        for (int i = 0; i < Grid.ROWS + 1; i++) {
+            for (int j = 0; j < Grid.COLS + 1; j++) {
+                if (i == 0 && j == 0) {
+                    print(" ");
+                } else if (i == 0) {
+                    print(String.valueOf(j - 1));
+                } else if (j == 0) {
+                    print(String.valueOf(i - 1));
+                } else {
+                    if (isRobotArea(i-1, j-1, robot)) {
+                        printCell(i-1, j-1, robot, grid);
+                    } else {
+                        boolean printed = false;
+                        for (FastestPath.State state : states) {
+                            if (state.row == i - 1 && state.col == j - 1) {
+                                printDirection(state.direction);
+                                printed = true;
+                            }
+                        }
+                        if (!printed) {
+                            printCell(i - 1, j - 1, robot, grid);
+                        }
+                    }
+                }
+            }
+
+            System.out.println();
+        }
+
+        System.out.println();
+    }
+
     public static boolean isRobotArea(int x, int y, Robot robot) {
+        if (robot == null)
+            return false;
         for (int i = robot.getPosRow() - 1; i <= robot.getPosRow()+1; i++) {
             for (int j = robot.getPosCol() - 1; j <= robot.getPosCol()+1; j++) {
                 if (x == i && y == j) {
