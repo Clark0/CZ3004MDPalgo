@@ -2,6 +2,7 @@ package mdpalgo.models;
 
 import mdpalgo.constants.Direction;
 import mdpalgo.constants.Movement;
+import mdpalgo.constants.RobotConstant;
 import mdpalgo.utils.Connection;
 import mdpalgo.utils.GridDescriptor;
 
@@ -10,8 +11,10 @@ public class Robot {
     private int posRow;
     private int posCol;
     private Direction direction;
+    private int speed;
     private Sensor[] sensorsFront;
-    private Sensor sensorLeft;
+    private Sensor sensorFrontLeft;
+    private Sensor sensorFrontRight;
     private Sensor sensorRight;
 
     private static final int SENSOR_SHORT_RANGE_L = 1;
@@ -23,13 +26,16 @@ public class Robot {
         this.posRow = row;
         this.posCol = col;
         this.direction = direction;
+        this.speed = RobotConstant.SPEED;
 
         sensorsFront = new Sensor[3];
-        sensorLeft = new Sensor(SENSOR_SHORT_RANGE_L, SENSOR_SHORT_RANGE_H);
+        sensorFrontLeft = new Sensor(SENSOR_SHORT_RANGE_L, SENSOR_SHORT_RANGE_H);
+        sensorFrontRight = new Sensor(SENSOR_SHORT_RANGE_L, SENSOR_SHORT_RANGE_H);
         sensorRight = new Sensor(SENSOR_SHORT_RANGE_L, SENSOR_SHORT_RANGE_H);
         for (int i = 0; i < 3; i++) {
             sensorsFront[i] = new Sensor(SENSOR_SHORT_RANGE_L, SENSOR_SHORT_RANGE_H);
         }
+
     }
 
     public void move(Movement movement, int step) {
@@ -39,7 +45,7 @@ public class Robot {
         }
 
         try {
-            Thread.sleep(500);
+            Thread.sleep(speed);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -53,7 +59,7 @@ public class Robot {
 
     public void move(Movement movement) {
         try {
-            Thread.sleep(500);
+            Thread.sleep(speed);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -67,10 +73,10 @@ public class Robot {
         }
     }
 
-    public int[] sense(Grid currentGrid, Grid realGrid) {
-        int[] result = new int[6];
-        sensorRight.sense(direction.getFrontRight(posRow, posCol), direction.turnRight(), currentGrid, realGrid);
-        sensorLeft.sense(direction.getFrontLeft(posRow, posCol), direction.turnLeft(), currentGrid, realGrid);
+    public void sense(Grid currentGrid, Grid realGrid) {
+        sensorFrontRight.sense(direction.getFrontRight(posRow, posCol), direction.turnRight(), currentGrid, realGrid);
+        sensorFrontLeft.sense(direction.getFrontLeft(posRow, posCol), direction.turnLeft(), currentGrid, realGrid);
+        sensorRight.sense(direction.getRight(posRow, posCol), direction.turnRight(), currentGrid, realGrid);
         int[][] head = getHead();
         for (int i = 0; i < 3; i++) {
             sensorsFront[i].sense(head[i], direction, currentGrid, realGrid);
@@ -80,7 +86,6 @@ public class Robot {
         String serializedMap = GridDescriptor.serializeGrid(currentGrid);
         connect.sendMsg(serializedMap, Connection.MAP);
 
-        return result;
     }
 
     public boolean isSafeMovement(Movement movement, Grid grid) {
@@ -132,5 +137,11 @@ public class Robot {
 
     public void setDirection(Direction d) {
         this.direction = d;
+    }
+
+    public void setSpeed(int speed) {this.speed = speed;}
+
+    public int getSpeed() {
+        return speed;
     }
 }

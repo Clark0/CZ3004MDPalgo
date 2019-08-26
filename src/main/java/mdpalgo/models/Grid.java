@@ -122,6 +122,10 @@ public class Grid {
             setObstacle(x, y);
     }
 
+    public double getCoverage() {
+        return (double) this.countExplored() / Grid.GRID_SIZE;
+    }
+
     public boolean isExplored(int x, int y) {
         return !isUnknown(x, y);
     }

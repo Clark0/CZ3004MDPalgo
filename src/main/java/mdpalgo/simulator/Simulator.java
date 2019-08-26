@@ -2,52 +2,52 @@ package mdpalgo.simulator;
 
 import mdpalgo.algorithm.Exploration;
 import mdpalgo.algorithm.FastestPath;
+import mdpalgo.constants.RobotConstant;
 import mdpalgo.models.Grid;
 import mdpalgo.models.Robot;
 import mdpalgo.constants.Direction;
-import mdpalgo.utils.GridDescriptor;
+import mdpalgo.utils.Connection;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.concurrent.TimeUnit;
 
 public class Simulator {
-    private static JFrame _appFrame = null;         // application JFrame
+    // JFrame
+    private static JFrame _appFrame = null; // application JFrame
+    private static JPanel _mapCards = null; // JPanel for map views
+    private static JPanel _buttons = null; // JPanel for buttons
 
-    private static JPanel _mapCards = null;         // JPanel for map views
-    private static JPanel _buttons = null;          // JPanel for buttons
+    private Arena arena;
+    private Grid realGrid;
+    private Grid currentGrid;
+    private Robot robot;
+    private Connection connection;
 
-    private static Robot robot;
+    private int timeLimit;
+    private int coverage;
 
-    private static Grid realMap = null;              // real map
-    private static Grid exploredMap = null;          // exploration map
-    private static Arena arena = null;
-
-    private static int timeLimit = 3600;            // time limit
-    private static int coverageLimit = 300;         // coverage limit
-
-    private static final boolean realRun = false;
-
-    public void simulate() {
+    public Simulator() {
+        currentGrid = Grid.initCurrentGrid();
         robot = new Robot(Grid.START_ROW, Grid.START_COL, Direction.NORTH);
-        exploredMap = Grid.initCurrentGrid();
-        arena = new Arena(exploredMap, robot);
-
-        displayEverything();
-
+        arena = new Arena(currentGrid, robot);
+        timeLimit = RobotConstant.TIME_LIMIT;
+        coverage = 100;
     }
 
-    private static void displayEverything() {
-        // Initialise main frame for display
+    public void simulate() {
+        // initialize main frame
         _appFrame = new JFrame();
-        _appFrame.setTitle("MDP Simulator");
+        _appFrame.setTitle("Robot Simulator");
         _appFrame.setSize(new Dimension(690, 700));
         _appFrame.setResizable(false);
 
         // Center the main frame in the middle of the screen
         Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-        _appFrame.setLocation(dim.width / 2 - _appFrame.getSize().width / 2, dim.height / 2 - _appFrame.getSize().height / 2);
+        _appFrame.setLocation(dim.width / 2 - _appFrame.getSize().width / 2,
+                dim.height / 2 - _appFrame.getSize().height / 2);
 
         // Create the CardLayout for storing the different maps
         _mapCards = new JPanel(new CardLayout());
@@ -62,128 +62,192 @@ public class Simulator {
 
         // Initialize the main map view
         initMainLayout();
-
-        // Initialize the buttons
         initButtonsLayout();
-
         // Display the application
         _appFrame.setVisible(true);
         _appFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     }
 
-    private static void initMainLayout() {
-        // TODO
-        if (!realRun) {
-            _mapCards.add(arena, "REAL_MAP");
-        }
-        _mapCards.add(arena, "EXPLORATION");
-
+    private void initMainLayout() {
         CardLayout cl = ((CardLayout) _mapCards.getLayout());
-        if (!realRun) {
-            cl.show(_mapCards, "REAL_MAP");
-        } else {
-            cl.show(_mapCards, "EXPLORATION");
-        }
+
+        _mapCards.add(arena, "EXPLORATION");
+        cl.show(_mapCards, "EXPLORATION");
     }
 
-    private static void initButtonsLayout() {
+    private void initButtonsLayout() {
         _buttons.setLayout(new GridLayout());
         addButtons();
     }
 
-    private static void formatButton(JButton btn) {
-        btn.setFont(new Font("Arial", Font.BOLD, 13));
-        btn.setFocusPainted(false);
-    }
+    private void addButtons() {
+        // Load Map Button
+        JButton btn_LoadMap = new JButton("Load Map");
+        formatButton(btn_LoadMap);
 
-    private static void addButtons() {
-        if (!realRun) {
-            // Load Map Button
-            JButton btn_LoadMap = new JButton("Load Map");
-            formatButton(btn_LoadMap);
-            btn_LoadMap.addMouseListener(new MouseAdapter() {
-                public void mousePressed(MouseEvent e) {
-                    JDialog loadMapDialog = new JDialog(_appFrame, "Load Map", true);
-                    loadMapDialog.setSize(400, 60);
-                    loadMapDialog.setLayout(new FlowLayout());
+        btn_LoadMap.addMouseListener(new MouseAdapter() {
+            public void mousePressed(MouseEvent e) {
+                // Center the main frame in the middle of the screen
+                Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+                JDialog loadMapDialog = new JDialog(_appFrame, "Load Map", true);
+                loadMapDialog.setSize(400, 100);
+                loadMapDialog.setResizable(false);
+                loadMapDialog.setResizable(false);
+                loadMapDialog.setLocation(dim.width / 2 - _appFrame.getSize().width / 2,
+                        dim.height / 2 - _appFrame.getSize().height / 2);
+                loadMapDialog.setLayout(new FlowLayout());
 
-                    final JTextField loadTF = new JTextField(15);
-                    JButton loadMapButton = new JButton("Load");
+                final JTextField loadTF = new JTextField(15);
+                JButton loadMapButton = new JButton("Load");
 
-                    loadMapButton.addMouseListener(new MouseAdapter() {
-                        public void mousePressed(MouseEvent e) {
-                            loadMapDialog.setVisible(false);
-                            realMap = Grid.loadGridFromFile(loadTF.getText());
-                            CardLayout cl = ((CardLayout) _mapCards.getLayout());
-                            cl.show(_mapCards, "REAL_MAP");
-                            arena.repaint();
-                        }
-                    });
+                loadMapButton.addMouseListener(new MouseAdapter() {
+                    public void mousePressed(MouseEvent e) {
+                        loadMapDialog.setVisible(false);
+                        realGrid = Grid.loadGridFromFile(loadTF.getText());
+                        CardLayout cl = ((CardLayout) _mapCards.getLayout());
+                        cl.show(_mapCards, "REAL_MAP");
 
-                    loadMapDialog.add(new JLabel("File Name: "));
-                    loadMapDialog.add(loadTF);
-                    loadMapDialog.add(loadMapButton);
-                    loadMapDialog.setVisible(true);
-                }
-            });
-            _buttons.add(btn_LoadMap);
-        }
+                        arena.repaint();
+                    }
+                });
 
-        // FastestPath Class for Multithreading
-        class FastestPathWorker extends SwingWorker<Integer, String> {
-            @Override
-            protected Integer doInBackground() {
-                arena.repaint();
-//                if (realRun) {
-//                    while (true) {
-//                        System.out.println("Waiting for FP_START...");
-//                        String msg = comm.recvMsg();
-//                        if (msg.equals(CommMgr.FP_START)) break;
-//                    }
-//                }
-//
-                FastestPath fastestPath = new FastestPath(arena, realMap, Grid.START_ROW, Grid.START_COL);
-                fastestPath.runFastestPath();
-
-                return 222;
+                loadMapDialog.add(new JLabel("File Name: "));
+                loadMapDialog.add(loadTF);
+                loadMapDialog.add(loadMapButton);
+                loadMapDialog.setVisible(true);
             }
-        }
+        });
+        _buttons.add(btn_LoadMap);
 
-        // Exploration Class for Multithreading
-        class ExplorationWorker extends SwingWorker<Integer, String> {
-            @Override
+        JButton btn_ChangeSpeed = new JButton("Change Speed");
+        this.formatButton(btn_ChangeSpeed);
+
+        btn_ChangeSpeed.addMouseListener(new MouseAdapter() {
+            public void mousePressed(MouseEvent e) {
+                Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+                JDialog changeSpeedDialog = new JDialog(_appFrame, "Change Speed", true);
+                changeSpeedDialog.setSize(400, 200);
+                changeSpeedDialog.setLayout(new GridLayout(0, 1));
+                changeSpeedDialog.setLocation(dim.width / 2 - _appFrame.getSize().width / 2,
+                        dim.height / 2 - _appFrame.getSize().height / 2);
+
+                final JTextField speedTF = new JTextField(15);
+                JButton changeSpeedButton = new JButton("Change Speed(ms in delay)");
+                JLabel currentSpeed = new JLabel("Current Speed: " + robot.getSpeed() + "ms\n");
+                currentSpeed.setVerticalTextPosition(JLabel.BOTTOM);
+
+                changeSpeedButton.addMouseListener(new MouseAdapter() {
+                    public void mousePressed(MouseEvent e) {
+                        changeSpeedDialog.setVisible(false);
+                        robot.setSpeed(Integer.parseInt(speedTF.getText()));
+                        changeSpeedDialog.dispose();
+                    }
+                });
+
+                changeSpeedDialog.add(new JLabel("Speed"));
+                changeSpeedDialog.add(speedTF);
+                changeSpeedDialog.add(currentSpeed);
+                changeSpeedDialog.add(changeSpeedButton);
+
+                changeSpeedDialog.setVisible(true);
+            }
+        });
+
+        _buttons.add(btn_ChangeSpeed);
+
+        // Set time limit for exploration
+        JButton btn_SetTimeLimit = new JButton("Time Limit");
+        formatButton(btn_SetTimeLimit);
+
+        btn_SetTimeLimit.addMouseListener(new MouseAdapter() {
+            public void mousePressed(MouseEvent e) {
+                Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+                JDialog changeTimeDialog = new JDialog(_appFrame, "Set Time Limit", true);
+                changeTimeDialog.setSize(400, 200);
+                changeTimeDialog.setLayout(new GridLayout(0, 1));
+                changeTimeDialog.setLocation(dim.width / 2 - _appFrame.getSize().width / 2,
+                        dim.height / 2 - _appFrame.getSize().height / 2);
+
+                final JTextField timeTF = new JTextField(15);
+                JButton changeTimeButton = new JButton("Set Time Limit(in min:sec)");
+                String curTimeLimit = "" + timeLimit;
+                JLabel currentTime = new JLabel(String.format("%d min:%d sec",
+                        TimeUnit.MILLISECONDS.toMinutes(Long.valueOf(curTimeLimit).longValue()),
+                        TimeUnit.MILLISECONDS.toSeconds(Long.valueOf(curTimeLimit).longValue()) - TimeUnit.MINUTES
+                                .toSeconds(TimeUnit.MILLISECONDS.toMinutes(Long.valueOf(curTimeLimit).longValue()))));
+
+                currentTime.setVerticalTextPosition(JLabel.BOTTOM);
+
+                changeTimeButton.addMouseListener(new MouseAdapter() {
+                    public void mousePressed(MouseEvent e) {
+                        changeTimeDialog.setVisible(false);
+                        String time = timeTF.getText();
+                        String[] timeArr = time.split(":");
+                        timeLimit = (Integer.parseInt(timeArr[0]) * 60000) + (Integer.parseInt(timeArr[1]) * 1000);
+                        changeTimeDialog.dispose();
+                    }
+                });
+
+                changeTimeDialog.add(new JLabel("Time Limit"));
+                changeTimeDialog.add(timeTF);
+                changeTimeDialog.add(currentTime);
+                changeTimeDialog.add(changeTimeButton);
+
+                changeTimeDialog.setVisible(true);
+            }
+        });
+
+        _buttons.add(btn_SetTimeLimit);
+
+        // Set coverage for exploration
+        JButton btn_SetCoverage = new JButton("Coverage");
+        formatButton(btn_SetCoverage);
+
+        btn_SetCoverage.addMouseListener(new MouseAdapter() {
+            public void mousePressed(MouseEvent e) {
+                Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+                JDialog coverageDialog = new JDialog(_appFrame, "Set Coverage Limit", true);
+                coverageDialog.setSize(400, 200);
+                coverageDialog.setLayout(new GridLayout(0, 1));
+                coverageDialog.setLocation(dim.width / 2 - _appFrame.getSize().width / 2,
+                        dim.height / 2 - _appFrame.getSize().height / 2);
+
+                final JTextField coverageTF = new JTextField(15);
+                JButton changeSpeedButton = new JButton("Set Coverage Limit(%)");
+                String curCoverage = String.valueOf(coverage);
+                JLabel currentCoverage = new JLabel("Current Coverage Limit: " + curCoverage + "%\n");
+                currentCoverage.setVerticalTextPosition(JLabel.BOTTOM);
+
+                changeSpeedButton.addMouseListener(new MouseAdapter() {
+                    public void mousePressed(MouseEvent e) {
+                        coverageDialog.setVisible(false);
+                        coverage = Integer.parseInt(coverageTF.getText());
+                        coverageDialog.dispose();
+                    }
+                });
+
+                coverageDialog.add(new JLabel("Coverage"));
+                coverageDialog.add(coverageTF);
+                coverageDialog.add(currentCoverage);
+                coverageDialog.add(changeSpeedButton);
+
+                coverageDialog.setVisible(true);
+            }
+        });
+
+        _buttons.add(btn_SetCoverage);
+
+        class FastestPathDisplay extends SwingWorker<Integer, String> {
             protected Integer doInBackground() throws Exception {
-                int row, col;
+                robot.setRobotPosition(Grid.START_ROW, Grid.START_COL);
+                robot.setDirection(RobotConstant.START_DIR);
 
-                row = Grid.START_ROW;
-                col = Grid.START_COL;
-
-                robot.setRobotPosition(row, col);
-                robot.setDirection(Direction.NORTH);
-                arena.repaint();
-
-                Exploration exploration = new Exploration(arena, realMap, timeLimit);
-
-                exploration.explore();
-                GridDescriptor.serializeGrid(exploredMap);
-
-                new FastestPathWorker().execute();
-
+                FastestPath fastestPath = new FastestPath(realGrid, robot, Grid.GOAL_ROW, Grid.GOAL_COL);
+                arena.update(realGrid, robot);
+                fastestPath.runFastestPath(arena);
                 return 111;
             }
         }
-
-        // Exploration Button
-        JButton btn_Exploration = new JButton("Exploration");
-        formatButton(btn_Exploration);
-        btn_Exploration.addMouseListener(new MouseAdapter() {
-            public void mousePressed(MouseEvent e) {
-                CardLayout cl = ((CardLayout) _mapCards.getLayout());
-                cl.show(_mapCards, "EXPLORATION");
-                new ExplorationWorker().execute();
-            }
-        });
-        _buttons.add(btn_Exploration);
 
         // Fastest Path Button
         JButton btn_FastestPath = new JButton("Fastest Path");
@@ -191,104 +255,43 @@ public class Simulator {
         btn_FastestPath.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e) {
                 CardLayout cl = ((CardLayout) _mapCards.getLayout());
-                cl.show(_mapCards, "EXPLORATION");
-                new FastestPathWorker().execute();
+                cl.show(_mapCards, "REAL_MAP");
+                new FastestPathDisplay().execute();
             }
         });
         _buttons.add(btn_FastestPath);
 
-
-        // TimeExploration Class for Multithreading
-        class TimeExploration extends SwingWorker<Integer, String> {
-            @Override
+        class ExplorationDisplay extends SwingWorker<Integer, String> {
             protected Integer doInBackground() throws Exception {
+                // for android test
+                // connection = Connection.getConnection();
+                // connection.openConnection();
                 robot.setRobotPosition(Grid.START_ROW, Grid.START_COL);
-                arena.repaint();
-
-//                ExplorationAlgo timeExplo = new ExplorationAlgo(exploredMap, realMap, bot, coverageLimit, timeLimit);
-//                timeExplo.runExploration();
-//
-//                generateMapDescriptor(exploredMap);
-
-                return 333;
+                currentGrid = Grid.initCurrentGrid();
+                arena.update(currentGrid, robot);
+                Exploration exploration = new Exploration(currentGrid, realGrid, robot, timeLimit, coverage);
+                exploration.explore(arena);
+                return 111;
             }
         }
 
-        // Time-limited Exploration Button
-        JButton btn_TimeExploration = new JButton("Time-Limited");
-        formatButton(btn_TimeExploration);
-        btn_TimeExploration.addMouseListener(new MouseAdapter() {
+        JButton btn_Exploration = new JButton("Exploration");
+        formatButton(btn_Exploration);
+        btn_Exploration.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e) {
-                JDialog timeExploDialog = new JDialog(_appFrame, "Time-Limited Exploration", true);
-                timeExploDialog.setSize(400, 60);
-                timeExploDialog.setLayout(new FlowLayout());
-                final JTextField timeTF = new JTextField(5);
-                JButton timeSaveButton = new JButton("Run");
-
-                timeSaveButton.addMouseListener(new MouseAdapter() {
-                    public void mousePressed(MouseEvent e) {
-                        timeExploDialog.setVisible(false);
-                        String time = timeTF.getText();
-                        String[] timeArr = time.split(":");
-                        timeLimit = (Integer.parseInt(timeArr[0]) * 60) + Integer.parseInt(timeArr[1]);
-                        CardLayout cl = ((CardLayout) _mapCards.getLayout());
-                        cl.show(_mapCards, "EXPLORATION");
-                        new TimeExploration().execute();
-                    }
-                });
-
-                timeExploDialog.add(new JLabel("Time Limit (in MM:SS): "));
-                timeExploDialog.add(timeTF);
-                timeExploDialog.add(timeSaveButton);
-                timeExploDialog.setVisible(true);
+                CardLayout cl = ((CardLayout) _mapCards.getLayout());
+                cl.show(_mapCards, "EXPLORATION");
+                System.out.println("exploration");
+                new ExplorationDisplay().execute();
             }
         });
-        _buttons.add(btn_TimeExploration);
+        _buttons.add(btn_Exploration);
 
+    }
 
-        // CoverageExploration Class for Multithreading
-        class CoverageExploration extends SwingWorker<Integer, String> {
-            @Override
-            protected Integer doInBackground() throws Exception {
-                robot.setRobotPosition(Grid.START_ROW, Grid.START_COL);
-                arena.repaint();
-//
-//                ExplorationAlgo coverageExplo = new ExplorationAlgo(exploredMap, realMap, bot, coverageLimit, timeLimit);
-//                coverageExplo.runExploration();
-//
-//                generateMapDescriptor(exploredMap);
-
-                return 444;
-            }
-        }
-
-        // Coverage-limited Exploration Button
-        JButton btn_CoverageExploration = new JButton("Coverage-Limited");
-        formatButton(btn_CoverageExploration);
-        btn_CoverageExploration.addMouseListener(new MouseAdapter() {
-            public void mousePressed(MouseEvent e) {
-                JDialog coverageExploDialog = new JDialog(_appFrame, "Coverage-Limited Exploration", true);
-                coverageExploDialog.setSize(400, 60);
-                coverageExploDialog.setLayout(new FlowLayout());
-                final JTextField coverageTF = new JTextField(5);
-                JButton coverageSaveButton = new JButton("Run");
-
-                coverageSaveButton.addMouseListener(new MouseAdapter() {
-                    public void mousePressed(MouseEvent e) {
-                        coverageExploDialog.setVisible(false);
-                        coverageLimit = (int) ((Integer.parseInt(coverageTF.getText())) * Grid.GRID_SIZE / 100.0);
-                        new CoverageExploration().execute();
-                        CardLayout cl = ((CardLayout) _mapCards.getLayout());
-                        cl.show(_mapCards, "EXPLORATION");
-                    }
-                });
-
-                coverageExploDialog.add(new JLabel("Coverage Limit (% of maze): "));
-                coverageExploDialog.add(coverageTF);
-                coverageExploDialog.add(coverageSaveButton);
-                coverageExploDialog.setVisible(true);
-            }
-        });
-        _buttons.add(btn_CoverageExploration);
+    // JButton Properties
+    private void formatButton(JButton btn) {
+        btn.setFont(new Font("Arial", Font.BOLD, 13));
+        btn.setFocusPainted(false);
     }
 }

@@ -24,6 +24,12 @@ public class Arena extends JPanel {
         path = null;
     }
 
+    public void update(Grid grid, Robot robot) {
+        this.grid = grid;
+        this.robot = robot;
+        path = null;
+    }
+
     private boolean onPath(int row, int col) {
         if (this.path == null)
             return false;

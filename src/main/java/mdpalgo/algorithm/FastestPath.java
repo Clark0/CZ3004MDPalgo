@@ -48,25 +48,23 @@ public class FastestPath {
         }
     }
 
+    private Arena arena;
     private Robot robot;
     private Grid currentGrid;
-    private Grid realGrid;
     private final int goalRow;
     private final int goalCol;
     private boolean[][] visited;
     PriorityQueue<State> pq;
-    private Arena arena;
 
     private static final int MOVE_COST = 10;
     private static final int TURN_COST = 10;
     private static final int[] neighbourX = new int[]{1, 0, -1, 0};
     private static final int[] neighbourY = new int[]{0, 1, 0, -1};
 
-    public FastestPath(Grid currentGrid, Grid realGrid, Robot robot, int goalRow, int goalCol) {
+    public FastestPath(Grid currentGrid, Robot robot, int goalRow, int goalCol) {
         this.goalRow = goalRow;
         this.goalCol = goalCol;
         this.currentGrid = currentGrid;
-        this.realGrid = realGrid;
         this.robot = robot;
         visited = new boolean[Grid.ROWS][Grid.COLS];
         pq = new PriorityQueue<>();
@@ -76,13 +74,8 @@ public class FastestPath {
         pq.offer(initState);
     }
 
-    public FastestPath(Grid currentGrid, Grid realGrid, Robot robot) {
-        this(currentGrid, realGrid, robot, Grid.GOAL_ROW, Grid.GOAL_COL);
-    }
-
-    public FastestPath(Arena arena, Grid realGrid, int goalRow, int goalCol) {
-        this(arena.getGrid(), realGrid, arena.getRobot(), goalRow, goalCol);
-        this.arena = arena;
+    public FastestPath(Grid currentGrid, Robot robot) {
+        this(currentGrid, robot, Grid.GOAL_ROW, Grid.GOAL_COL);
     }
 
     private double calculateHeuristic(int x, int y) {
@@ -154,27 +147,28 @@ public class FastestPath {
         return null;
     }
 
-    public void runFastestPath() {
+    public void runFastestPath(Arena arena) {
+        this.arena = arena;
         List<State> path = this.findFastestPath();
         if (path == null) {
             throw new RuntimeException("Unable to find the fastest path");
         }
-        arena.setPath(path);
-        printFastestPath(path, this.currentGrid, this.robot);
         executePath(path);
     }
 
     public void executePath(List<State> path) {
         printFastestPath(path, currentGrid, robot);
-        arena.repaint();
-
+        if (this.arena != null) {
+            arena.setPath(path);
+        }
+        refreshArena();
         for (State state : path) {
             Direction direction = state.direction;
             Movement movement = Direction.getMovementByDirections(direction, robot.getDirection());
             // Move robot 1 step
             robot.move(movement , 1);
             printFastestPath(path, currentGrid, robot);
-            arena.repaint();
+            refreshArena();
         }
     }
 
@@ -190,12 +184,15 @@ public class FastestPath {
         return states;
     }
 
-
+    private void refreshArena() {
+        if (this.arena != null)
+            arena.repaint();
+    }
 
     public static void main(String[] args) {
-        Grid realGrid = Grid.loadGridFromFile("map1");
+        Grid currentGrid = Grid.loadGridFromFile("map1");
         Robot robot = new Robot(Grid.START_ROW, Grid.START_COL, Direction.NORTH);
-        FastestPath fastestPath = new FastestPath(realGrid, realGrid, robot);
-        fastestPath.runFastestPath();
+        FastestPath fastestPath = new FastestPath(currentGrid, robot, Grid.GOAL_ROW, Grid.GOAL_COL);
+        fastestPath.runFastestPath(null);
     }
 }

@@ -13,59 +13,60 @@ public class Exploration {
     private Robot robot;
     private Movement preMovement;
     private int timeLimit;
+    private int coverage;
     private Arena arena;
 
-    public Exploration(Grid currentGrid, Grid realGrid, Robot robot, int timeLimit) {
+    public Exploration(Grid currentGrid, Grid realGrid, Robot robot, int timeLimit, int coverage) {
         this.currentGrid = currentGrid;
         this.realGrid = realGrid;
         this.robot = robot;
         this.preMovement = null;
         this.timeLimit = timeLimit;
+        this.coverage = coverage;
     }
 
-    public Exploration(Arena arena, Grid realGrid, int timeLimit) {
-        this.currentGrid = arena.getGrid();
-        this.realGrid = realGrid;
-        this.robot = arena.getRobot();
-        this.preMovement = null;
-        this.timeLimit = timeLimit;
-        this.arena = arena;
-    }
-
-    public void explore() {
+    public void explore(Arena arena) {
         long startTime = System.currentTimeMillis();
         long endTime = startTime + timeLimit * 1000;
-        while (currentGrid.countExplored() < Grid.GRID_SIZE
+        this.arena = arena;
+        while (currentGrid.countExplored() * 1.0 / Grid.GRID_SIZE < coverage / 100.0
                 && System.currentTimeMillis() < endTime) {
             robot.sense(currentGrid, realGrid);
             refreshArena(currentGrid, robot);
             nextMove();
             System.out.println("Area explored" + currentGrid.countExplored());
         }
+        returnStart();
+    }
+
+    public void returnStart() {
+        FastestPath returnStartPath = new FastestPath(currentGrid, robot, Grid.START_ROW, Grid.START_COL);
+        returnStartPath.runFastestPath(arena);
+    }
+
+    private void moveRobot(Movement movement) {
+        robot.move(movement);
+        preMovement = movement;
+        if (arena != null)
+            arena.repaint();
     }
 
     private void nextMove() {
         if (robot.isSafeMovement(Movement.RIGHT, currentGrid)) {
-            robot.move(Movement.RIGHT);
-            preMovement = Movement.RIGHT;
+            moveRobot(Movement.RIGHT);
             if (robot.isSafeMovement(Movement.FORWARD, currentGrid)) {
-                robot.move(Movement.FORWARD);
-                preMovement = Movement.FORWARD;
+                moveRobot(Movement.FORWARD);
             }
         } else if (robot.isSafeMovement(Movement.FORWARD, currentGrid)) {
-            robot.move(Movement.FORWARD);
-            preMovement = Movement.FORWARD;
+            moveRobot(Movement.FORWARD);
         } else if (robot.isSafeMovement(Movement.LEFT, currentGrid)) {
-            robot.move(Movement.LEFT);
-            preMovement = Movement.LEFT;
+            moveRobot(Movement.LEFT);
             if (robot.isSafeMovement(Movement.FORWARD, currentGrid)) {
-                robot.move(Movement.FORWARD);
-                preMovement = Movement.FORWARD;
+                moveRobot(Movement.FORWARD);
             }
         } else {
-            robot.move(Movement.RIGHT, 0);
-            robot.move(Movement.RIGHT, 0);
+            moveRobot(Movement.RIGHT);
+            moveRobot(Movement.RIGHT);
         }
-        arena.repaint();
     }
 }
