@@ -30,6 +30,27 @@ public class GridDescriptor {
         return grid;
     }
 
+    public static String serializeGrid(Grid grid) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < Grid.ROWS; i++) {
+            for (int j = 0; j < Grid.COLS; j++) {
+                sb.append(grid.getCell(i, j));
+            }
+        }
+
+        return sb.toString();
+    }
+
+    private static Grid unserializeGrid(String serialized) {
+        Grid grid = Grid.initCurrentGrid();
+        for (int i = Grid.ROWS - 1; i >= 0; i--) {
+            for (int j = Grid.COLS - 1; j >= 0; j--) {
+                grid.setCell(i, j, serialized.charAt(i * Grid.COLS + j));
+            }
+        }
+        return grid;
+    }
+
     public static void main(String[] args) {
         ArenaPrintUtil.printArena(Grid.loadGridFromFile("map1"));
     }

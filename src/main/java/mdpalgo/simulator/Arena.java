@@ -1,5 +1,6 @@
 package mdpalgo.simulator;
 
+import mdpalgo.algorithm.FastestPath;
 import mdpalgo.constants.Direction;
 import mdpalgo.constants.GraphicsConstants;
 import mdpalgo.models.Grid;
@@ -15,10 +16,27 @@ import static mdpalgo.models.Grid.COLS;
 public class Arena extends JPanel {
     private Grid grid;
     private Robot robot;
+    private java.util.List<FastestPath.State> path;
 
     public Arena(Grid grid, Robot robot) {
         this.grid = grid;
         this.robot = robot;
+        path = null;
+    }
+
+    private boolean onPath(int row, int col) {
+        if (this.path == null)
+            return false;
+        for (FastestPath.State state : this.path) {
+            if (state.row == row && state.col == col) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void setPath(java.util.List<FastestPath.State> path) {
+        this.path = path;
     }
 
     @Override
@@ -36,13 +54,15 @@ public class Arena extends JPanel {
 
                 if (grid.inStartZone(mapRow, mapCol))
                     cellColor = GraphicsConstants.C_START;
-                else if (grid.inGoalZone(mapRow, mapCol))
-                    cellColor = GraphicsConstants.C_GOAL;
                 else {
                     if (!grid.isExplored(mapRow, mapCol))
                         cellColor = GraphicsConstants.C_UNEXPLORED;
                     else if (grid.isObstacle(mapRow, mapCol))
                         cellColor = GraphicsConstants.C_OBSTACLE;
+                    else if (onPath(mapRow, mapCol))
+                        cellColor = GraphicsConstants.C_PATH;
+                    else if (grid.inGoalZone(mapRow, mapCol))
+                        cellColor = GraphicsConstants.C_GOAL;
                     else
                         cellColor = GraphicsConstants.C_FREE;
                 }
@@ -63,16 +83,16 @@ public class Arena extends JPanel {
         g.setColor(GraphicsConstants.C_ROBOT_DIR);
         Direction d = robot.getDirection();
         switch (d) {
-            case NORTH:
+            case EAST:
                 g.fillOval(c * GraphicsConstants.CELL_SIZE + 10 + GraphicsConstants.MAP_X_OFFSET, GraphicsConstants.MAP_H - r * GraphicsConstants.CELL_SIZE - 15, GraphicsConstants.ROBOT_DIR_W, GraphicsConstants.ROBOT_DIR_H);
                 break;
-            case EAST:
+            case NORTH:
                 g.fillOval(c * GraphicsConstants.CELL_SIZE + 35 + GraphicsConstants.MAP_X_OFFSET, GraphicsConstants.MAP_H - r * GraphicsConstants.CELL_SIZE + 10, GraphicsConstants.ROBOT_DIR_W, GraphicsConstants.ROBOT_DIR_H);
                 break;
-            case SOUTH:
+            case WEST:
                 g.fillOval(c * GraphicsConstants.CELL_SIZE + 10 + GraphicsConstants.MAP_X_OFFSET, GraphicsConstants.MAP_H - r * GraphicsConstants.CELL_SIZE + 35, GraphicsConstants.ROBOT_DIR_W, GraphicsConstants.ROBOT_DIR_H);
                 break;
-            case WEST:
+            case SOUTH:
                 g.fillOval(c * GraphicsConstants.CELL_SIZE - 15 + GraphicsConstants.MAP_X_OFFSET, GraphicsConstants.MAP_H - r * GraphicsConstants.CELL_SIZE + 10, GraphicsConstants.ROBOT_DIR_W, GraphicsConstants.ROBOT_DIR_H);
                 break;
         }
@@ -88,5 +108,13 @@ public class Arena extends JPanel {
             this.cellY = GraphicsConstants.MAP_H - (borderY - GraphicsConstants.CELL_LINE_WEIGHT);
             this.cellSize = borderSize - (GraphicsConstants.CELL_LINE_WEIGHT * 2);
         }
+    }
+
+    public Grid getGrid() {
+        return grid;
+    }
+
+    public Robot getRobot() {
+        return robot;
     }
 }

@@ -2,6 +2,8 @@ package mdpalgo.models;
 
 import mdpalgo.constants.Direction;
 import mdpalgo.constants.Movement;
+import mdpalgo.utils.Connection;
+import mdpalgo.utils.GridDescriptor;
 
 
 public class Robot {
@@ -36,6 +38,12 @@ public class Robot {
             return;
         }
 
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
         // Move the robot 'step' steps in any case
         this.direction = this.direction.rotate(movement);
         int[] newPosition = this.direction.forward(posRow, posCol, step);
@@ -44,6 +52,12 @@ public class Robot {
     }
 
     public void move(Movement movement) {
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
         this.direction = this.direction.rotate(movement);
         if (movement == Movement.FORWARD) {
             // Only the Forward command will move the robot
@@ -61,6 +75,10 @@ public class Robot {
         for (int i = 0; i < 3; i++) {
             sensorsFront[i].sense(head[i], direction, currentGrid, realGrid);
         }
+
+        Connection connect = Connection.getConnection();
+        String serializedMap = GridDescriptor.serializeGrid(currentGrid);
+        connect.sendMsg(serializedMap, Connection.MAP);
 
         return result;
     }
@@ -110,5 +128,9 @@ public class Robot {
     public void setRobotPosition(int x, int y) {
         this.posRow = x;
         this.posCol = y;
+    }
+
+    public void setDirection(Direction d) {
+        this.direction = d;
     }
 }

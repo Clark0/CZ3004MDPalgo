@@ -1,8 +1,11 @@
 package mdpalgo.simulator;
 
+import mdpalgo.algorithm.Exploration;
+import mdpalgo.algorithm.FastestPath;
 import mdpalgo.models.Grid;
 import mdpalgo.models.Robot;
 import mdpalgo.constants.Direction;
+import mdpalgo.utils.GridDescriptor;
 
 import javax.swing.*;
 import java.awt.*;
@@ -27,7 +30,7 @@ public class Simulator {
     private static final boolean realRun = false;
 
     public void simulate() {
-        robot = new Robot(Grid.START_ROW, Grid.START_COL, Direction.SOUTH);
+        robot = new Robot(Grid.START_ROW, Grid.START_COL, Direction.NORTH);
         exploredMap = Grid.initCurrentGrid();
         arena = new Arena(exploredMap, robot);
 
@@ -127,12 +130,10 @@ public class Simulator {
         }
 
         // FastestPath Class for Multithreading
-        class FastestPath extends SwingWorker<Integer, String> {
+        class FastestPathWorker extends SwingWorker<Integer, String> {
             @Override
             protected Integer doInBackground() {
-                robot.setRobotPosition(Grid.START_ROW, Grid.START_COL);
                 arena.repaint();
-//
 //                if (realRun) {
 //                    while (true) {
 //                        System.out.println("Waiting for FP_START...");
@@ -141,41 +142,33 @@ public class Simulator {
 //                    }
 //                }
 //
-//                FastestPathAlgo fastestPath;
-//                fastestPath = new FastestPathAlgo(exploredMap, bot);
-//
-//                fastestPath.runFastestPath(RobotConstants.GOAL_ROW, RobotConstants.GOAL_COL);
-//
+                FastestPath fastestPath = new FastestPath(arena, realMap, Grid.START_ROW, Grid.START_COL);
+                fastestPath.runFastestPath();
+
                 return 222;
             }
         }
 
         // Exploration Class for Multithreading
-        class Exploration extends SwingWorker<Integer, String> {
+        class ExplorationWorker extends SwingWorker<Integer, String> {
             @Override
             protected Integer doInBackground() throws Exception {
-//                int row, col;
-//
-//                row = RobotConstants.START_ROW;
-//                col = RobotConstants.START_COL;
-//
-//                bot.setRobotPos(row, col);
-//                exploredMap.repaint();
-//
-//                ExplorationAlgo exploration;
-//                exploration = new ExplorationAlgo(exploredMap, realMap, bot, coverageLimit, timeLimit);
-//
-//                if (realRun) {
-//                    CommMgr.getCommMgr().sendMsg(null, CommMgr.BOT_START);
-//                }
-//
-//                exploration.runExploration();
-//                generateMapDescriptor(exploredMap);
-//
-//                if (realRun) {
-//                    new FastestPath().execute();
-//                }
-//
+                int row, col;
+
+                row = Grid.START_ROW;
+                col = Grid.START_COL;
+
+                robot.setRobotPosition(row, col);
+                robot.setDirection(Direction.NORTH);
+                arena.repaint();
+
+                Exploration exploration = new Exploration(arena, realMap, timeLimit);
+
+                exploration.explore();
+                GridDescriptor.serializeGrid(exploredMap);
+
+                new FastestPathWorker().execute();
+
                 return 111;
             }
         }
@@ -187,7 +180,7 @@ public class Simulator {
             public void mousePressed(MouseEvent e) {
                 CardLayout cl = ((CardLayout) _mapCards.getLayout());
                 cl.show(_mapCards, "EXPLORATION");
-                new Exploration().execute();
+                new ExplorationWorker().execute();
             }
         });
         _buttons.add(btn_Exploration);
@@ -199,7 +192,7 @@ public class Simulator {
             public void mousePressed(MouseEvent e) {
                 CardLayout cl = ((CardLayout) _mapCards.getLayout());
                 cl.show(_mapCards, "EXPLORATION");
-                new FastestPath().execute();
+                new FastestPathWorker().execute();
             }
         });
         _buttons.add(btn_FastestPath);

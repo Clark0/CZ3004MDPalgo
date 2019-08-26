@@ -9,7 +9,7 @@ import java.util.List;
 
 public class ArenaPrintUtil {
     public static void refreshArena(Grid grid, Robot robot) {
-        System.out.print('\u000C');
+        System.out.print("\033[H\033[2J");
         printArena(grid, robot);
     }
 

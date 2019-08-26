@@ -3,6 +3,7 @@ package mdpalgo.algorithm;
 import mdpalgo.constants.Movement;
 import mdpalgo.models.Grid;
 import mdpalgo.models.Robot;
+import mdpalgo.simulator.Arena;
 
 import static mdpalgo.utils.ArenaPrintUtil.refreshArena;
 
@@ -12,6 +13,7 @@ public class Exploration {
     private Robot robot;
     private Movement preMovement;
     private int timeLimit;
+    private Arena arena;
 
     public Exploration(Grid currentGrid, Grid realGrid, Robot robot, int timeLimit) {
         this.currentGrid = currentGrid;
@@ -19,6 +21,15 @@ public class Exploration {
         this.robot = robot;
         this.preMovement = null;
         this.timeLimit = timeLimit;
+    }
+
+    public Exploration(Arena arena, Grid realGrid, int timeLimit) {
+        this.currentGrid = arena.getGrid();
+        this.realGrid = realGrid;
+        this.robot = arena.getRobot();
+        this.preMovement = null;
+        this.timeLimit = timeLimit;
+        this.arena = arena;
     }
 
     public void explore() {
@@ -30,11 +41,6 @@ public class Exploration {
             refreshArena(currentGrid, robot);
             nextMove();
             System.out.println("Area explored" + currentGrid.countExplored());
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
         }
     }
 
@@ -60,6 +66,6 @@ public class Exploration {
             robot.move(Movement.RIGHT, 0);
             robot.move(Movement.RIGHT, 0);
         }
-
+        arena.repaint();
     }
 }

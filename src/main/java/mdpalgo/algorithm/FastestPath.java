@@ -4,6 +4,7 @@ import mdpalgo.constants.Direction;
 import mdpalgo.constants.Movement;
 import mdpalgo.models.Grid;
 import mdpalgo.models.Robot;
+import mdpalgo.simulator.Arena;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -54,6 +55,7 @@ public class FastestPath {
     private final int goalCol;
     private boolean[][] visited;
     PriorityQueue<State> pq;
+    private Arena arena;
 
     private static final int MOVE_COST = 10;
     private static final int TURN_COST = 10;
@@ -76,6 +78,11 @@ public class FastestPath {
 
     public FastestPath(Grid currentGrid, Grid realGrid, Robot robot) {
         this(currentGrid, realGrid, robot, Grid.GOAL_ROW, Grid.GOAL_COL);
+    }
+
+    public FastestPath(Arena arena, Grid realGrid, int goalRow, int goalCol) {
+        this(arena.getGrid(), realGrid, arena.getRobot(), goalRow, goalCol);
+        this.arena = arena;
     }
 
     private double calculateHeuristic(int x, int y) {
@@ -152,23 +159,22 @@ public class FastestPath {
         if (path == null) {
             throw new RuntimeException("Unable to find the fastest path");
         }
+        arena.setPath(path);
         printFastestPath(path, this.currentGrid, this.robot);
         executePath(path);
     }
 
     public void executePath(List<State> path) {
         printFastestPath(path, currentGrid, robot);
+        arena.repaint();
+
         for (State state : path) {
             Direction direction = state.direction;
             Movement movement = Direction.getMovementByDirections(direction, robot.getDirection());
             // Move robot 1 step
             robot.move(movement , 1);
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
             printFastestPath(path, currentGrid, robot);
+            arena.repaint();
         }
     }
 

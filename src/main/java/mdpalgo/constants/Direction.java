@@ -100,18 +100,4 @@ public enum Direction {
     public int[] forward(int x, int y) {
         return forward(x, y, 1);
     }
-
-    public static void main(String[] args) {
-        System.out.println(Direction.getDirectionByDelta(0, 1));
-        System.out.println(Direction.getDirectionByDelta(1, 0));
-        System.out.println(Direction.getDirectionByDelta(0, -1));
-        System.out.println(Direction.getDirectionByDelta(-1, 0));
-
-        System.out.println(Direction.getMovementByDirections(Direction.NORTH, Direction.SOUTH));
-        System.out.println(Direction.getMovementByDirections(Direction.NORTH, Direction.EAST));
-        System.out.println(Direction.getMovementByDirections(Direction.NORTH, Direction.WEST));
-        System.out.println(Direction.getMovementByDirections(Direction.NORTH, Direction.NORTH));
-
-    }
-
 }

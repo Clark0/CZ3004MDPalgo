@@ -74,11 +74,11 @@ public class Grid {
     }
 
     public boolean inStartZone(int x, int y) {
-        return x >= 0 && x <= 2 && y >= 0 && y <= 2;
+        return x >= START_ROW - 1 && x <= START_ROW + 1 && y >= START_ROW - 1 && y <= START_COL + 1;
     }
 
     public boolean inGoalZone(int row, int col) {
-        return (row <= ROWS + 1 && row >= ROWS - 1 && col <= COLS + 1 && col >= COLS - 1);
+        return (row <= GOAL_ROW + 1 && row >= GOAL_ROW - 1 && col <= GOAL_COL + 1 && col >= GOAL_COL - 1);
     }
 
     public void setObstacle(int x, int y) {
@@ -106,12 +106,32 @@ public class Grid {
         this.grid[x][y] = EXPLORED;
     }
 
+    public void markExplored(int x, int y, boolean explored) {
+        if (explored) {
+            this.setExplored(x, y);
+        } else {
+          if (isExplored(x, y)) {
+              this.exploredCount--;
+          }
+          this.grid[x][y] = UNKNOWN;
+        }
+    }
+
+    public void markObstacle(int x, int y, boolean isObstacle) {
+        if (isObstacle)
+            setObstacle(x, y);
+    }
+
     public boolean isExplored(int x, int y) {
         return !isUnknown(x, y);
     }
 
     public int getCell(int i, int j) {
         return grid[i][j];
+    }
+
+    public void setCell(int i, int j, int value) {
+        grid[i][j] = value;
     }
 
     public boolean isUnknown(int i, int j) {
