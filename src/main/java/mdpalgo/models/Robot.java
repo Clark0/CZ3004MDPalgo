@@ -15,7 +15,7 @@ public class Robot {
     private Sensor[] sensorsFront;
     private Sensor sensorFrontLeft;
     private Sensor sensorFrontRight;
-    private Sensor sensorRight;
+    private Sensor sensorLeft;
 
     private static final int SENSOR_SHORT_RANGE_L = 1;
     private static final int SENSOR_SHORT_RANGE_H = 2;
@@ -31,7 +31,7 @@ public class Robot {
         sensorsFront = new Sensor[3];
         sensorFrontLeft = new Sensor(SENSOR_SHORT_RANGE_L, SENSOR_SHORT_RANGE_H);
         sensorFrontRight = new Sensor(SENSOR_SHORT_RANGE_L, SENSOR_SHORT_RANGE_H);
-        sensorRight = new Sensor(SENSOR_SHORT_RANGE_L, SENSOR_SHORT_RANGE_H);
+        sensorLeft = new Sensor(SENSOR_LONG_RANGE_L, SENSOR_LONG_RANGE_H);
         for (int i = 0; i < 3; i++) {
             sensorsFront[i] = new Sensor(SENSOR_SHORT_RANGE_L, SENSOR_SHORT_RANGE_H);
         }
@@ -76,7 +76,7 @@ public class Robot {
     public void sense(Grid currentGrid, Grid realGrid) {
         sensorFrontRight.sense(direction.getFrontRight(posRow, posCol), direction.turnRight(), currentGrid, realGrid);
         sensorFrontLeft.sense(direction.getFrontLeft(posRow, posCol), direction.turnLeft(), currentGrid, realGrid);
-        sensorRight.sense(direction.getRight(posRow, posCol), direction.turnRight(), currentGrid, realGrid);
+        sensorLeft.sense(direction.getLeft(posRow, posCol), direction.turnLeft(), currentGrid, realGrid);
         int[][] head = getHead();
         for (int i = 0; i < 3; i++) {
             sensorsFront[i].sense(head[i], direction, currentGrid, realGrid);

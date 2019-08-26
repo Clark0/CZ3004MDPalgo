@@ -11,8 +11,8 @@ public class Grid {
     private boolean[][] virtualWall;
     private int exploredCount;
 
-    public static final int ROWS = 20;
-    public static final int COLS = 15;
+    public static final int ROWS = 15;
+    public static final int COLS = 20;
     public static final int GRID_SIZE = ROWS * COLS;
     public static final int START_ROW = 1;
     public static final int START_COL = 1;
@@ -24,7 +24,7 @@ public class Grid {
     private static final int EXPLORED = 1;
     private static final int OBSTACLE = 2;
 
-    private Grid() {
+    public Grid() {
         this.rows = ROWS;
         this.cols = COLS;
         this.grid = new int[rows][cols];
@@ -32,17 +32,9 @@ public class Grid {
         initVirtualWall();
     }
 
-    private Grid(int rows, int cols, int[][] grid) {
-        this.rows = rows;
-        this.cols = cols;
-        this.grid = grid;
-        this.virtualWall = new boolean[rows][cols];
-        this.exploredCount = 0;
-        initVirtualWall();
-    }
-
     public static Grid initCurrentGrid() {
         Grid grid = new Grid();
+        // initialize start zone
         for (int row = START_ROW - 1; row <= START_ROW + 1; row++) {
             for (int col = START_COL - 1; col <= START_COL + 1; col++) {
                 grid.setExplored(row, col);
@@ -52,11 +44,11 @@ public class Grid {
     }
 
     public static Grid loadGridFromFile(String fileName) {
-        int[][] grid = GridDescriptor.loadGrid(fileName);
-        return new Grid(ROWS, COLS, grid);
+        Grid grid = GridDescriptor.loadGrid(fileName);
+        return grid;
     }
 
-    private void initVirtualWall() {
+    public void initVirtualWall() {
         this.virtualWall = new boolean[ROWS][COLS];
         for (int i = 0; i < ROWS; i++) {
             this.setVirtualWall(i, 0);
@@ -87,7 +79,7 @@ public class Grid {
         }
         this.grid[x][y] = OBSTACLE;
         for (int i = x - 1; i <= x + 1; i++) {
-            for (int j = y - 1; j <= y+1; j++) {
+            for (int j = y - 1; j <= y + 1; j++) {
                 if (isValid(i, j)) {
                     this.setVirtualWall(i, j);
                 }

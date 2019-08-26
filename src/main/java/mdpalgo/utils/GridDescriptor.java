@@ -12,16 +12,21 @@ import java.util.List;
 
 public class GridDescriptor {
     private static final String MAPS_DIR = "maps/";
-    public static int[][] loadGrid(String filename) {
-        int[][] grid = new int[Grid.ROWS][Grid.COLS];
+    // should not call directly; virtual wall is not
+    public static Grid loadGrid(String filename) {
+        Grid grid = Grid.initCurrentGrid();
         ClassLoader classLoader = ClassLoader.getSystemClassLoader();
         try {
             Path path = Paths.get(classLoader.getResource(MAPS_DIR + filename + ".txt").toURI());
             List<String> lines = Files.readAllLines(path, StandardCharsets.UTF_8);
-//            System.out.println(lines.get(0) + "\n" + lines.get(1) + "\n" + lines.get(2));
-            for (int i = 0; i < Grid.ROWS; i++) {
-                for (int j = 0; j < Grid.COLS; j++) {
-                    grid[i][j] = Character.getNumericValue(lines.get(i).charAt(j));
+            for (int j = 0; j < Grid.COLS; j++) {
+                for (int i = 0; i < Grid.ROWS; i++) {
+                    char c = lines.get(Grid.COLS-1 - j).charAt(i);
+                    if (c == '0') {
+                        grid.setExplored(i, j);
+                    } else if (c == '1') {
+                        grid.setObstacle(i, j);
+                    }
                 }
             }
         } catch (URISyntaxException | IOException e) {

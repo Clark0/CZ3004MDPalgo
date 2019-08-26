@@ -50,7 +50,7 @@ public class Arena extends JPanel {
         _DisplayCell[][] _mapCells = new _DisplayCell[ROWS][COLS];
         for (int i = 0; i < ROWS; i++) {
             for (int j = 0; j < COLS; j++) {
-                _mapCells[i][j] = new _DisplayCell(j * GraphicsConstants.CELL_SIZE, i * GraphicsConstants.CELL_SIZE, GraphicsConstants.CELL_SIZE);
+                _mapCells[i][j] = new _DisplayCell(i * GraphicsConstants.CELL_SIZE, j * GraphicsConstants.CELL_SIZE, GraphicsConstants.CELL_SIZE);
             }
         }
 
@@ -65,6 +65,8 @@ public class Arena extends JPanel {
                         cellColor = GraphicsConstants.C_UNEXPLORED;
                     else if (grid.isObstacle(mapRow, mapCol))
                         cellColor = GraphicsConstants.C_OBSTACLE;
+//                    else if (grid.isVirtualWall(mapRow, mapCol))
+//                        cellColor = GraphicsConstants.C_VIRTUAL_WALL;
                     else if (onPath(mapRow, mapCol))
                         cellColor = GraphicsConstants.C_PATH;
                     else if (grid.inGoalZone(mapRow, mapCol))
@@ -83,22 +85,22 @@ public class Arena extends JPanel {
         g.setColor(GraphicsConstants.C_ROBOT);
         int r = robot.getPosRow();
         int c = robot.getPosCol();
-        g.fillOval((c - 1) * GraphicsConstants.CELL_SIZE + GraphicsConstants.ROBOT_X_OFFSET + GraphicsConstants.MAP_X_OFFSET, GraphicsConstants.MAP_H - (r * GraphicsConstants.CELL_SIZE + GraphicsConstants.ROBOT_Y_OFFSET), GraphicsConstants.ROBOT_W, GraphicsConstants.ROBOT_H);
+        g.fillOval((r - 1) * GraphicsConstants.CELL_SIZE + GraphicsConstants.ROBOT_X_OFFSET + GraphicsConstants.MAP_X_OFFSET, GraphicsConstants.MAP_H - (c * GraphicsConstants.CELL_SIZE + GraphicsConstants.ROBOT_Y_OFFSET), GraphicsConstants.ROBOT_W, GraphicsConstants.ROBOT_H);
 
         // Paint the robot's direction indicator on-screen.
         g.setColor(GraphicsConstants.C_ROBOT_DIR);
         Direction d = robot.getDirection();
         switch (d) {
-            case EAST:
+            case NORTH:
                 g.fillOval(c * GraphicsConstants.CELL_SIZE + 10 + GraphicsConstants.MAP_X_OFFSET, GraphicsConstants.MAP_H - r * GraphicsConstants.CELL_SIZE - 15, GraphicsConstants.ROBOT_DIR_W, GraphicsConstants.ROBOT_DIR_H);
                 break;
-            case NORTH:
+            case EAST:
                 g.fillOval(c * GraphicsConstants.CELL_SIZE + 35 + GraphicsConstants.MAP_X_OFFSET, GraphicsConstants.MAP_H - r * GraphicsConstants.CELL_SIZE + 10, GraphicsConstants.ROBOT_DIR_W, GraphicsConstants.ROBOT_DIR_H);
                 break;
-            case WEST:
+            case SOUTH:
                 g.fillOval(c * GraphicsConstants.CELL_SIZE + 10 + GraphicsConstants.MAP_X_OFFSET, GraphicsConstants.MAP_H - r * GraphicsConstants.CELL_SIZE + 35, GraphicsConstants.ROBOT_DIR_W, GraphicsConstants.ROBOT_DIR_H);
                 break;
-            case SOUTH:
+            case WEST:
                 g.fillOval(c * GraphicsConstants.CELL_SIZE - 15 + GraphicsConstants.MAP_X_OFFSET, GraphicsConstants.MAP_H - r * GraphicsConstants.CELL_SIZE + 10, GraphicsConstants.ROBOT_DIR_W, GraphicsConstants.ROBOT_DIR_H);
                 break;
         }

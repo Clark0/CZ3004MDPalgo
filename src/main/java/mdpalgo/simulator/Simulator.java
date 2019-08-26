@@ -31,7 +31,7 @@ public class Simulator {
 
     public Simulator() {
         currentGrid = Grid.initCurrentGrid();
-        robot = new Robot(Grid.START_ROW, Grid.START_COL, Direction.NORTH);
+        robot = new Robot(Grid.START_ROW, Grid.START_COL, RobotConstant.START_DIR);
         arena = new Arena(currentGrid, robot);
         timeLimit = RobotConstant.TIME_LIMIT;
         coverage = 100;
@@ -106,7 +106,7 @@ public class Simulator {
                         realGrid = Grid.loadGridFromFile(loadTF.getText());
                         CardLayout cl = ((CardLayout) _mapCards.getLayout());
                         cl.show(_mapCards, "REAL_MAP");
-
+                        arena.update(realGrid, robot);
                         arena.repaint();
                     }
                 });
@@ -243,6 +243,7 @@ public class Simulator {
                 robot.setDirection(RobotConstant.START_DIR);
 
                 FastestPath fastestPath = new FastestPath(realGrid, robot, Grid.GOAL_ROW, Grid.GOAL_COL);
+                System.out.println(realGrid.isVirtualWall(10, 14));
                 arena.update(realGrid, robot);
                 fastestPath.runFastestPath(arena);
                 return 111;
@@ -267,6 +268,7 @@ public class Simulator {
                 // connection = Connection.getConnection();
                 // connection.openConnection();
                 robot.setRobotPosition(Grid.START_ROW, Grid.START_COL);
+                robot.setDirection(RobotConstant.START_DIR);
                 currentGrid = Grid.initCurrentGrid();
                 arena.update(currentGrid, robot);
                 Exploration exploration = new Exploration(currentGrid, realGrid, robot, timeLimit, coverage);
