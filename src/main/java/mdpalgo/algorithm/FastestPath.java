@@ -5,6 +5,7 @@ import mdpalgo.constants.Movement;
 import mdpalgo.models.Grid;
 import mdpalgo.models.Robot;
 import mdpalgo.simulator.Arena;
+import mdpalgo.utils.SendUtil;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -89,6 +90,11 @@ public class FastestPath {
         return state.cost + directionDiff * TURN_COST + MOVE_COST;
     }
 
+    private void moveRobot(Movement m) {
+        this.robot.move(m, 1);
+        SendUtil.sendRobotPos(robot);
+    }
+
     private boolean isGoalState(State state) {
         return state.row == this.goalRow && state.col == this.goalCol;
     }
@@ -157,7 +163,7 @@ public class FastestPath {
     }
 
     public void executePath(List<State> path) {
-        printFastestPath(path, currentGrid, robot);
+        // FastestPath(path, currentGrid, robot);
         if (this.arena != null) {
             arena.setPath(path);
         }
@@ -166,8 +172,8 @@ public class FastestPath {
             Direction direction = state.direction;
             Movement movement = Direction.getMovementByDirections(direction, robot.getDirection());
             // Move robot 1 step
-            robot.move(movement , 1);
-            printFastestPath(path, currentGrid, robot);
+            moveRobot(movement);
+            // printFastestPath(path, currentGrid, robot);
             refreshArena();
         }
     }

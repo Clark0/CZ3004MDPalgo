@@ -239,6 +239,8 @@ public class Simulator {
 
         class FastestPathDisplay extends SwingWorker<Integer, String> {
             protected Integer doInBackground() throws Exception {
+                connection = Connection.getConnection();
+                connection.openConnection();
                 robot.setRobotPosition(Grid.START_ROW, Grid.START_COL);
                 robot.setDirection(RobotConstant.START_DIR);
 
@@ -246,6 +248,7 @@ public class Simulator {
                 System.out.println(realGrid.isVirtualWall(10, 14));
                 arena.update(realGrid, robot);
                 fastestPath.runFastestPath(arena);
+                connection.closeConnection();
                 return 111;
             }
         }
@@ -265,14 +268,15 @@ public class Simulator {
         class ExplorationDisplay extends SwingWorker<Integer, String> {
             protected Integer doInBackground() throws Exception {
                 // for android test
-                // connection = Connection.getConnection();
-                // connection.openConnection();
+                connection = Connection.getConnection();
+                connection.openConnection();
                 robot.setRobotPosition(Grid.START_ROW, Grid.START_COL);
                 robot.setDirection(RobotConstant.START_DIR);
                 currentGrid = Grid.initCurrentGrid();
                 arena.update(currentGrid, robot);
                 Exploration exploration = new Exploration(currentGrid, realGrid, robot, timeLimit, coverage);
                 exploration.explore(arena);
+                connection.closeConnection();
                 return 111;
             }
         }

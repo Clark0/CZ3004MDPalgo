@@ -81,11 +81,6 @@ public class Robot {
         for (int i = 0; i < 3; i++) {
             sensorsFront[i].sense(head[i], direction, currentGrid, realGrid);
         }
-
-        Connection connect = Connection.getConnection();
-        String serializedMap = GridDescriptor.serializeGrid(currentGrid);
-        connect.sendMsg(serializedMap, Connection.MAP);
-
     }
 
     public boolean isSafeMovement(Movement movement, Grid grid) {

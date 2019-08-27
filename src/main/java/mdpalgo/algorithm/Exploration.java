@@ -4,8 +4,8 @@ import mdpalgo.constants.Movement;
 import mdpalgo.models.Grid;
 import mdpalgo.models.Robot;
 import mdpalgo.simulator.Arena;
+import mdpalgo.utils.SendUtil;
 
-import static mdpalgo.utils.ArenaPrintUtil.refreshArena;
 
 public class Exploration {
     private Grid currentGrid;
@@ -32,7 +32,8 @@ public class Exploration {
         while (currentGrid.countExplored() * 1.0 / Grid.GRID_SIZE < coverage / 100.0
                 && System.currentTimeMillis() < endTime) {
             robot.sense(currentGrid, realGrid);
-            refreshArena(currentGrid, robot);
+            SendUtil.sendGrid(currentGrid);
+            // refreshArena(currentGrid, robot);
             nextMove();
             System.out.println("Area explored" + currentGrid.countExplored());
         }
@@ -49,6 +50,7 @@ public class Exploration {
         preMovement = movement;
         if (arena != null)
             arena.repaint();
+        SendUtil.sendRobotPos(robot);
     }
 
     private void nextMove() {

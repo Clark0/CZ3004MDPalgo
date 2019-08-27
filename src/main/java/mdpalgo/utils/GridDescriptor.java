@@ -1,13 +1,11 @@
 package mdpalgo.utils;
 
 import mdpalgo.models.Grid;
+import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 
 public class GridDescriptor {
@@ -15,10 +13,9 @@ public class GridDescriptor {
     // should not call directly; virtual wall is not
     public static Grid loadGrid(String filename) {
         Grid grid = Grid.initCurrentGrid();
-        ClassLoader classLoader = ClassLoader.getSystemClassLoader();
         try {
-            Path path = Paths.get(classLoader.getResource(MAPS_DIR + filename + ".txt").toURI());
-            List<String> lines = Files.readAllLines(path, StandardCharsets.UTF_8);
+            InputStream inputStream = GridDescriptor.class.getClassLoader().getResourceAsStream(MAPS_DIR + filename + ".txt");
+            List<String> lines = IOUtils.readLines(inputStream, StandardCharsets.UTF_8);
             for (int j = 0; j < Grid.COLS; j++) {
                 for (int i = 0; i < Grid.ROWS; i++) {
                     char c = lines.get(Grid.COLS-1 - j).charAt(i);
@@ -29,7 +26,7 @@ public class GridDescriptor {
                     }
                 }
             }
-        } catch (URISyntaxException | IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
         return grid;
