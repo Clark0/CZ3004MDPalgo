@@ -27,7 +27,7 @@ public class Exploration {
 
     public void explore(Arena arena) {
         long startTime = System.currentTimeMillis();
-        long endTime = startTime + timeLimit * 1000;
+        long endTime = startTime + timeLimit;
         this.arena = arena;
         while (currentGrid.countExplored() * 1.0 / Grid.GRID_SIZE < coverage / 100.0
                 && System.currentTimeMillis() < endTime) {

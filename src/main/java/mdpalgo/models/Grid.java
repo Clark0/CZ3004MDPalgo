@@ -11,8 +11,8 @@ public class Grid {
     private boolean[][] virtualWall;
     private int exploredCount;
 
-    public static final int ROWS = 15;
-    public static final int COLS = 20;
+    public static final int ROWS = 20;
+    public static final int COLS = 15;
     public static final int GRID_SIZE = ROWS * COLS;
     public static final int START_ROW = 1;
     public static final int START_COL = 1;

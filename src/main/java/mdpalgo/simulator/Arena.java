@@ -50,7 +50,7 @@ public class Arena extends JPanel {
         _DisplayCell[][] _mapCells = new _DisplayCell[ROWS][COLS];
         for (int i = 0; i < ROWS; i++) {
             for (int j = 0; j < COLS; j++) {
-                _mapCells[i][j] = new _DisplayCell(i * GraphicsConstants.CELL_SIZE, j * GraphicsConstants.CELL_SIZE, GraphicsConstants.CELL_SIZE);
+                _mapCells[i][j] = new _DisplayCell(j * GraphicsConstants.CELL_SIZE, i * GraphicsConstants.CELL_SIZE, GraphicsConstants.CELL_SIZE);
             }
         }
 
@@ -77,14 +77,14 @@ public class Arena extends JPanel {
 
                 g.setColor(cellColor);
                 g.fillRect(_mapCells[mapRow][mapCol].cellX + GraphicsConstants.MAP_X_OFFSET, _mapCells[mapRow][mapCol].cellY, _mapCells[mapRow][mapCol].cellSize, _mapCells[mapRow][mapCol].cellSize);
-                if (mapRow == 0) {
-                    g.setColor(Color.black);
-                    g.drawString(String.valueOf(mapCol), _mapCells[mapRow][mapCol].cellX + GraphicsConstants.MAP_X_OFFSET - 20, _mapCells[mapRow][mapCol].cellY + 20);
-                }
-                if (mapCol == 0) {
-                    g.setColor(Color.black);
-                    g.drawString(String.valueOf(mapRow), _mapCells[mapRow][mapCol].cellX + GraphicsConstants.MAP_X_OFFSET + 10, _mapCells[mapRow][mapCol].cellY + GraphicsConstants.CELL_SIZE + 15);
-                }
+//                if (mapRow == 0) {
+//                    g.setColor(Color.black);
+//                    g.drawString(String.valueOf(mapCol), _mapCells[mapRow][mapCol].cellX + GraphicsConstants.MAP_X_OFFSET - 20, _mapCells[mapRow][mapCol].cellY + 20);
+//                }
+//                if (mapCol == 0) {
+//                    g.setColor(Color.black);
+//                    g.drawString(String.valueOf(mapRow), _mapCells[mapRow][mapCol].cellX + GraphicsConstants.MAP_X_OFFSET + 10, _mapCells[mapRow][mapCol].cellY + GraphicsConstants.CELL_SIZE + 15);
+//                }
             }
         }
 
@@ -99,16 +99,16 @@ public class Arena extends JPanel {
         Direction d = robot.getDirection();
         switch (d) {
             case NORTH:
-                g.fillOval(r * GraphicsConstants.CELL_SIZE + 10 + GraphicsConstants.MAP_X_OFFSET, GraphicsConstants.MAP_H - c * GraphicsConstants.CELL_SIZE - 15, GraphicsConstants.ROBOT_DIR_W, GraphicsConstants.ROBOT_DIR_H);
+                g.fillOval(c * GraphicsConstants.CELL_SIZE + 10 + GraphicsConstants.MAP_X_OFFSET, GraphicsConstants.MAP_H - r * GraphicsConstants.CELL_SIZE - 15, GraphicsConstants.ROBOT_DIR_W, GraphicsConstants.ROBOT_DIR_H);
                 break;
             case EAST:
-                g.fillOval(r * GraphicsConstants.CELL_SIZE + 35 + GraphicsConstants.MAP_X_OFFSET, GraphicsConstants.MAP_H - c * GraphicsConstants.CELL_SIZE + 10, GraphicsConstants.ROBOT_DIR_W, GraphicsConstants.ROBOT_DIR_H);
+                g.fillOval(c * GraphicsConstants.CELL_SIZE + 35 + GraphicsConstants.MAP_X_OFFSET, GraphicsConstants.MAP_H - r * GraphicsConstants.CELL_SIZE + 10, GraphicsConstants.ROBOT_DIR_W, GraphicsConstants.ROBOT_DIR_H);
                 break;
             case SOUTH:
-                g.fillOval(r * GraphicsConstants.CELL_SIZE + 10 + GraphicsConstants.MAP_X_OFFSET, GraphicsConstants.MAP_H - c * GraphicsConstants.CELL_SIZE + 35, GraphicsConstants.ROBOT_DIR_W, GraphicsConstants.ROBOT_DIR_H);
+                g.fillOval(c * GraphicsConstants.CELL_SIZE + 10 + GraphicsConstants.MAP_X_OFFSET, GraphicsConstants.MAP_H - r * GraphicsConstants.CELL_SIZE + 35, GraphicsConstants.ROBOT_DIR_W, GraphicsConstants.ROBOT_DIR_H);
                 break;
             case WEST:
-                g.fillOval(r * GraphicsConstants.CELL_SIZE - 15 + GraphicsConstants.MAP_X_OFFSET, GraphicsConstants.MAP_H - c * GraphicsConstants.CELL_SIZE + 10, GraphicsConstants.ROBOT_DIR_W, GraphicsConstants.ROBOT_DIR_H);
+                g.fillOval(c * GraphicsConstants.CELL_SIZE - 15 + GraphicsConstants.MAP_X_OFFSET, GraphicsConstants.MAP_H - r * GraphicsConstants.CELL_SIZE + 10, GraphicsConstants.ROBOT_DIR_W, GraphicsConstants.ROBOT_DIR_H);
                 break;
         }
     }

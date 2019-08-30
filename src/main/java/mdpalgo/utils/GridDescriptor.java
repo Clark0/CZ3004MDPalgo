@@ -16,13 +16,13 @@ public class GridDescriptor {
         try {
             InputStream inputStream = GridDescriptor.class.getClassLoader().getResourceAsStream(MAPS_DIR + filename + ".txt");
             List<String> lines = IOUtils.readLines(inputStream, StandardCharsets.UTF_8);
-            for (int j = 0; j < Grid.COLS; j++) {
-                for (int i = 0; i < Grid.ROWS; i++) {
-                    char c = lines.get(Grid.COLS-1 - j).charAt(i);
+            for (int j = Grid.ROWS - 1; j >= 0; j--) {
+                for (int i = 0; i < Grid.COLS; i++) {
+                    char c = lines.get(j).charAt(i);
                     if (c == '0') {
-                        grid.setExplored(i, j);
+                        grid.setExplored(Grid.ROWS - j - 1, i);
                     } else if (c == '1') {
-                        grid.setObstacle(i, j);
+                        grid.setObstacle(Grid.ROWS - j - 1, i);
                     }
                 }
             }
