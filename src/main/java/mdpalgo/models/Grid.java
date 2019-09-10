@@ -32,11 +32,16 @@ public class Grid {
         initVirtualWall();
     }
 
-    public static Grid initCurrentGrid() {
+    public static Grid initCurrentGrid(Robot robot) {
         Grid grid = new Grid();
         // initialize start zone
-        for (int row = START_ROW - 1; row <= START_ROW + 1; row++) {
-            for (int col = START_COL - 1; col <= START_COL + 1; col++) {
+//        for (int row = START_ROW - 1; row <= START_ROW + 1; row++) {
+//            for (int col = START_COL - 1; col <= START_COL + 1; col++) {
+//                grid.setExplored(row, col);
+//            }
+//        }
+        for (int row = robot.getPosRow() - 1; row <= robot.getPosRow() + 1; row++) {
+            for (int col = robot.getPosCol() - 1; col <= robot.getPosCol() + 1; col++) {
                 grid.setExplored(row, col);
             }
         }

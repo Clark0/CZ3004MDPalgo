@@ -17,7 +17,7 @@ public class GridDescriptor {
     private static final String MAPS_DIR = "maps/";
     // should not call directly; virtual wall is not
     public static Grid loadGrid(String filename) {
-        Grid grid = Grid.initCurrentGrid();
+        Grid grid = new Grid();
         try {
             InputStream inputStream = GridDescriptor.class.getClassLoader().getResourceAsStream(MAPS_DIR + filename + ".txt");
             List<String> lines = IOUtils.readLines(inputStream, StandardCharsets.UTF_8);

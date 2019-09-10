@@ -28,10 +28,11 @@ public class Simulator {
 
     private int timeLimit;
     private int coverage;
+    public static boolean testWithAndroid = false;
 
     public Simulator() {
-        currentGrid = Grid.initCurrentGrid();
         robot = new Robot(Grid.START_ROW, Grid.START_COL, RobotConstant.START_DIR);
+        currentGrid = new Grid();
         arena = new Arena(currentGrid, robot);
         timeLimit = RobotConstant.TIME_LIMIT;
         coverage = 100;
@@ -268,11 +269,20 @@ public class Simulator {
         class ExplorationDisplay extends SwingWorker<Integer, String> {
             protected Integer doInBackground() throws Exception {
                 // for android test
-                connection = Connection.getConnection();
-                connection.openConnection();
+                if (testWithAndroid) {
+                    connection = Connection.getConnection();
+                    connection.openConnection();
+                    while (true) {
+                        if (connection.recvMsg().equals(Connection.EX_START)) {
+                            break;
+                        }
+                    }
+                }
+
                 robot.setRobotPosition(Grid.START_ROW, Grid.START_COL);
                 robot.setDirection(RobotConstant.START_DIR);
-                currentGrid = Grid.initCurrentGrid();
+                currentGrid = Grid.initCurrentGrid(robot);
+
                 arena.update(currentGrid, robot);
                 Exploration exploration = new Exploration(currentGrid, realGrid, robot, timeLimit, coverage);
                 exploration.explore(arena);
