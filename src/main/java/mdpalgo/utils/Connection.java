@@ -10,7 +10,7 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 
 public class Connection {
-    public static final String EX_START = "EX_START";   // Android --> PC
+    public static final String EX_START = "algo:explore";   // Android --> PC
     public static final String FP_START = "FP_START";   // Android --> PC
     public static final String MAP = "MAP";             // PC --> Android
     public static final String BOT_POS = "BOT_POS";     // PC --> Android
@@ -38,9 +38,9 @@ public class Connection {
         System.out.println("Opening connection...");
 
         try {
-            // String HOST = "192.168.28.28";
-            String HOST = "127.0.0.1";
-            int PORT = 8001;
+            // String HOST = "127.0.0.1";
+            String HOST = "192.168.5.5";
+            int PORT = 5182;
             socket = new Socket(HOST, PORT);
 
             writer = new BufferedWriter(new OutputStreamWriter(new BufferedOutputStream(socket.getOutputStream())));

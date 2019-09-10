@@ -77,14 +77,14 @@ public class Arena extends JPanel {
 
                 g.setColor(cellColor);
                 g.fillRect(_mapCells[mapRow][mapCol].cellX + GraphicsConstants.MAP_X_OFFSET, _mapCells[mapRow][mapCol].cellY, _mapCells[mapRow][mapCol].cellSize, _mapCells[mapRow][mapCol].cellSize);
-//                if (mapRow == 0) {
-//                    g.setColor(Color.black);
-//                    g.drawString(String.valueOf(mapCol), _mapCells[mapRow][mapCol].cellX + GraphicsConstants.MAP_X_OFFSET - 20, _mapCells[mapRow][mapCol].cellY + 20);
-//                }
-//                if (mapCol == 0) {
-//                    g.setColor(Color.black);
-//                    g.drawString(String.valueOf(mapRow), _mapCells[mapRow][mapCol].cellX + GraphicsConstants.MAP_X_OFFSET + 10, _mapCells[mapRow][mapCol].cellY + GraphicsConstants.CELL_SIZE + 15);
-//                }
+                if (mapRow == 0) {
+                    g.setColor(Color.black);
+                    g.drawString(String.valueOf(mapCol), _mapCells[mapRow][mapCol].cellX + GraphicsConstants.MAP_X_OFFSET + 10, _mapCells[mapRow][mapCol].cellY + 40);
+                }
+                if (mapCol == 0) {
+                    g.setColor(Color.black);
+                    g.drawString(String.valueOf(mapRow), _mapCells[mapRow][mapCol].cellX + GraphicsConstants.MAP_X_OFFSET - 20, _mapCells[mapRow][mapCol].cellY + GraphicsConstants.CELL_SIZE - 10);
+                }
             }
         }
 

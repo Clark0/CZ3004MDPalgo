@@ -28,7 +28,7 @@ public class Simulator {
 
     private int timeLimit;
     private int coverage;
-    public static boolean testWithAndroid = false;
+    public static boolean testWithAndroid = true;
 
     public Simulator() {
         robot = new Robot(Grid.START_ROW, Grid.START_COL, RobotConstant.START_DIR);
