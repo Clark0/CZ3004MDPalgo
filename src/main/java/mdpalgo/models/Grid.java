@@ -32,11 +32,16 @@ public class Grid {
         initVirtualWall();
     }
 
-    public static Grid initCurrentGrid() {
+    public static Grid initCurrentGrid(Robot robot) {
         Grid grid = new Grid();
         // initialize start zone
-        for (int row = START_ROW - 1; row <= START_ROW + 1; row++) {
-            for (int col = START_COL - 1; col <= START_COL + 1; col++) {
+//        for (int row = START_ROW - 1; row <= START_ROW + 1; row++) {
+//            for (int col = START_COL - 1; col <= START_COL + 1; col++) {
+//                grid.setExplored(row, col);
+//            }
+//        }
+        for (int row = robot.getPosRow() - 1; row <= robot.getPosRow() + 1; row++) {
+            for (int col = robot.getPosCol() - 1; col <= robot.getPosCol() + 1; col++) {
                 grid.setExplored(row, col);
             }
         }
@@ -144,16 +149,5 @@ public class Grid {
 
     public int countExplored() {
         return this.exploredCount;
-    }
-    
-    public int countExplore() {
-    	int eCount = 0;
-    	for (int row = 0; row < ROWS; row++) {
-            for (int col = 0; col < COLS; col++) {
-                if (grid[row][col] != 0)
-                	eCount++;
-            }
-        }
-        return eCount;
     }
 }

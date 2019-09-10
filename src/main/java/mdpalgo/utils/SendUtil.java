@@ -5,7 +5,6 @@ import mdpalgo.models.Robot;
 
 public class SendUtil {
     public static Connection connect;
-    
     public static void sendGrid(Grid grid) {
         connect = Connection.getConnection();
         String serializedMap = GridDescriptor.serializeGrid(grid);

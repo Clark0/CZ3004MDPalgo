@@ -1,8 +1,6 @@
 package mdpalgo.utils;
 
 import mdpalgo.models.Grid;
-import mdpalgo.models.Robot;
-
 import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
@@ -15,13 +13,11 @@ public class GridDescriptor {
     public static final char EXPLORED = '1';
     public static final char FREE = '0';
     public static final char OBSTACLE = '1';
-    public static final char HEAD = '2';
-    public static final char BODY = '3';
 
     private static final String MAPS_DIR = "maps/";
     // should not call directly; virtual wall is not
     public static Grid loadGrid(String filename) {
-        Grid grid = Grid.initCurrentGrid();
+        Grid grid = new Grid();
         try {
             InputStream inputStream = GridDescriptor.class.getClassLoader().getResourceAsStream(MAPS_DIR + filename + ".txt");
             List<String> lines = IOUtils.readLines(inputStream, StandardCharsets.UTF_8);
