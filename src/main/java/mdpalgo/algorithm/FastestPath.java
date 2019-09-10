@@ -92,7 +92,7 @@ public class FastestPath {
 
     private void moveRobot(Movement m) {
         this.robot.move(m, 1);
-        SendUtil.sendRobotPos(robot);
+        //SendUtil.sendRobotPos(robot);
     }
 
     private boolean isGoalState(State state) {

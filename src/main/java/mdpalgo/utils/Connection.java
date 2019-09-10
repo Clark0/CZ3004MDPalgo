@@ -16,7 +16,7 @@ public class Connection {
     public static final String BOT_POS = "BOT_POS";     // PC --> Android
     public static final String BOT_START = "BOT_START"; // PC --> Arduino
     public static final String INSTR = "INSTR";         // PC --> Arduino
-    public static final String SDATA = "SDATA";         // Arduino --> PC
+    public static final String SDATA = "obs";         // Arduino --> PC
 
     private static Connection connection = null;
     private static Socket socket = null;
@@ -38,9 +38,8 @@ public class Connection {
         System.out.println("Opening connection...");
 
         try {
-            // String HOST = "192.168.28.28";
-            String HOST = "127.0.0.1";
-            int PORT = 8001;
+            String HOST = "192.168.5.5";
+            int PORT = 5182;
             socket = new Socket(HOST, PORT);
 
             writer = new BufferedWriter(new OutputStreamWriter(new BufferedOutputStream(socket.getOutputStream())));
@@ -87,10 +86,12 @@ public class Connection {
 
         try {
             String outputMsg;
-            if (msgType.equals(INSTR) || msgType.equals(BOT_START)) {
-                outputMsg = "AR" + msg + "\n";
-            } else if (msgType.equals(MAP) || msgType.equals(BOT_POS)) {
-                outputMsg = "AN" + "," + msg + "\n";
+            if (msgType.equals(INSTR)) {
+                outputMsg = "mov" + ":" + msg + "\n";
+            } else if (msgType.equals(MAP)) {
+                outputMsg = "map" + ":" + msg + "\n";
+            } else if (msgType.equals(BOT_POS)) {
+                outputMsg = "pos" + ":" + msg + "\n";
             } else {
                 outputMsg = msg;
             }

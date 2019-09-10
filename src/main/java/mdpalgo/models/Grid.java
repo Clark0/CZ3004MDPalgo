@@ -145,4 +145,15 @@ public class Grid {
     public int countExplored() {
         return this.exploredCount;
     }
+    
+    public int countExplore() {
+    	int eCount = 0;
+    	for (int row = 0; row < ROWS; row++) {
+            for (int col = 0; col < COLS; col++) {
+                if (grid[row][col] != 0)
+                	eCount++;
+            }
+        }
+        return eCount;
+    }
 }

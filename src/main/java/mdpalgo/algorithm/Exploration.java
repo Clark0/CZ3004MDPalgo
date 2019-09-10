@@ -29,13 +29,13 @@ public class Exploration {
         long startTime = System.currentTimeMillis();
         long endTime = startTime + timeLimit;
         this.arena = arena;
-        while (currentGrid.countExplored() * 1.0 / Grid.GRID_SIZE < coverage / 100.0
+        while (currentGrid.countExplore() * 1.0 / Grid.GRID_SIZE < coverage / 100.0
                 && System.currentTimeMillis() < endTime) {
             robot.sense(currentGrid, realGrid);
             SendUtil.sendGrid(currentGrid);
             // refreshArena(currentGrid, robot);
             nextMove();
-            System.out.println("Area explored" + currentGrid.countExplored());
+            System.out.println("Area explored" + currentGrid.countExplore());
         }
         returnStart();
     }
@@ -54,6 +54,7 @@ public class Exploration {
     }
 
     private void nextMove() {
+        System.out.println("NEXT");
         if (robot.isSafeMovement(Movement.RIGHT, currentGrid)) {
             moveRobot(Movement.RIGHT);
             if (robot.isSafeMovement(Movement.FORWARD, currentGrid)) {

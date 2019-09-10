@@ -39,6 +39,10 @@ public class Robot {
     }
 
     public void move(Movement movement, int step) {
+    	
+    	Connection connect = Connection.getConnection();
+        connect.sendMsg(Movement.print(movement) + "," + step , Connection.INSTR);
+        
         if (step <= 0) {
             move(movement);
             return;
@@ -64,6 +68,8 @@ public class Robot {
             e.printStackTrace();
         }
 
+        Connection connect = Connection.getConnection();
+        connect.sendMsg(Movement.print(movement) + ",1", Connection.INSTR);
         this.direction = this.direction.rotate(movement);
         if (movement == Movement.FORWARD) {
             // Only the Forward command will move the robot
@@ -74,13 +80,37 @@ public class Robot {
     }
 
     public void sense(Grid currentGrid, Grid realGrid) {
-        sensorFrontRight.sense(direction.getFrontRight(posRow, posCol), direction.turnRight(), currentGrid, realGrid);
-        sensorFrontLeft.sense(direction.getFrontLeft(posRow, posCol), direction.turnLeft(), currentGrid, realGrid);
-        sensorLeft.sense(direction.getLeft(posRow, posCol), direction.turnLeft(), currentGrid, realGrid);
-        int[][] head = getHead();
-        for (int i = 0; i < 3; i++) {
-            sensorsFront[i].sense(head[i], direction, currentGrid, realGrid);
-        }
+    	/*Connection connect = Connection.getConnection();
+    	String msg = connect.recvMsg();
+        String[] msgArr = msg.split(";");
+        
+    	if(!msgArr[0].equals(Connection.SDATA)) {*/
+	        sensorFrontRight.sense(direction.getFrontRight(posRow, posCol), direction.turnRight(), currentGrid, realGrid);
+	        sensorFrontLeft.sense(direction.getFrontLeft(posRow, posCol), direction.turnLeft(), currentGrid, realGrid);
+	        sensorLeft.sense(direction.getLeft(posRow, posCol), direction.turnLeft(), currentGrid, realGrid);
+	        int[][] head = getHead();
+	        for (int i = 0; i < 3; i++) {
+	            sensorsFront[i].sense(head[i], direction, currentGrid, realGrid);
+	        }	
+    	/*}
+    	else {
+    		int[] result = new int[6];
+    		
+            result[0] = Integer.parseInt(msgArr[1].split("_")[1]);
+            result[1] = Integer.parseInt(msgArr[2].split("_")[1]);
+            result[2] = Integer.parseInt(msgArr[3].split("_")[1]);
+            result[3] = Integer.parseInt(msgArr[4].split("_")[1]);
+            result[4] = Integer.parseInt(msgArr[5].split("_")[1]);
+            result[5] = Integer.parseInt(msgArr[6].split("_")[1]);
+            
+            sensorFrontRight.senseReal(direction.getFrontRight(posRow, posCol), direction.turnRight(), currentGrid, result[0]);
+	        sensorFrontLeft.senseReal(direction.getFrontLeft(posRow, posCol), direction.turnLeft(), currentGrid, result[1]);
+	        sensorLeft.senseReal(direction.getLeft(posRow, posCol), direction.turnLeft(), currentGrid, result[2]);
+	        int[][] head = getHead();
+	        for (int i = 0; i < 3; i++) {
+	            sensorsFront[i].senseReal(head[i], direction, currentGrid, result[i+3]);
+	        }	
+    	}*/
     }
 
     public boolean isSafeMovement(Movement movement, Grid grid) {
@@ -138,5 +168,36 @@ public class Robot {
 
     public int getSpeed() {
         return speed;
+    }
+    
+    public void getEntireRobot(Grid grid, int x, int y) {
+    	switch (this.direction) {
+        case NORTH:
+        	processRobotPos(grid, x, y, 1, 0);
+            break;
+        case EAST:
+        	processRobotPos(grid, x, y, 0, 1);
+            break;
+        case SOUTH:
+        	processRobotPos(grid, x, y, -1, 0);
+            break;
+        case WEST:
+        	processRobotPos(grid, x, y, 0, -1);
+            break;
+    	}
+    }
+    
+    private void processRobotPos(Grid grid, int x, int y, int row, int col) {
+    	System.out.println("abs");
+    	for (int i = x-1; i <= x+1; i++) {
+            for (int j = y-1; j <= y+1; j++) {
+            	
+            	grid.setCell(i, j, 4);
+            	
+            }
+    	}
+
+    	System.out.println(grid.getCell(0, 0));
+    	grid.setCell(x+row, y+col, 3);
     }
 }

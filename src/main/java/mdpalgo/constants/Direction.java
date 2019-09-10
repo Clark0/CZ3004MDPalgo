@@ -1,7 +1,7 @@
 package mdpalgo.constants;
 
 public enum Direction {
-	NORTH(0, 1, 0),
+    NORTH(0, 1, 0),
     EAST(1, 0, 1),
     SOUTH(2, -1, 0),
     WEST(3, 0, -1);

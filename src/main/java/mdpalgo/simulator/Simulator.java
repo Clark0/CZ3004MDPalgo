@@ -239,8 +239,10 @@ public class Simulator {
 
         class FastestPathDisplay extends SwingWorker<Integer, String> {
             protected Integer doInBackground() throws Exception {
-                connection = Connection.getConnection();
-                connection.openConnection();
+				/*
+				 * connection = Connection.getConnection(); 
+                 * connection.openConnection();
+				 */
                 robot.setRobotPosition(Grid.START_ROW, Grid.START_COL);
                 robot.setDirection(RobotConstant.START_DIR);
 
@@ -268,8 +270,7 @@ public class Simulator {
         class ExplorationDisplay extends SwingWorker<Integer, String> {
             protected Integer doInBackground() throws Exception {
                 // for android test
-                connection = Connection.getConnection();
-                connection.openConnection();
+                
                 robot.setRobotPosition(Grid.START_ROW, Grid.START_COL);
                 robot.setDirection(RobotConstant.START_DIR);
                 currentGrid = Grid.initCurrentGrid();
