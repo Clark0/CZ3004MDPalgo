@@ -92,7 +92,7 @@ public class Arena extends JPanel {
         g.setColor(GraphicsConstants.C_ROBOT);
         int r = robot.getPosRow();
         int c = robot.getPosCol();
-        g.fillOval((r - 1) * GraphicsConstants.CELL_SIZE + GraphicsConstants.ROBOT_X_OFFSET + GraphicsConstants.MAP_X_OFFSET, GraphicsConstants.MAP_H - (c * GraphicsConstants.CELL_SIZE + GraphicsConstants.ROBOT_Y_OFFSET), GraphicsConstants.ROBOT_W, GraphicsConstants.ROBOT_H);
+        g.fillOval((c - 1) * GraphicsConstants.CELL_SIZE + GraphicsConstants.ROBOT_X_OFFSET + GraphicsConstants.MAP_X_OFFSET, GraphicsConstants.MAP_H - (r * GraphicsConstants.CELL_SIZE + GraphicsConstants.ROBOT_Y_OFFSET), GraphicsConstants.ROBOT_W, GraphicsConstants.ROBOT_H);
 
         // Paint the robot's direction indicator on-screen.
         g.setColor(GraphicsConstants.C_ROBOT_DIR);
