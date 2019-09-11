@@ -28,7 +28,7 @@ public class Simulator {
 
     private int timeLimit;
     private int coverage;
-    public static boolean testWithAndroid = true;
+    public static boolean testWithAndroid = false;
 
     public Simulator() {
         robot = new Robot(Grid.START_ROW, Grid.START_COL, RobotConstant.START_DIR);
@@ -42,7 +42,7 @@ public class Simulator {
         // initialize main frame
         _appFrame = new JFrame();
         _appFrame.setTitle("MDP Group 5 Simulator");
-        _appFrame.setSize(new Dimension(700, 700));
+        _appFrame.setSize(new Dimension(700, 720));
         _appFrame.setResizable(false);
 
         // Center the main frame in the middle of the screen

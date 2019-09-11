@@ -67,7 +67,7 @@ public class Grid {
     }
 
     public boolean isValid(int x, int y) {
-        return x >= 0 && x < this.rows && y >= 0 && y < this.cols;
+        return x >= 0 && x < ROWS && y >= 0 && y < COLS;
     }
 
     public boolean inStartZone(int x, int y) {

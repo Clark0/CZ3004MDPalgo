@@ -73,8 +73,7 @@ public class Exploration {
                 moveRobot(Movement.FORWARD);
             }
         } else {
-            moveRobot(Movement.RIGHT);
-            moveRobot(Movement.RIGHT);
+            moveRobot(Movement.BACKWARD);
         }
     }
 }
