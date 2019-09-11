@@ -16,6 +16,7 @@ public class Exploration {
     private int timeLimit;
     private int coverage;
     private Arena arena;
+    private Boolean newStrategy = false;
 
     public Exploration(Grid currentGrid, Grid realGrid, Robot robot, int timeLimit, int coverage) {
         this.currentGrid = currentGrid;
@@ -32,16 +33,30 @@ public class Exploration {
         this.arena = arena;
         while (currentGrid.countExplored() * 1.0 / Grid.GRID_SIZE < coverage / 100.0
                 && System.currentTimeMillis() < endTime) {
+        	
             robot.sense(currentGrid, realGrid);
             if (Simulator.testWithAndroid) {
                 SendUtil.sendGrid(currentGrid);
             }
             // refreshArena(currentGrid, robot);
-            nextMove();
+            
+            if (newStrategy) {
+            	nextMoveNew();
+            }
+            else {
+            	nextMove();
+            }
+            
+            if (currentGrid.inStartZone(robot.getPosRow(), robot.getPosCol()) && currentGrid.countExplored() != Grid.GRID_SIZE
+            		&& currentGrid.countExplored() > (Grid.GRID_SIZE / 2)) {
+                moveRobot(Movement.BACKWARD);
+                newStrategy = !newStrategy;
+        	}
+            
             if (Simulator.testWithAndroid) {
                 SendUtil.sendRobotPos(robot);
             }
-            System.out.println("Area explored" + currentGrid.countExplored());
+            System.out.println("Area explored : " + currentGrid.countExplored());
         }
         returnStart();
     }
@@ -69,6 +84,24 @@ public class Exploration {
             moveRobot(Movement.FORWARD);
         } else if (robot.isSafeMovement(Movement.LEFT, currentGrid)) {
             moveRobot(Movement.LEFT);
+            if (robot.isSafeMovement(Movement.FORWARD, currentGrid)) {
+                moveRobot(Movement.FORWARD);
+            }
+        } else {
+            moveRobot(Movement.BACKWARD);
+        }
+    }
+
+    private void nextMoveNew() {
+    	if (robot.isSafeMovement(Movement.FORWARD, currentGrid)) {
+            moveRobot(Movement.FORWARD);
+        } else if (robot.isSafeMovement(Movement.LEFT, currentGrid)) {
+            moveRobot(Movement.LEFT);
+            if (robot.isSafeMovement(Movement.FORWARD, currentGrid)) {
+                moveRobot(Movement.FORWARD);
+            }
+        } else if (robot.isSafeMovement(Movement.RIGHT, currentGrid)) {
+            moveRobot(Movement.RIGHT);
             if (robot.isSafeMovement(Movement.FORWARD, currentGrid)) {
                 moveRobot(Movement.FORWARD);
             }

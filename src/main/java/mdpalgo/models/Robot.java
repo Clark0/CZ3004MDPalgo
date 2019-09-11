@@ -138,11 +138,9 @@ public class Robot {
         int[] newPos = newDirection.forward(pos[0], pos[1]);
         int[] newPosRight = newDirection.getFrontRight(pos[0], pos[1]);
         int[] newPosLeft = newDirection.getFrontLeft(pos[0], pos[1]);
-        System.out.println(newPos[0]+" "+ newPos[1]+" "+newPosRight[0]+" "+newPosRight[1]+" "+newPosLeft[0]+" "+newPosLeft[1]);
         return 	grid.isValid(newPos[0], newPos[1])
                 && grid.isValid(newPosRight[0], newPosRight[1])
                 && grid.isValid(newPosLeft[0], newPosLeft[1])
-                //&& !grid.isVirtualWall(newPos[0], newPos[1])
                 && grid.isExplored(newPos[0], newPos[1])
                 && !grid.isObstacle(newPos[0], newPos[1])
                 && grid.isExplored(newPosRight[0], newPosRight[1])
