@@ -35,7 +35,7 @@ public class Exploration {
                 && System.currentTimeMillis() < endTime) {
         	
             robot.sense(currentGrid, realGrid);
-            if (Simulator.testWithAndroid) {
+            if (Simulator.test) {
                 SendUtil.sendGrid(currentGrid);
             }
             // refreshArena(currentGrid, robot);
@@ -53,7 +53,7 @@ public class Exploration {
                 newStrategy = !newStrategy;
         	}
             
-            if (Simulator.testWithAndroid) {
+            if (Simulator.test) {
                 SendUtil.sendRobotPos(robot);
             }
             System.out.println("Area explored : " + currentGrid.countExplored());

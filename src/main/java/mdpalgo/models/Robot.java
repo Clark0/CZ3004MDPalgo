@@ -3,6 +3,7 @@ package mdpalgo.models;
 import mdpalgo.constants.Direction;
 import mdpalgo.constants.Movement;
 import mdpalgo.constants.RobotConstant;
+import mdpalgo.simulator.Simulator;
 import mdpalgo.utils.Connection;
 import mdpalgo.utils.GridDescriptor;
 
@@ -28,7 +29,7 @@ public class Robot {
     private int speed;
     private Sensor sFrontRight;
     private Sensor sFrontLeft;
-    private Sensor lFront;
+    private Sensor sFront;
     private Sensor sLeft;
     private Sensor lLeft;
     private Sensor sRight;
@@ -46,7 +47,7 @@ public class Robot {
 
         sFrontRight = new Sensor(SENSOR_SHORT_RANGE_L, SENSOR_SHORT_RANGE_H);
         sFrontLeft = new Sensor(SENSOR_SHORT_RANGE_L, SENSOR_SHORT_RANGE_H);
-        lFront = new Sensor(SENSOR_SHORT_RANGE_L, SENSOR_LONG_RANGE_H);
+        sFront = new Sensor(SENSOR_SHORT_RANGE_L, SENSOR_SHORT_RANGE_H);
         sLeft = new Sensor(SENSOR_SHORT_RANGE_L, SENSOR_SHORT_RANGE_H);
         lLeft = new Sensor(SENSOR_LONG_RANGE_L, SENSOR_LONG_RANGE_H);
         sRight = new Sensor(SENSOR_SHORT_RANGE_L, SENSOR_SHORT_RANGE_H);
@@ -100,36 +101,40 @@ public class Robot {
     }
 
     public void sense(Grid currentGrid, Grid realGrid) {
-    	/*Connection connect = Connection.getConnection();
-    	String msg = connect.recvMsg();
-        String[] msgArr = msg.split(";");
-        
-    	if(!msgArr[0].equals(Connection.SDATA)) {*/
+    	
+    	if(!Simulator.test) {
     		
     		sFrontRight.sense(direction.getFrontRight(posRow, posCol), direction, currentGrid, realGrid);
     		sFrontLeft.sense(direction.getFrontLeft(posRow, posCol), direction, currentGrid, realGrid);
-    		lFront.sense(direction.forward(posRow, posCol), direction, currentGrid, realGrid);
+    		sFront.sense(direction.forward(posRow, posCol), direction, currentGrid, realGrid);
     		sLeft.sense(direction.getFrontLeft(posRow, posCol), direction.turnLeft(), currentGrid, realGrid);
     		lLeft.sense(direction.getLeft(posRow, posCol), direction.turnLeft(), currentGrid, realGrid);
     		sRight.sense(direction.getFrontRight(posRow, posCol), direction.turnRight(), currentGrid, realGrid);    
-	/*	}
+		}
     	else {
+    		
     		int[] result = new int[6];
     		
-            result[0] = Integer.parseInt(msgArr[1].split("_")[1]);
-            result[1] = Integer.parseInt(msgArr[2].split("_")[1]);
-            result[2] = Integer.parseInt(msgArr[3].split("_")[1]);
-            result[3] = Integer.parseInt(msgArr[4].split("_")[1]);
-            result[4] = Integer.parseInt(msgArr[5].split("_")[1]);
-            result[5] = Integer.parseInt(msgArr[6].split("_")[1]);
-            
-            sLeft.senseReal(direction.getFrontLeft(posRow, posCol), direction.turnLeft(), currentGrid, result[0]);
-    		lLeft.senseReal(direction.getLeft(posRow, posCol), direction.turnLeft(), currentGrid, result[1]);
-    		sFrontLeft.senseReal(direction.forward(posRow, posCol), direction, currentGrid, result[2]);
-    		lFront.senseReal(direction.forward(posRow, posCol), direction, currentGrid, result[3]);
-    		sFrontRight.senseReal(direction.forward(posRow, posCol), direction, currentGrid, result[4]);
-    		sRight.senseReal(direction.getFrontRight(posRow, posCol), direction.turnRight(), currentGrid, result[5]);    	
-    	}*/
+    		Connection connect = Connection.getConnection();
+        	String msg = connect.recvMsg();
+            String[] msgArr = msg.split(":");
+
+            if (msgArr[0].equals(Connection.SDATA)) {
+			    result[0] = Integer.parseInt(msgArr[1].split("|")[0]);
+			    result[1] = Integer.parseInt(msgArr[2].split("|")[0]);
+			    result[2] = Integer.parseInt(msgArr[3].split("|")[0]);
+			    result[3] = Integer.parseInt(msgArr[4].split("|")[0]);
+			    result[4] = Integer.parseInt(msgArr[5].split("|")[0]);
+			    result[5] = Integer.parseInt(msgArr[6].split("|")[0]);
+	            
+	            sFrontRight.senseReal(direction.getFrontRight(posRow, posCol), direction, currentGrid, result[0]);
+	    		sFrontLeft.senseReal(direction.getFrontLeft(posRow, posCol), direction, currentGrid, result[1]);
+	    		sFront.senseReal(direction.forward(posRow, posCol), direction, currentGrid, result[2]);
+	    		sLeft.senseReal(direction.getFrontLeft(posRow, posCol), direction.turnLeft(), currentGrid, result[3]);
+	    		lLeft.senseReal(direction.getLeft(posRow, posCol), direction.turnLeft(), currentGrid, result[4]);
+	    		sRight.senseReal(direction.getFrontRight(posRow, posCol), direction.turnRight(), currentGrid, result[5]);    	
+            }
+        }
     }
 
     public boolean isSafeMovement(Movement movement, Grid grid) {

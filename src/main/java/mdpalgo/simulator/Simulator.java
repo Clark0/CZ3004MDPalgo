@@ -28,7 +28,7 @@ public class Simulator {
 
     private int timeLimit;
     private int coverage;
-    public static boolean testWithAndroid = false;
+    public static boolean test = false;
 
     public Simulator() {
         robot = new Robot(Grid.START_ROW, Grid.START_COL, RobotConstant.START_DIR);
@@ -269,7 +269,7 @@ public class Simulator {
         class ExplorationDisplay extends SwingWorker<Integer, String> {
             protected Integer doInBackground() throws Exception {
                 // for android test
-                if (testWithAndroid) {
+                if (test) {
                     connection = Connection.getConnection();
                     connection.openConnection();
                     while (true) {
