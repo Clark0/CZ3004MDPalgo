@@ -17,6 +17,10 @@ public class Connection {
     public static final String BOT_START = "BOT_START"; // PC --> Arduino
     public static final String INSTR = "INSTR";         // PC --> Arduino
     public static final String SDATA = "obs";         // Arduino --> PC
+    public static final String IMAGE = "image"; // PC --> RPi
+    public static final String TNONE = "none"; // RPi --> PC
+    public static final String TFOUND = "found"; // RPi --> PC
+    public static final String TNOT = "not"; // RPi --> PC
 
     private static Connection connection = null;
     private static Socket socket = null;
@@ -89,6 +93,8 @@ public class Connection {
             String outputMsg;
             if (msgType.equals(INSTR)) {
                 outputMsg = "mov" + ":" + msg + "\n";
+            } else if (msgType.equals(IMAGE)) {
+                outputMsg = "image" + ":" + msg + "\n";
             } else if (msgType.equals(MAP)) {
                 outputMsg = "map" + ":" + msg + "\n";
             } else if (msgType.equals(BOT_POS)) {

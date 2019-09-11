@@ -1,10 +1,12 @@
 package mdpalgo.models;
 
 import mdpalgo.constants.Direction;
+import mdpalgo.utils.Connection;
 
 public class Sensor {
     private int lowerRange;
     private int upperRange;
+    private int iDirection;
 
     public Sensor(int lowerRange, int upperRange) {
         this.lowerRange = lowerRange;
@@ -45,9 +47,9 @@ public class Sensor {
     }
     
     public void senseReal(int[] pos, Direction direction, Grid currentGrid, int sensorVal) {
-    	if (sensorVal == 0) return;  // return value for LR sensor if obstacle before lowerRange
-
-        // If above fails, check if starting point is valid for sensors with lowerRange > 1.
+    	
+    	Connection connect = Connection.getConnection();
+    	
         for (int i = 1; i < this.lowerRange; i++) {
 
             if (!currentGrid.isValid(pos[0], pos[1])) return;
@@ -56,23 +58,55 @@ public class Sensor {
 
         // Update map according to sensor's value.
         for (int i = this.lowerRange; i <= this.upperRange; i++) {
-            if (!currentGrid.isValid(pos[0], pos[1])) continue;
+            int[] position = direction.forward(pos[0], pos[1], i);
+            int x = position[0];
+            int y = position[1];
+            
+            if (!currentGrid.isValid(x, y)) continue;
 
-            currentGrid.setExplored(pos[0], pos[1]);
+            currentGrid.setExplored(x, y);
 
             if (sensorVal == i) {
-                currentGrid.setObstacle(pos[0], pos[1]);
+            	
+            	switch (direction) {
+	                case NORTH:
+	                	iDirection = 0;
+	                case EAST:
+	                	iDirection = 1;
+	                case SOUTH:
+	                	iDirection = 2;
+	                case WEST:
+	                	iDirection = 3;
+	            }
+
+            	if (currentGrid.getImageObstacle(x, y, iDirection) != 1 || currentGrid.getImageObstacle(x, y, iDirection) != 2)
+            		takePhoto(currentGrid, x, y, iDirection);
+            	
+            	if (currentGrid.getImageObstacle(x, y, iDirection) == 3 && sensorVal == 1)
+                	takePhoto(currentGrid, x, y, iDirection);
+            	
+                currentGrid.setObstacle(x, y);
                 break;
             }
+        }
+    }
+    
+    public void takePhoto(Grid grid, int x, int y, int z) {
+    	
+    	Connection connect = Connection.getConnection();
+		connect.sendMsg("image," + x + "," + y, Connection.IMAGE);
 
-            /* Override previous obstacle value if front sensors detect no obstacle.
-            if (currentGrid.isObstacle(pos[0], pos[1])) {
-                if (id.equals("SRFL") || id.equals("SRFC") || id.equals("SRFR")) {
-                	currentGrid.setObstacle(pos[0], pos[1]);
-                } else {
-                    break;
-                }
-            }*/
+    	String msg = connect.recvMsg();
+        String[] msgArr = msg.split(":");
+
+        if (msgArr[0].equals(Connection.TNONE)) {
+        	grid.setImageObstacle(x, y, z, 1);
+        } 
+        if (msgArr[0].equals(Connection.TFOUND)) {
+        	grid.setImageObstacle(x, y, z, 2);
+        }
+        if (msgArr[0].equals(Connection.TNOT)) {
+        	grid.setImageObstacle(x, y, z, 3);
         }
     }
 }
