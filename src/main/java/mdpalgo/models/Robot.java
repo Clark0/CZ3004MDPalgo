@@ -127,12 +127,12 @@ public class Robot {
 			    result[4] = Integer.parseInt(msgArr[5].split("|")[0]);
 			    result[5] = Integer.parseInt(msgArr[6].split("|")[0]);
 	            
-	            sFrontRight.senseReal(direction.getFrontRight(posRow, posCol), direction, currentGrid, result[0]);
-	    		sFrontLeft.senseReal(direction.getFrontLeft(posRow, posCol), direction, currentGrid, result[1]);
-	    		sFront.senseReal(direction.forward(posRow, posCol), direction, currentGrid, result[2]);
-	    		sLeft.senseReal(direction.getFrontLeft(posRow, posCol), direction.turnLeft(), currentGrid, result[3]);
-	    		lLeft.senseReal(direction.getLeft(posRow, posCol), direction.turnLeft(), currentGrid, result[4]);
-	    		sRight.senseReal(direction.getFrontRight(posRow, posCol), direction.turnRight(), currentGrid, result[5]);    	
+	            sFrontRight.senseReal(direction.getFrontRight(posRow, posCol), direction, currentGrid, result[0], "SFR");
+	    		sFrontLeft.senseReal(direction.getFrontLeft(posRow, posCol), direction, currentGrid, result[1], "SFL");
+	    		sFront.senseReal(direction.forward(posRow, posCol), direction, currentGrid, result[2], "SF");
+	    		sLeft.senseReal(direction.getFrontLeft(posRow, posCol), direction.turnLeft(), currentGrid, result[3], "SL");
+	    		lLeft.senseReal(direction.getLeft(posRow, posCol), direction.turnLeft(), currentGrid, result[4], "LL");
+	    		sRight.senseReal(direction.getFrontRight(posRow, posCol), direction.turnRight(), currentGrid, result[5], "SR");    	
             }
         }
     }

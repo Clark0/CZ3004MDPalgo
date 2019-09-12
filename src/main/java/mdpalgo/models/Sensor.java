@@ -46,9 +46,7 @@ public class Sensor {
         return sense(pos[0], pos[1], direction, currentGrid, realGrid);
     }
     
-    public void senseReal(int[] pos, Direction direction, Grid currentGrid, int sensorVal) {
-    	
-    	Connection connect = Connection.getConnection();
+    public void senseReal(int[] pos, Direction direction, Grid currentGrid, int sensorVal, String sensorPos) {
     	
         for (int i = 1; i < this.lowerRange; i++) {
 
@@ -78,12 +76,14 @@ public class Sensor {
 	                case WEST:
 	                	iDirection = 3;
 	            }
-
-            	if (currentGrid.getImageObstacle(x, y, iDirection) != 1 || currentGrid.getImageObstacle(x, y, iDirection) != 2)
-            		takePhoto(currentGrid, x, y, iDirection);
             	
-            	if (currentGrid.getImageObstacle(x, y, iDirection) == 3 && sensorVal == 1)
-                	takePhoto(currentGrid, x, y, iDirection);
+            	if (sensorPos == "SF") {
+	            	if (currentGrid.getImageObstacle(x, y, iDirection) != 1 || currentGrid.getImageObstacle(x, y, iDirection) != 2)
+	            		takePhoto(currentGrid, x, y, iDirection);
+	            	
+	            	if (currentGrid.getImageObstacle(x, y, iDirection) == 3 && sensorVal == 1)
+	                	takePhoto(currentGrid, x, y, iDirection);            		
+            	}
             	
                 currentGrid.setObstacle(x, y);
                 break;
