@@ -10,8 +10,8 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 
 public class Connection {
-    public static final String EX_START = "algo:explore";   // Android --> PC
-    public static final String FP_START = "FP_START";   // Android --> PC
+    public static final String EX_START = "alg:explore";   // Android --> PC
+    public static final String FP_START = "alg:fast";   // Android --> PC
     public static final String MAP = "MAP";             // PC --> Android
     public static final String BOT_POS = "BOT_POS";     // PC --> Android
     public static final String BOT_START = "BOT_START"; // PC --> Arduino

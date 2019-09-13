@@ -100,4 +100,24 @@ public enum Direction {
     public int[] forward(int x, int y) {
         return forward(x, y, 1);
     }
+
+    @Override
+    public String toString() {
+        String s = null;
+        switch (this.ordinal) {
+            case 0:
+                s = "n";
+                break;
+            case 1:
+                s = "e";
+                break;
+            case 2:
+                s = "s";
+                break;
+            case 3:
+                s = "w";
+                break;
+        }
+        return s;
+    }
 }

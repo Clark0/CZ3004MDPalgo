@@ -240,15 +240,50 @@ public class Simulator {
 
         class FastestPathDisplay extends SwingWorker<Integer, String> {
             protected Integer doInBackground() throws Exception {
-                connection = Connection.getConnection();
-                connection.openConnection();
+                boolean hasWayPoint = false;
+                int[] wayPoint = new int[2];
+
+                if (test) {
+                    connection = Connection.getConnection();
+                    connection.openConnection();
+                    while (true) {
+                        if (connection.recvMsg().equals(Connection.FP_START)) {
+                            break;
+                        }
+
+                    }
+
+                    // dirty code of paring the message from android
+                    // expect the way point
+                    // alg:swp,5,6
+                    String message = connection.recvMsg();
+                    String[] values = message.split(":");
+                    if (values[0].equals("algo")) {
+                        values = values[1].split(",");
+                        if (values[0].equals("swap")) {
+                            hasWayPoint = true;
+                            wayPoint[0] = Integer.parseInt(values[1]);
+                            wayPoint[1] = Integer.parseInt(values[2]);
+                        }
+                    }
+                }
+
                 robot.setRobotPosition(Grid.START_ROW, Grid.START_COL);
                 robot.setDirection(RobotConstant.START_DIR);
 
-                FastestPath fastestPath = new FastestPath(realGrid, robot, Grid.GOAL_ROW, Grid.GOAL_COL);
-                System.out.println(realGrid.isVirtualWall(10, 14));
+                FastestPath fastestPath;
+                if (hasWayPoint) {
+                    // move to way point
+                    fastestPath = new FastestPath(realGrid, robot, wayPoint[0], wayPoint[1]);
+                    arena.update(realGrid, robot);
+                    fastestPath.runFastestPath(arena);
+                }
+
+                // move to goal
+                fastestPath = new FastestPath(realGrid, robot, Grid.GOAL_ROW, Grid.GOAL_COL);
                 arena.update(realGrid, robot);
                 fastestPath.runFastestPath(arena);
+
                 connection.closeConnection();
                 return 111;
             }
