@@ -7,6 +7,7 @@ public class Sensor {
     private int lowerRange;
     private int upperRange;
     private int iDirection;
+    private int iTaken = 0;
 
     public Sensor(int lowerRange, int upperRange) {
         this.lowerRange = lowerRange;
@@ -47,8 +48,7 @@ public class Sensor {
     }
     
     public void senseReal(int[] pos, Direction direction, Grid currentGrid, int sensorVal, String sensorPos) {
-    	
-        for (int i = 1; i < this.lowerRange; i++) {
+    	for (int i = 1; i < this.lowerRange; i++) {
 
             if (!currentGrid.isValid(pos[0], pos[1])) return;
             if (currentGrid.isObstacle(pos[0], pos[1])) return;
@@ -77,8 +77,8 @@ public class Sensor {
 	                	iDirection = 3;
 	            }
             	
-            	if (sensorPos == "SF") {
-	            	if (currentGrid.getImageObstacle(x, y, iDirection) != 1 || currentGrid.getImageObstacle(x, y, iDirection) != 2)
+            	if (sensorPos == "SF" && iTaken != 5) {
+	            	if (currentGrid.getImageObstacle(x, y, iDirection) != 2)
 	            		takePhoto(currentGrid, x, y, iDirection);
 	            	
 	            	if (currentGrid.getImageObstacle(x, y, iDirection) == 3 && sensorVal == 1)
@@ -94,19 +94,21 @@ public class Sensor {
     public void takePhoto(Grid grid, int x, int y, int z) {
     	
     	Connection connect = Connection.getConnection();
-		connect.sendMsg("image," + x + "," + y, Connection.IMAGE);
-
+		connect.sendMsg("img:" + x + "," + y, Connection.IMAGE);
+		System.out.println("img:" + x + "," + y);
+		
     	String msg = connect.recvMsg();
         String[] msgArr = msg.split(":");
+        String[] msgArr2 = msgArr[1].split(",");
 
-        if (msgArr[0].equals(Connection.TNONE)) {
-        	grid.setImageObstacle(x, y, z, 1);
-        } 
-        if (msgArr[0].equals(Connection.TFOUND)) {
-        	grid.setImageObstacle(x, y, z, 2);
-        }
-        if (msgArr[0].equals(Connection.TNOT)) {
-        	grid.setImageObstacle(x, y, z, 3);
+        if (msgArr[0].equals(-1)) {
+        	grid.setImageObstacle(Integer.parseInt(msgArr2[1]), Integer.parseInt(msgArr2[2]), z, 1);
+			System.out.println(msgArr2[0] + " " + msgArr2[1] + " " + msgArr2[2]);
+        } else {
+        	iTaken++;
+			for (int oDir = 0; oDir < 4; oDir++) {
+				grid.setImageObstacle(Integer.parseInt(msgArr2[1]), Integer.parseInt(msgArr2[2]), oDir, 2);
+			}
         }
     }
 }

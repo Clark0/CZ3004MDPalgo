@@ -17,7 +17,7 @@ public class Connection {
     public static final String BOT_START = "BOT_START"; // PC --> Arduino
     public static final String INSTR = "INSTR";         // PC --> Arduino
     public static final String SDATA = "obs";         // Arduino --> PC
-    public static final String IMAGE = "image"; // PC --> RPi
+    public static final String IMAGE = "img"; // PC --> RPi
     public static final String TNONE = "none"; // RPi --> PC
     public static final String TFOUND = "found"; // RPi --> PC
     public static final String TNOT = "not"; // RPi --> PC
