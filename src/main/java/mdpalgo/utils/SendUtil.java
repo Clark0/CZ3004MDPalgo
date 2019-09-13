@@ -13,6 +13,6 @@ public class SendUtil {
 
     public static void sendRobotPos(Robot robot) {
         connect = Connection.getConnection();
-        connect.sendMsg(robot.getPosRow() + "," + robot.getPosCol() + "," + robot.getDirection().ordinal(), Connection.BOT_POS);
+        connect.sendMsg(robot.getPosRow() + "," + robot.getPosCol() + "," + robot.getDirection().toString(), Connection.BOT_POS);
     }
 }

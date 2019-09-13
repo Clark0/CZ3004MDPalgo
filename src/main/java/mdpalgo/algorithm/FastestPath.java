@@ -157,7 +157,7 @@ public class FastestPath {
         this.arena = arena;
         List<State> path = this.findFastestPath();
         if (path == null) {
-            throw new RuntimeException("Unable to find the fastest path");
+            System.out.println("Unable to find the fastest path");
         }
         executePath(path);
     }
