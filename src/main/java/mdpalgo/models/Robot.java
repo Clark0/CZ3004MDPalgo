@@ -1,21 +1,17 @@
 package mdpalgo.models;
 
+import mdpalgo.constants.CommConstants;
 import mdpalgo.constants.Direction;
 import mdpalgo.constants.Movement;
 import mdpalgo.constants.RobotConstant;
 import mdpalgo.simulator.Simulator;
 import mdpalgo.utils.Connection;
-import mdpalgo.utils.GridDescriptor;
 
 /**
- * Represents the robot moving in the arena.
- *
- * The robot is represented by a 3 x 3 cell space as below:
- *
  *          ^   ^   ^
- *         SR  LR  SR      
- *   < SR [X] [X] [X]
- *   < LR [X] [X] [X] SR >
+ *         SR  SR  SR
+ *   < SR [X] [X] [X] SR >
+ *   < LR [X] [X] [X]
  *        [X] [X] [X]
  *
  * SR = Short Range Sensor, LR = Long Range Sensor
@@ -57,7 +53,7 @@ public class Robot {
     public void move(Movement movement, int step) {
     	
     	Connection connect = Connection.getConnection();
-        connect.sendMsg(Movement.print(movement) + "," + step , Connection.INSTR);
+        connect.sendMessage(Movement.print(movement) + "," + step , CommConstants.INSTR);
         
         if (step <= 0) {
             move(movement);
@@ -87,9 +83,9 @@ public class Robot {
         Connection connect = Connection.getConnection();
 
         if (movement == Movement.FORWARD) {
-        	connect.sendMsg(Movement.print(movement) + ",1", Connection.INSTR);
+        	connect.sendMessage(Movement.print(movement) + ",1", CommConstants.INSTR);
         } else {
-        	connect.sendMsg(Movement.print(movement) + ",0", Connection.INSTR);
+        	connect.sendMessage(Movement.print(movement) + ",0", CommConstants.INSTR);
         }
         this.direction = this.direction.rotate(movement);
         if (movement == Movement.FORWARD) {
@@ -116,10 +112,10 @@ public class Robot {
     		int[] result = new int[6];
     		
     		Connection connect = Connection.getConnection();
-        	String msg = connect.recvMsg();
+        	String msg = connect.receiveMessage();
             String[] msgArr = msg.split(":");
 
-            if (msgArr[0].equals(Connection.SDATA)) {
+            if (msgArr[0].equals(CommConstants.SDATA)) {
 			    result[0] = Integer.parseInt(msgArr[1].split("|")[0]);
 			    result[1] = Integer.parseInt(msgArr[2].split("|")[0]);
 			    result[2] = Integer.parseInt(msgArr[3].split("|")[0]);

@@ -5,13 +5,14 @@ import mdpalgo.algorithm.FastestPath;
 import mdpalgo.constants.RobotConstant;
 import mdpalgo.models.Grid;
 import mdpalgo.models.Robot;
-import mdpalgo.constants.Direction;
+import mdpalgo.constants.CommConstants;
 import mdpalgo.utils.Connection;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.Hashtable;
 import java.util.concurrent.TimeUnit;
 
 public class Simulator {
@@ -41,7 +42,7 @@ public class Simulator {
     public void simulate() {
         // initialize main frame
         _appFrame = new JFrame();
-        _appFrame.setTitle("MDP Group 5 Simulator");
+        _appFrame.setTitle("MDP Simulator");
         _appFrame.setSize(new Dimension(700, 720));
         _appFrame.setResizable(false);
 
@@ -132,22 +133,23 @@ public class Simulator {
                 changeSpeedDialog.setLocation(dim.width / 2 - _appFrame.getSize().width / 2,
                         dim.height / 2 - _appFrame.getSize().height / 2);
 
-                final JTextField speedTF = new JTextField(15);
-                JButton changeSpeedButton = new JButton("Change Speed(ms in delay)");
-                JLabel currentSpeed = new JLabel("Current Speed: " + robot.getSpeed() + "ms\n");
-                currentSpeed.setVerticalTextPosition(JLabel.BOTTOM);
+                int currentSpeed = (int) (1.0 / (robot.getSpeed() / 1000.0));
+                JSpinner spinner = new JSpinner(new SpinnerNumberModel(currentSpeed, 1, 30, 1));
+                JButton changeSpeedButton = new JButton("Change Speed(X steps per second)");
+                JLabel currentSpeedDisplay = new JLabel("Current Speed: " + currentSpeed + " steps per second\n");
+                currentSpeedDisplay.setVerticalTextPosition(JLabel.BOTTOM);
 
                 changeSpeedButton.addMouseListener(new MouseAdapter() {
                     public void mousePressed(MouseEvent e) {
                         changeSpeedDialog.setVisible(false);
-                        robot.setSpeed(Integer.parseInt(speedTF.getText()));
+                        robot.setSpeed((int)(1.0 / (int) spinner.getValue() * 1000) );
                         changeSpeedDialog.dispose();
                     }
                 });
 
                 changeSpeedDialog.add(new JLabel("Speed"));
-                changeSpeedDialog.add(speedTF);
-                changeSpeedDialog.add(currentSpeed);
+                changeSpeedDialog.add(spinner);
+                changeSpeedDialog.add(currentSpeedDisplay);
                 changeSpeedDialog.add(changeSpeedButton);
 
                 changeSpeedDialog.setVisible(true);
@@ -213,7 +215,19 @@ public class Simulator {
                 coverageDialog.setLocation(dim.width / 2 - _appFrame.getSize().width / 2,
                         dim.height / 2 - _appFrame.getSize().height / 2);
 
-                final JTextField coverageTF = new JTextField(15);
+                final JSlider slider = new JSlider(0, 100, coverage);
+                JLabel status = new JLabel("Slide the slider to set coverage limit", JLabel.CENTER);
+                slider.setPaintTicks(true);
+                Hashtable position = new Hashtable();
+                position.put(0, new JLabel("0"));
+                position.put(25, new JLabel("25"));
+                position.put(50, new JLabel("50"));
+                position.put(75, new JLabel("75"));
+                position.put(100, new JLabel("100"));
+                slider.setLabelTable(position);
+
+                slider.addChangeListener(e1 -> status.setText("Set the coverage to: " + ((JSlider) e1.getSource()).getValue() + "%"));
+
                 JButton changeSpeedButton = new JButton("Set Coverage Limit(%)");
                 String curCoverage = String.valueOf(coverage);
                 JLabel currentCoverage = new JLabel("Current Coverage Limit: " + curCoverage + "%\n");
@@ -222,13 +236,14 @@ public class Simulator {
                 changeSpeedButton.addMouseListener(new MouseAdapter() {
                     public void mousePressed(MouseEvent e) {
                         coverageDialog.setVisible(false);
-                        coverage = Integer.parseInt(coverageTF.getText());
+                        coverage = slider.getValue();
                         coverageDialog.dispose();
                     }
                 });
 
                 coverageDialog.add(new JLabel("Coverage"));
-                coverageDialog.add(coverageTF);
+                coverageDialog.add(slider);
+                coverageDialog.add(status);
                 coverageDialog.add(currentCoverage);
                 coverageDialog.add(changeSpeedButton);
 
@@ -247,7 +262,7 @@ public class Simulator {
                     connection = Connection.getConnection();
                     connection.openConnection();
                     while (true) {
-                        if (connection.recvMsg().equals(Connection.FP_START)) {
+                        if (connection.receiveMessage().equals(CommConstants.FP_START)) {
                             break;
                         }
 
@@ -256,7 +271,7 @@ public class Simulator {
                     // dirty code of paring the message from android
                     // expect the way point
                     // alg:swp,5,6
-                    String message = connection.recvMsg();
+                    String message = connection.receiveMessage();
                     String[] values = message.split(":");
                     if (values[0].equals("algo")) {
                         values = values[1].split(",");
@@ -308,7 +323,7 @@ public class Simulator {
                     connection = Connection.getConnection();
                     connection.openConnection();
                     while (true) {
-                        if (connection.recvMsg().equals(Connection.EX_START)) {
+                        if (connection.receiveMessage().equals(CommConstants.EX_START)) {
                             break;
                         }
                     }

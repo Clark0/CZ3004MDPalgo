@@ -35,15 +35,9 @@ public class Exploration {
                 && System.currentTimeMillis() < endTime) {
         	
             robot.sense(currentGrid, realGrid);
-            if (Simulator.test) {
-                SendUtil.sendGrid(currentGrid);
-            }
-            // refreshArena(currentGrid, robot);
-            
             if (newStrategy) {
             	nextMoveNew();
-            }
-            else {
+            } else {
             	nextMove();
             }
             
@@ -55,10 +49,14 @@ public class Exploration {
             
             if (Simulator.test) {
                 SendUtil.sendRobotPos(robot);
+                SendUtil.sendGrid(currentGrid);
             }
             System.out.println("Area explored : " + currentGrid.countExplored());
         }
-        returnStart();
+
+        if (currentGrid.countExplored() == Grid.GRID_SIZE) {
+            returnStart();
+        }
     }
 
     public void returnStart() {
@@ -108,5 +106,9 @@ public class Exploration {
         } else {
             moveRobot(Movement.BACKWARD);
         }
+    }
+
+    public void setCoverage(int coverage) {
+        this.coverage = coverage;
     }
 }

@@ -7,23 +7,12 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
-import java.net.UnknownHostException;
 
 public class Connection {
-    public static final String EX_START = "alg:explore";   // Android --> PC
-    public static final String FP_START = "alg:fast";   // Android --> PC
-    public static final String MAP = "MAP";             // PC --> Android
-    public static final String BOT_POS = "BOT_POS";     // PC --> Android
-    public static final String BOT_START = "BOT_START"; // PC --> Arduino
-    public static final String INSTR = "INSTR";         // PC --> Arduino
-    public static final String SDATA = "obs";         // Arduino --> PC
-    public static final String IMAGE = "img"; // PC --> RPi
-    public static final String TNONE = "none"; // RPi --> PC
-    public static final String TFOUND = "found"; // RPi --> PC
-    public static final String TNOT = "not"; // RPi --> PC
-
     private static Connection connection = null;
-    private static Socket socket = null;
+    private Socket socket = null;
+    private static String HOST = "192.168.5.5";
+    private static int PORT = 5182;
 
     private BufferedWriter writer;
     private BufferedReader reader;
@@ -39,104 +28,56 @@ public class Connection {
     }
 
     public void openConnection() {
-        System.out.println("Opening connection...");
-
         try {
-            // String HOST = "127.0.0.1";
-            String HOST = "192.168.5.5";
-            int PORT = 5182;
             socket = new Socket(HOST, PORT);
-
             writer = new BufferedWriter(new OutputStreamWriter(new BufferedOutputStream(socket.getOutputStream())));
             reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-
-            System.out.println("openConnection() --> " + "Connection established successfully!");
-
-            return;
-        } catch (UnknownHostException e) {
-            System.out.println("openConnection() --> UnknownHostException");
+            System.out.println("Connection established successfully!");
         } catch (IOException e) {
-            System.out.println("openConnection() --> IOException");
-        } catch (Exception e) {
-            System.out.println("openConnection() --> Exception");
-            System.out.println(e.toString());
+            e.printStackTrace();
+            System.out.println("Socket connection failed ");
         }
-
-        System.out.println("Failed to establish connection!");
     }
 
     public void closeConnection() {
-        System.out.println("Closing connection...");
-
         try {
             reader.close();
-
             if (socket != null) {
                 socket.close();
                 socket = null;
             }
             System.out.println("Connection closed!");
         } catch (IOException e) {
-            System.out.println("closeConnection() --> IOException");
-        } catch (NullPointerException e) {
-            System.out.println("closeConnection() --> NullPointerException");
-        } catch (Exception e) {
-            System.out.println("closeConnection() --> Exception");
-            System.out.println(e.toString());
+            e.printStackTrace();
         }
     }
 
-    public void sendMsg(String msg, String msgType) {
-        System.out.println("Sending a message...");
-
+    public void sendMessage(String target, String message) {
         try {
-            String outputMsg;
-            if (msgType.equals(INSTR)) {
-                outputMsg = "mov" + ":" + msg + "\n";
-            } else if (msgType.equals(IMAGE)) {
-                outputMsg = "image" + ":" + msg + "\n";
-            } else if (msgType.equals(MAP)) {
-                outputMsg = "map" + ":" + msg + "\n";
-            } else if (msgType.equals(BOT_POS)) {
-                outputMsg = "pos" + ":" + msg + "\n";
-            } else {
-                outputMsg = msg;
-            }
-
-            System.out.println("Sending out message:\n" + outputMsg);
-            writer.write(outputMsg);
+            writer.write(target + message + "\n");
             writer.flush();
+            System.out.println("Sent message:" + target + message);
         } catch (IOException e) {
-            System.out.println("sendMsg() --> IOException");
+            System.out.println("Send message IOException");
         } catch (Exception e) {
-            System.out.println("sendMsg() --> Exception");
+            System.out.println("Send message Exception");
             System.out.println(e.toString());
         }
     }
 
-    public String recvMsg() {
-        System.out.println("Receiving a message...");
-
+    public String receiveMessage() {
         try {
-            StringBuilder sb = new StringBuilder();
-            String input = reader.readLine();
+            String message = reader.readLine();
 
-            if (input != null && input.length() > 0) {
-                sb.append(input);
-                System.out.println("message received: " + sb.toString());
-                return sb.toString();
+            if (message != null &&  message.length() > 0) {
+                System.out.println("message received: " + message);
+                return message;
             }
         } catch (IOException e) {
-            System.out.println("recvMsg() --> IOException");
+            System.out.println("receive message IOException");
         } catch (Exception e) {
-            System.out.println("recvMsg() --> Exception");
-            System.out.println(e.toString());
+            e.printStackTrace();
         }
-
         return null;
-    }
-
-    public boolean isConnected() {
-        return socket.isConnected();
     }
 }

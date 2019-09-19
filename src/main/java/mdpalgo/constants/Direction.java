@@ -45,8 +45,10 @@ public enum Direction {
             case 0:
                 return Movement.FORWARD;
             case 2:
+            case -2:
                 return Movement.BACKWARD;
         }
+        System.out.println("Unexpected direction");
         throw new RuntimeException("Unexpected direction");
     }
 

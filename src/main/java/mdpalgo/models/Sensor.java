@@ -1,5 +1,6 @@
 package mdpalgo.models;
 
+import mdpalgo.constants.CommConstants;
 import mdpalgo.constants.Direction;
 import mdpalgo.utils.Connection;
 
@@ -94,10 +95,10 @@ public class Sensor {
     public void takePhoto(Grid grid, int x, int y, int z) {
     	
     	Connection connect = Connection.getConnection();
-		connect.sendMsg("img:" + x + "," + y, Connection.IMAGE);
+		connect.sendMessage("img:" + x + "," + y, CommConstants.IMAGE);
 		System.out.println("img:" + x + "," + y);
 		
-    	String msg = connect.recvMsg();
+    	String msg = connect.receiveMessage();
         String[] msgArr = msg.split(":");
         String[] msgArr2 = msgArr[1].split(",");
 
