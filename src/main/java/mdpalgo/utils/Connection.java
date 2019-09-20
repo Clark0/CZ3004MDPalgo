@@ -54,7 +54,7 @@ public class Connection {
 
     public void sendMessage(String target, String message) {
         try {
-            writer.write(target + message + "\n");
+            writer.write(target + ":" + message + "\n");
             writer.flush();
             System.out.println("Sent message:" + target + message);
         } catch (IOException e) {

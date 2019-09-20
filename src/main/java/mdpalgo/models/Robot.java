@@ -6,6 +6,7 @@ import mdpalgo.constants.Movement;
 import mdpalgo.constants.RobotConstant;
 import mdpalgo.simulator.Simulator;
 import mdpalgo.utils.Connection;
+import mdpalgo.utils.SendUtil;
 
 /**
  *          ^   ^   ^
@@ -52,9 +53,8 @@ public class Robot {
 
     public void move(Movement movement, int step) {
     	
-    	Connection connect = Connection.getConnection();
-        connect.sendMessage(Movement.print(movement) + "," + step , CommConstants.INSTR);
-        
+        SendUtil.sendMoveRobotCommand(movement, step);
+
         if (step <= 0) {
             move(movement);
             return;
@@ -80,13 +80,7 @@ public class Robot {
             e.printStackTrace();
         }
 
-        Connection connect = Connection.getConnection();
-
-        if (movement == Movement.FORWARD) {
-        	connect.sendMessage(Movement.print(movement) + ",1", CommConstants.INSTR);
-        } else {
-        	connect.sendMessage(Movement.print(movement) + ",0", CommConstants.INSTR);
-        }
+        SendUtil.sendMoveRobotCommand(movement, 1);
         this.direction = this.direction.rotate(movement);
         if (movement == Movement.FORWARD) {
             // Only the Forward command will move the robot
@@ -115,7 +109,7 @@ public class Robot {
         	String msg = connect.receiveMessage();
             String[] msgArr = msg.split(":");
 
-            if (msgArr[0].equals(CommConstants.SDATA)) {
+            if (msgArr[0].equals(CommConstants.OBS)) {
 			    result[0] = Integer.parseInt(msgArr[1].split("|")[0]);
 			    result[1] = Integer.parseInt(msgArr[2].split("|")[0]);
 			    result[2] = Integer.parseInt(msgArr[3].split("|")[0]);

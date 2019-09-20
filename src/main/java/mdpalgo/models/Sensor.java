@@ -95,7 +95,8 @@ public class Sensor {
     public void takePhoto(Grid grid, int x, int y, int z) {
     	
     	Connection connect = Connection.getConnection();
-		connect.sendMessage("img:" + x + "," + y, CommConstants.IMAGE);
+		connect.sendMessage(CommConstants.IMAGE, "img:" + x + "," + y);
+
 		System.out.println("img:" + x + "," + y);
 		
     	String msg = connect.receiveMessage();
