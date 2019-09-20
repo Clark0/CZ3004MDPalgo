@@ -7,11 +7,14 @@ import mdpalgo.models.Grid;
 import mdpalgo.models.Robot;
 import mdpalgo.constants.CommConstants;
 import mdpalgo.utils.Connection;
+import org.apache.commons.io.Charsets;
+import org.apache.commons.io.IOUtils;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.IOException;
 import java.util.Hashtable;
 import java.util.concurrent.TimeUnit;
 
@@ -92,20 +95,27 @@ public class Simulator {
                 // Center the main frame in the middle of the screen
                 Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
                 JDialog loadMapDialog = new JDialog(_appFrame, "Load Map", true);
-                loadMapDialog.setSize(400, 100);
+                loadMapDialog.setSize(400, 500);
                 loadMapDialog.setResizable(false);
                 loadMapDialog.setResizable(false);
                 loadMapDialog.setLocation(dim.width / 2 - _appFrame.getSize().width / 2,
                         dim.height / 2 - _appFrame.getSize().height / 2);
                 loadMapDialog.setLayout(new FlowLayout());
 
-                final JTextField loadTF = new JTextField(15);
                 JButton loadMapButton = new JButton("Load");
+                java.util.List<String> files = null;
 
+                try {
+                    files = IOUtils.readLines(Simulator.class.getClassLoader().getResourceAsStream("maps/"), Charsets.UTF_8);
+
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+                final JList fileList = new JList(files.toArray());
                 loadMapButton.addMouseListener(new MouseAdapter() {
                     public void mousePressed(MouseEvent e) {
                         loadMapDialog.setVisible(false);
-                        realGrid = Grid.loadGridFromFile(loadTF.getText());
+                        realGrid = Grid.loadGridFromFile(fileList.getSelectedValue().toString());
                         CardLayout cl = ((CardLayout) _mapCards.getLayout());
                         cl.show(_mapCards, "REAL_MAP");
                         arena.update(realGrid, robot);
@@ -114,7 +124,7 @@ public class Simulator {
                 });
 
                 loadMapDialog.add(new JLabel("File Name: "));
-                loadMapDialog.add(loadTF);
+                loadMapDialog.add(fileList);
                 loadMapDialog.add(loadMapButton);
                 loadMapDialog.setVisible(true);
             }

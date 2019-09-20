@@ -19,7 +19,7 @@ public class GridDescriptor {
     public static Grid loadGrid(String filename) {
         Grid grid = new Grid();
         try {
-            InputStream inputStream = GridDescriptor.class.getClassLoader().getResourceAsStream(MAPS_DIR + filename + ".txt");
+            InputStream inputStream = GridDescriptor.class.getClassLoader().getResourceAsStream(MAPS_DIR + filename);
             List<String> lines = IOUtils.readLines(inputStream, StandardCharsets.UTF_8);
             for (int j = Grid.ROWS - 1; j >= 0; j--) {
                 for (int i = 0; i < Grid.COLS; i++) {
