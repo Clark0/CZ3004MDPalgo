@@ -32,7 +32,7 @@ public class Simulator {
 
     private int timeLimit;
     private int coverage;
-    public static boolean test = false;
+    public static boolean test = true;
 
     public Simulator() {
         robot = new Robot(Grid.START_ROW, Grid.START_COL, RobotConstant.START_DIR);

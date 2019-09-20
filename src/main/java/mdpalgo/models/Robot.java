@@ -100,9 +100,7 @@ public class Robot {
     		sLeft.sense(direction.getFrontLeft(posRow, posCol), direction.turnLeft(), currentGrid, realGrid);
     		lLeft.sense(direction.getLeft(posRow, posCol), direction.turnLeft(), currentGrid, realGrid);
     		sRight.sense(direction.getFrontRight(posRow, posCol), direction.turnRight(), currentGrid, realGrid);    
-		}
-    	else {
-    		
+		} else {
     		int[] result = new int[6];
     		
     		Connection connect = Connection.getConnection();

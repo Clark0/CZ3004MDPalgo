@@ -49,33 +49,31 @@ public class Sensor {
     }
     
     public void senseReal(int[] pos, Direction direction, Grid currentGrid, int sensorVal, String sensorPos) {
-    	for (int i = 1; i < this.lowerRange; i++) {
-
-            if (!currentGrid.isValid(pos[0], pos[1])) return;
-            if (currentGrid.isObstacle(pos[0], pos[1])) return;
-        }
-
         // Update map according to sensor's value.
         for (int i = this.lowerRange; i <= this.upperRange; i++) {
             int[] position = direction.forward(pos[0], pos[1], i);
             int x = position[0];
             int y = position[1];
-            
-            if (!currentGrid.isValid(x, y)) continue;
 
+            if (!currentGrid.isValid(x, y)) return;
             currentGrid.setExplored(x, y);
 
             if (sensorVal == i) {
-            	
+                // obstacle position
+
             	switch (direction) {
 	                case NORTH:
 	                	iDirection = 0;
+	                	break;
 	                case EAST:
 	                	iDirection = 1;
+	                	break;
 	                case SOUTH:
 	                	iDirection = 2;
+	                	break;
 	                case WEST:
 	                	iDirection = 3;
+	                	break;
 	            }
             	
             	if (sensorPos == "SF" && iTaken != 5) {
