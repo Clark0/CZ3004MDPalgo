@@ -6,7 +6,6 @@ import mdpalgo.constants.Movement;
 import mdpalgo.constants.RobotConstant;
 import mdpalgo.simulator.Simulator;
 import mdpalgo.utils.Connection;
-import mdpalgo.utils.SendUtil;
 
 /**
  *          ^   ^   ^
@@ -52,9 +51,6 @@ public class Robot {
     }
 
     public void move(Movement movement, int step) {
-    	
-        SendUtil.sendMoveRobotCommand(movement, step);
-
         if (step <= 0) {
             move(movement);
             return;
@@ -80,7 +76,6 @@ public class Robot {
             e.printStackTrace();
         }
 
-        SendUtil.sendMoveRobotCommand(movement, 1);
         this.direction = this.direction.rotate(movement);
         if (movement == Movement.FORWARD) {
             // Only the Forward command will move the robot
@@ -92,7 +87,7 @@ public class Robot {
 
     public void sense(Grid currentGrid, Grid realGrid) {
     	
-    	if(!Simulator.test) {
+    	if(!Simulator.testRobot) {
     		
     		sFrontRight.sense(direction.getFrontRight(posRow, posCol), direction, currentGrid, realGrid);
     		sFrontLeft.sense(direction.getFrontLeft(posRow, posCol), direction, currentGrid, realGrid);

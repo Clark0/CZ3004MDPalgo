@@ -32,7 +32,9 @@ public class Simulator {
 
     private int timeLimit;
     private int coverage;
-    public static boolean test = true;
+    public static boolean testRobot = false;
+    public static boolean testAndroid = true;
+
 
     public Simulator() {
         robot = new Robot(Grid.START_ROW, Grid.START_COL, RobotConstant.START_DIR);
@@ -71,6 +73,31 @@ public class Simulator {
         // Display the application
         _appFrame.setVisible(true);
         _appFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+
+        if (testAndroid) {
+            connection = Connection.getConnection();
+            connection.openConnection();
+            while (true) {
+                String receivedMsg = connection.receiveMessage();
+                if (receivedMsg.equals(CommConstants.EX_START)) {
+                    CardLayout cl = ((CardLayout) _mapCards.getLayout());
+                    cl.show(_mapCards, "EXPLORATION");
+                    System.out.println("exploration");
+                    new ExplorationDisplay().execute();
+                }
+
+                if (receivedMsg.equals(CommConstants.FP_START)) {
+                    System.out.println("fastestPath");
+                    CardLayout cl = ((CardLayout) _mapCards.getLayout());
+                    cl.show(_mapCards, "REAL_MAP");
+                    new FastestPathDisplay().execute();
+                }
+
+                if (receivedMsg.equals("msg:init pc")) {
+                    connection.sendMessage("msg", "pc up");
+                }
+            }
+        }
     }
 
     private void initMainLayout() {
@@ -83,6 +110,63 @@ public class Simulator {
     private void initButtonsLayout() {
         _buttons.setLayout(new GridLayout());
         addButtons();
+    }
+
+    class ExplorationDisplay extends SwingWorker<Integer, String> {
+        protected Integer doInBackground() throws Exception {
+            // for android test
+
+            robot.setRobotPosition(Grid.START_ROW, Grid.START_COL);
+            robot.setDirection(RobotConstant.START_DIR);
+            currentGrid = Grid.initCurrentGrid(robot);
+
+            arena.update(currentGrid, robot);
+            Exploration exploration = new Exploration(currentGrid, realGrid, robot, timeLimit, coverage);
+            exploration.explore(arena);
+            return 111;
+        }
+    }
+
+    class FastestPathDisplay extends SwingWorker<Integer, String> {
+        protected Integer doInBackground() throws Exception {
+            boolean hasWayPoint = false;
+            int[] wayPoint = new int[2];
+
+            if (testAndroid) {
+                connection = Connection.getConnection();
+                // dirty code of paring the message from android
+                // expect the way point
+                // alg:swp,5,6
+                String message = connection.receiveMessage();
+                String[] values = message.split(":");
+                if (values[0].equals("alg")) {
+                    values = values[1].split(",");
+                    if (values[0].equals("swp")) {
+                        hasWayPoint = true;
+                        wayPoint[0] = Integer.parseInt(values[1]);
+                        wayPoint[1] = Integer.parseInt(values[2]);
+                    }
+                }
+            }
+
+            robot.setRobotPosition(Grid.START_ROW, Grid.START_COL);
+            robot.setDirection(RobotConstant.START_DIR);
+
+            FastestPath fastestPath;
+            if (hasWayPoint) {
+                // move to way point
+                fastestPath = new FastestPath(realGrid, robot, wayPoint[0], wayPoint[1]);
+                arena.update(realGrid, robot);
+                fastestPath.runFastestPath(arena);
+            }
+
+            // move to goal
+            fastestPath = new FastestPath(realGrid, robot, Grid.GOAL_ROW, Grid.GOAL_COL);
+            arena.update(realGrid, robot);
+            fastestPath.runFastestPath(arena);
+
+            return 111;
+        }
     }
 
     private void addButtons() {
@@ -263,56 +347,6 @@ public class Simulator {
 
         _buttons.add(btn_SetCoverage);
 
-        class FastestPathDisplay extends SwingWorker<Integer, String> {
-            protected Integer doInBackground() throws Exception {
-                boolean hasWayPoint = false;
-                int[] wayPoint = new int[2];
-
-                if (test) {
-                    connection = Connection.getConnection();
-                    connection.openConnection();
-                    while (true) {
-                        if (connection.receiveMessage().equals(CommConstants.FP_START)) {
-                            break;
-                        }
-
-                    }
-
-                    // dirty code of paring the message from android
-                    // expect the way point
-                    // alg:swp,5,6
-                    String message = connection.receiveMessage();
-                    String[] values = message.split(":");
-                    if (values[0].equals("algo")) {
-                        values = values[1].split(",");
-                        if (values[0].equals("swap")) {
-                            hasWayPoint = true;
-                            wayPoint[0] = Integer.parseInt(values[1]);
-                            wayPoint[1] = Integer.parseInt(values[2]);
-                        }
-                    }
-                }
-
-                robot.setRobotPosition(Grid.START_ROW, Grid.START_COL);
-                robot.setDirection(RobotConstant.START_DIR);
-
-                FastestPath fastestPath;
-                if (hasWayPoint) {
-                    // move to way point
-                    fastestPath = new FastestPath(realGrid, robot, wayPoint[0], wayPoint[1]);
-                    arena.update(realGrid, robot);
-                    fastestPath.runFastestPath(arena);
-                }
-
-                // move to goal
-                fastestPath = new FastestPath(realGrid, robot, Grid.GOAL_ROW, Grid.GOAL_COL);
-                arena.update(realGrid, robot);
-                fastestPath.runFastestPath(arena);
-
-                connection.closeConnection();
-                return 111;
-            }
-        }
 
         // Fastest Path Button
         JButton btn_FastestPath = new JButton("Fastest Path");
@@ -326,30 +360,6 @@ public class Simulator {
         });
         _buttons.add(btn_FastestPath);
 
-        class ExplorationDisplay extends SwingWorker<Integer, String> {
-            protected Integer doInBackground() throws Exception {
-                // for android test
-                if (test) {
-                    connection = Connection.getConnection();
-                    connection.openConnection();
-                    while (true) {
-                        if (connection.receiveMessage().equals(CommConstants.EX_START)) {
-                            break;
-                        }
-                    }
-                }
-
-                robot.setRobotPosition(Grid.START_ROW, Grid.START_COL);
-                robot.setDirection(RobotConstant.START_DIR);
-                currentGrid = Grid.initCurrentGrid(robot);
-
-                arena.update(currentGrid, robot);
-                Exploration exploration = new Exploration(currentGrid, realGrid, robot, timeLimit, coverage);
-                exploration.explore(arena);
-                connection.closeConnection();
-                return 111;
-            }
-        }
 
         JButton btn_Exploration = new JButton("Exploration");
         formatButton(btn_Exploration);

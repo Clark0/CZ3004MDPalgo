@@ -35,6 +35,10 @@ public class Exploration {
                 && System.currentTimeMillis() < endTime) {
         	
             robot.sense(currentGrid, realGrid);
+            if (Simulator.testAndroid) {
+                SendUtil.sendGrid(currentGrid);
+            }
+
             if (newStrategy) {
             	nextMoveNew();
             } else {
@@ -46,11 +50,7 @@ public class Exploration {
                 moveRobot(Movement.BACKWARD);
                 newStrategy = !newStrategy;
         	}
-            
-            if (Simulator.test) {
-                SendUtil.sendRobotPos(robot);
-                SendUtil.sendGrid(currentGrid);
-            }
+
             System.out.println("Area explored : " + currentGrid.countExplored());
         }
 
@@ -66,10 +66,16 @@ public class Exploration {
 
     private void moveRobot(Movement movement) {
         robot.move(movement);
+        if (Simulator.testRobot) {
+            SendUtil.sendMoveRobotCommand(movement, 1);
+        }
+        if (Simulator.testAndroid) {
+            SendUtil.sendRobotPos(robot);
+        }
+
         preMovement = movement;
         if (arena != null)
             arena.repaint();
-        SendUtil.sendRobotPos(robot);
     }
 
     private void nextMove() {

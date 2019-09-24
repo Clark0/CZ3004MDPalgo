@@ -1,7 +1,7 @@
 import socket
 
 HOST = "localhost"
-PORT = 8001
+PORT = 5182
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 print('Socket create')
 
@@ -13,7 +13,10 @@ s.listen(10)
 print("Socket listening HOST: {} PORT: {}".format(HOST, PORT))
 conn, addr = s.accept()
 while(True):
-    data = conn.recv(2048)
-    if data:
-        print(data.decode(encoding="UTF-8"))
+    msg = input("Send message: ").rstrip() + "\n"
+    conn.send(msg.encode())
+
+    # data = conn.recv(2048)
+    # if data:
+    #     print(data.decode(encoding="UTF-8"))
 
