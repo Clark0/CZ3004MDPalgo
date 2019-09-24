@@ -77,11 +77,11 @@ public class Sensor {
 	            }
             	
             	if (sensorPos == "SF" && iTaken != 5) {
-	            	if (currentGrid.getImageObstacle(x, y, iDirection) != 2)
-	            		takePhoto(currentGrid, x, y, iDirection);
-	            	
-	            	if (currentGrid.getImageObstacle(x, y, iDirection) == 3 && sensorVal == 1)
-	                	takePhoto(currentGrid, x, y, iDirection);            		
+	            	if (currentGrid.getImageObstacle(x, y, iDirection) != 0 || currentGrid.getImageObstacle(x, y, iDirection) != 1) {
+	            		if (sensorVal != 1) {
+	            			takePhoto(currentGrid, x, y, iDirection, sensorVal);
+	            		}
+	            	}       		
             	}
             	
                 currentGrid.setObstacle(x, y);
@@ -90,24 +90,24 @@ public class Sensor {
         }
     }
     
-    public void takePhoto(Grid grid, int x, int y, int z) {
+    public void takePhoto(Grid grid, int x, int y, int z, int range) {
     	
     	Connection connect = Connection.getConnection();
-		connect.sendMessage(CommConstants.IMAGE, "img:" + x + "," + y);
+		connect.sendMessage(CommConstants.IMAGE, "img:" + x + "," + y + "," + range);
 
-		System.out.println("img:" + x + "," + y);
+		System.out.println("img:" + x + "," + y + "," + range);
 		
     	String msg = connect.receiveMessage();
         String[] msgArr = msg.split(":");
         String[] msgArr2 = msgArr[1].split(",");
 
         if (msgArr[0].equals(-1)) {
-        	grid.setImageObstacle(Integer.parseInt(msgArr2[1]), Integer.parseInt(msgArr2[2]), z, 1);
+        	grid.setImageObstacle(Integer.parseInt(msgArr2[1]), Integer.parseInt(msgArr2[2]), z, 0);
 			System.out.println(msgArr2[0] + " " + msgArr2[1] + " " + msgArr2[2]);
         } else {
         	iTaken++;
 			for (int oDir = 0; oDir < 4; oDir++) {
-				grid.setImageObstacle(Integer.parseInt(msgArr2[1]), Integer.parseInt(msgArr2[2]), oDir, 2);
+				grid.setImageObstacle(Integer.parseInt(msgArr2[1]), Integer.parseInt(msgArr2[2]), oDir, 1);
 			}
         }
     }
