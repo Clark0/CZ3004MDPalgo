@@ -101,14 +101,15 @@ public class Robot {
     		Connection connect = Connection.getConnection();
         	String msg = connect.receiveMessage();
             String[] msgArr = msg.split(":");
+            String[] msgArr2 = msgArr[1].split("|");
 
             if (msgArr[0].equals(CommConstants.OBS)) {
-			    result[0] = Integer.parseInt(msgArr[1].split("|")[0]);
-			    result[1] = Integer.parseInt(msgArr[2].split("|")[0]);
-			    result[2] = Integer.parseInt(msgArr[3].split("|")[0]);
-			    result[3] = Integer.parseInt(msgArr[4].split("|")[0]);
-			    result[4] = Integer.parseInt(msgArr[5].split("|")[0]);
-			    result[5] = Integer.parseInt(msgArr[6].split("|")[0]);
+			    result[0] = Integer.parseInt(msgArr2[0]);
+			    result[1] = Integer.parseInt(msgArr2[1]);
+			    result[2] = Integer.parseInt(msgArr2[2]);
+			    result[3] = Integer.parseInt(msgArr2[3]);
+			    result[4] = Integer.parseInt(msgArr2[4]);
+			    result[5] = Integer.parseInt(msgArr2[5]);
 	            
 	            sFrontRight.senseReal(direction.getFrontRight(posRow, posCol), direction, currentGrid, result[0], "SFR");
 	    		sFrontLeft.senseReal(direction.getFrontLeft(posRow, posCol), direction, currentGrid, result[1], "SFL");
