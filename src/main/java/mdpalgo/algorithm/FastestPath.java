@@ -5,6 +5,7 @@ import mdpalgo.constants.Movement;
 import mdpalgo.models.Grid;
 import mdpalgo.models.Robot;
 import mdpalgo.simulator.Arena;
+import mdpalgo.simulator.Simulator;
 import mdpalgo.utils.SendUtil;
 
 import java.util.ArrayList;
@@ -12,8 +13,6 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.PriorityQueue;
-
-import static mdpalgo.utils.ArenaPrintUtil.printFastestPath;
 
 
 public class FastestPath {
@@ -92,7 +91,12 @@ public class FastestPath {
 
     private void moveRobot(Movement m) {
         this.robot.move(m, 1);
-        SendUtil.sendRobotPos(robot);
+        if (Simulator.testAndroid) {
+            SendUtil.sendRobotPos(robot);
+        }
+        if (Simulator.testRobot) {
+            SendUtil.sendMoveRobotCommand(m, 1);
+        }
     }
 
     private boolean isGoalState(State state) {

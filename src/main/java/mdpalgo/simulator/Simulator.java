@@ -33,7 +33,7 @@ public class Simulator {
     private int timeLimit;
     private int coverage;
     public static boolean testRobot = false;
-    public static boolean testAndroid = true;
+    public static boolean testAndroid = false;
 
 
     public Simulator() {
@@ -74,9 +74,9 @@ public class Simulator {
         _appFrame.setVisible(true);
         _appFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
+        connection = Connection.getConnection();
+        connection.openConnection();
         if (testAndroid) {
-            connection = Connection.getConnection();
-            connection.openConnection();
             while (true) {
                 String receivedMsg = connection.receiveMessage();
                 if (receivedMsg.equals(CommConstants.EX_START)) {

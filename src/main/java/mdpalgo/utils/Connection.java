@@ -20,6 +20,10 @@ public class Connection {
     private Connection() {
     }
 
+    public static void setLocalConnection(boolean isLocal) {
+        HOST = isLocal ? "127.0.0.1" : "192.168.5.5";
+    }
+
     public static Connection getConnection() {
         if (connection == null) {
             connection = new Connection();
@@ -62,7 +66,7 @@ public class Connection {
             String out = sb.toString();
             writer.write(out);
             writer.flush();
-            System.out.println("Sent message: " + out);
+            System.out.print("Sent message: " + out);
         } catch (IOException e) {
             System.out.println("Send message IOException");
         } catch (Exception e) {
