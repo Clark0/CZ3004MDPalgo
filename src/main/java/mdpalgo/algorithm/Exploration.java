@@ -36,7 +36,7 @@ public class Exploration {
         	
             robot.sense(currentGrid, realGrid);
             if (Simulator.testAndroid) {
-                SendUtil.sendGrid(currentGrid);
+                //SendUtil.sendGrid(currentGrid);
             }
 
             if (newStrategy) {
