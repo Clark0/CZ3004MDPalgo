@@ -159,6 +159,9 @@ public class FastestPath {
 
     public void runFastestPath(Arena arena) {
         this.arena = arena;
+        if (Simulator.testAndroid) {
+            SendUtil.sendGrid(arena.getGrid());
+        }
         List<State> path = this.findFastestPath();
         if (path == null) {
             System.out.println("Unable to find the fastest path");

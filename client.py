@@ -13,10 +13,10 @@ s.listen(10)
 print("Socket listening HOST: {} PORT: {}".format(HOST, PORT))
 conn, addr = s.accept()
 while(True):
-    # msg = input("Send message: ").rstrip() + "\n"
-    # conn.send(msg.encode())
+    msg = input("Send message: ").rstrip() + "\n"
+    conn.send(msg.encode())
 
-    data = conn.recv(2048)
-    if data:
-        print(data.decode(encoding="UTF-8"))
+    # data = conn.recv(2048)
+    # if data:
+    #     print(data.decode(encoding="UTF-8"))
 

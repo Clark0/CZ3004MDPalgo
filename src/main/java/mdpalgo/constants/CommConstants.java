@@ -11,4 +11,6 @@ public class CommConstants {
     public static final String MOVE = "mov";
     public static final String OBS = "obs";
     public static final String IMAGE = "img";
+    public static final String WAY_POINT = "swp";
+    public static final String START_POINT = "start";
 }

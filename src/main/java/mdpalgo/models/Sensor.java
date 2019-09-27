@@ -5,14 +5,16 @@ import mdpalgo.constants.Direction;
 import mdpalgo.utils.Connection;
 
 public class Sensor {
+    private final String id;
     private int lowerRange;
     private int upperRange;
     private int iDirection;
     private int iTaken = 0;
 
-    public Sensor(int lowerRange, int upperRange) {
+    public Sensor(int lowerRange, int upperRange, String id) {
         this.lowerRange = lowerRange;
         this.upperRange = upperRange;
+        this.id = id;
     }
 
     public int sense(int row, int col, Direction direction, Grid currentGrid, Grid realGrid) {
@@ -48,7 +50,7 @@ public class Sensor {
         return sense(pos[0], pos[1], direction, currentGrid, realGrid);
     }
     
-    public void senseReal(int[] pos, Direction direction, Grid currentGrid, int sensorVal, String sensorPos) {
+    public void senseReal(int[] pos, Direction direction, Grid currentGrid, int sensorVal) {
         // Update map according to sensor's value.
         for (int i = this.lowerRange; i <= this.upperRange; i++) {
             int[] position = direction.forward(pos[0], pos[1], i);
@@ -76,7 +78,7 @@ public class Sensor {
 	                	break;
 	            }
             	
-            	if (sensorPos == "SF" && iTaken != 5) {
+            	if (this.id.equals("SF") && iTaken != 5) {
 	            	if (currentGrid.getImageObstacle(x, y, iDirection) != 0 || currentGrid.getImageObstacle(x, y, iDirection) != 1) {
 	            		if (sensorVal != 1) {
 	            			takePhoto(currentGrid, x, y, iDirection, sensorVal);

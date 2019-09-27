@@ -36,7 +36,7 @@ public class Exploration {
         	
             robot.sense(currentGrid, realGrid);
             if (Simulator.testAndroid) {
-                //SendUtil.sendGrid(currentGrid);
+                SendUtil.sendGrid(currentGrid);
             }
 
             if (newStrategy) {
@@ -48,15 +48,14 @@ public class Exploration {
             if (currentGrid.inStartZone(robot.getPosRow(), robot.getPosCol()) && currentGrid.countExplored() != Grid.GRID_SIZE
             		&& currentGrid.countExplored() > (Grid.GRID_SIZE / 2)) {
                 moveRobot(Movement.BACKWARD);
-                newStrategy = !newStrategy;
+                // newStrategy = !newStrategy;
         	}
 
             System.out.println("Area explored : " + currentGrid.countExplored());
         }
 
-        if (currentGrid.countExplored() == Grid.GRID_SIZE) {
-            returnStart();
-        }
+        returnStart();
+        realGrid = currentGrid;
     }
 
     public void returnStart() {
