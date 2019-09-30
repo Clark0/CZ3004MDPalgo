@@ -1,6 +1,7 @@
 package mdpalgo.algorithm;
 
 import mdpalgo.constants.Movement;
+import mdpalgo.constants.RobotConstant;
 import mdpalgo.models.Grid;
 import mdpalgo.models.Robot;
 import mdpalgo.simulator.Arena;
@@ -13,10 +14,12 @@ public class Exploration {
     private Grid realGrid;
     private Robot robot;
     private Movement preMovement;
+    private int turningCount = 0;
     private int timeLimit;
     private int coverage;
     private Arena arena;
-    private Boolean newStrategy = false;
+    private boolean newStrategy = false;
+    private boolean recoverWallFollow = false;
 
     public Exploration(Grid currentGrid, Grid realGrid, Robot robot, int timeLimit, int coverage) {
         this.currentGrid = currentGrid;
@@ -32,7 +35,7 @@ public class Exploration {
         long endTime = startTime + timeLimit;
         this.arena = arena;
         while (currentGrid.countExplored() * 1.0 / Grid.GRID_SIZE < coverage / 100.0
-                && System.currentTimeMillis() < endTime) {
+                && System.currentTimeMillis() + RobotConstant.ESTIMATED_RETURN_TIME < endTime) {
         	
             robot.sense(currentGrid, realGrid);
             if (Simulator.testAndroid) {
@@ -40,15 +43,18 @@ public class Exploration {
             }
 
             if (newStrategy) {
-            	nextMoveNew();
+                nextMoveNew();
+            } else if (recoverWallFollow){
+                recoverWallFollow();
             } else {
             	nextMove();
             }
             
-            if (currentGrid.inStartZone(robot.getPosRow(), robot.getPosCol()) && currentGrid.countExplored() != Grid.GRID_SIZE
+            if (!recoverWallFollow && currentGrid.inStartZone(robot.getPosRow(), robot.getPosCol())
+                    && currentGrid.countExplored() != Grid.GRID_SIZE
             		&& currentGrid.countExplored() > (Grid.GRID_SIZE / 2)) {
                 moveRobot(Movement.BACKWARD);
-                // newStrategy = !newStrategy;
+                newStrategy = !newStrategy;
         	}
 
             System.out.println("Area explored : " + currentGrid.countExplored());
@@ -82,38 +88,57 @@ public class Exploration {
             moveRobot(Movement.RIGHT);
             if (robot.isSafeMovement(Movement.FORWARD, currentGrid)) {
                 moveRobot(Movement.FORWARD);
-            }
-        } else if (robot.isSafeMovement(Movement.FORWARD, currentGrid)) {
-            moveRobot(Movement.FORWARD);
-        } else if (robot.isSafeMovement(Movement.LEFT, currentGrid)) {
-            moveRobot(Movement.LEFT);
-            if (robot.isSafeMovement(Movement.FORWARD, currentGrid)) {
-                moveRobot(Movement.FORWARD);
+                turningCount += 1;
+                if (turningCount >= 4) {
+                    recoverWallFollow = true;
+                }
             }
         } else {
-            moveRobot(Movement.BACKWARD);
+            if (robot.isSafeMovement(Movement.FORWARD, currentGrid)) {
+                moveRobot(Movement.FORWARD);
+            } else if (robot.isSafeMovement(Movement.LEFT, currentGrid)) {
+                moveRobot(Movement.LEFT);
+                if (robot.isSafeMovement(Movement.FORWARD, currentGrid)) {
+                    moveRobot(Movement.FORWARD);
+                }
+            } else {
+                moveRobot(Movement.BACKWARD);
+            }
+            turningCount = 0;
         }
     }
 
     private void nextMoveNew() {
-    	if (robot.isSafeMovement(Movement.FORWARD, currentGrid)) {
-            moveRobot(Movement.FORWARD);
-        } else if (robot.isSafeMovement(Movement.LEFT, currentGrid)) {
+    	if (robot.isSafeMovement(Movement.LEFT, currentGrid)) {
             moveRobot(Movement.LEFT);
             if (robot.isSafeMovement(Movement.FORWARD, currentGrid)) {
                 moveRobot(Movement.FORWARD);
             }
-        } else if (robot.isSafeMovement(Movement.RIGHT, currentGrid)) {
-            moveRobot(Movement.RIGHT);
-            if (robot.isSafeMovement(Movement.FORWARD, currentGrid)) {
-                moveRobot(Movement.FORWARD);
+        } else if (robot.isSafeMovement(Movement.FORWARD, currentGrid)) {
+            moveRobot(Movement.FORWARD);
+        } else if (robot.isSafeMovement(Movement.RIGHT , currentGrid)) {
+    	    moveRobot(Movement.RIGHT);
+    	    if (robot.isSafeMovement(Movement.FORWARD, currentGrid)) {
+    	        moveRobot(Movement.FORWARD);
             }
-        } else {
-            moveRobot(Movement.BACKWARD);
+    	} else {
+    	    moveRobot(Movement.BACKWARD);
         }
     }
 
     public void setCoverage(int coverage) {
         this.coverage = coverage;
+    }
+
+    public void recoverWallFollow() {
+        if (robot.isSafeMovement(Movement.FORWARD, currentGrid)) {
+            moveRobot(Movement.FORWARD);
+        } else {
+            moveRobot(Movement.LEFT);
+            if (robot.isSafeMovement(Movement.FORWARD, currentGrid)) {
+                moveRobot(Movement.FORWARD);
+            }
+            recoverWallFollow = false;
+        }
     }
 }
