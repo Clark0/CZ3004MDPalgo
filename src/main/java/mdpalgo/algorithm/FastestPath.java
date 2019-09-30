@@ -10,6 +10,7 @@ import mdpalgo.utils.SendUtil;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.PriorityQueue;
@@ -89,13 +90,13 @@ public class FastestPath {
         return state.cost + directionDiff * TURN_COST + MOVE_COST;
     }
 
-    private void moveRobot(Movement m) {
-        this.robot.move(m, 1);
+    private void moveRobot(Movement m, int step) {
+        this.robot.move(m, step);
         if (Simulator.testAndroid) {
             SendUtil.sendRobotPos(robot);
         }
         if (Simulator.testRobot) {
-            SendUtil.sendMoveRobotCommand(m, 1);
+            SendUtil.sendMoveRobotCommand(m, step);
         }
     }
 
@@ -175,13 +176,34 @@ public class FastestPath {
             arena.setPath(path);
         }
         refreshArena();
-        for (State state : path) {
+        int forwardCount = 0;
+        for (Iterator<State> iter = path.iterator(); iter.hasNext();) {
+            State state = iter.next();
             Direction direction = state.direction;
+            // Arduino can only take one digit
             Movement movement = Direction.getMovementByDirections(direction, robot.getDirection());
-            // Move robot 1 step
-            moveRobot(movement);
-            // printFastestPath(path, currentGrid, robot);
+            if (movement == Movement.FORWARD) {
+                forwardCount += 1;
+                if (forwardCount < 15 && iter.hasNext()) {
+                    continue;
+                }
+            }
+
+            moveRobot(Movement.FORWARD, forwardCount);
+            forwardCount = 0;
             refreshArena();
+
+            if (movement != Movement.FORWARD) {
+                // Make a turn
+                moveRobot(movement, 0);
+                refreshArena();
+
+                forwardCount = 1;
+                if (!iter.hasNext()) {
+                    moveRobot(Movement.FORWARD, 1);
+                    refreshArena();
+                }
+            }
         }
     }
 

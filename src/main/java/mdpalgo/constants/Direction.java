@@ -105,21 +105,16 @@ public enum Direction {
 
     @Override
     public String toString() {
-        String s = null;
         switch (this.ordinal) {
             case 0:
-                s = "n";
-                break;
+                return "n";
             case 1:
-                s = "e";
-                break;
+                return "e";
             case 2:
-                s = "s";
-                break;
+                return "s";
             case 3:
-                s = "w";
-                break;
+                return "w";
         }
-        return s;
+        return null;
     }
 }

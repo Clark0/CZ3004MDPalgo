@@ -51,13 +51,15 @@ public class Robot {
     }
 
     public void move(Movement movement, int step) {
-        if (step <= 0) {
-            move(movement);
+        if (step < 0) {
+            System.out.println("Given a step less than 0");
+            // move(movement);
             return;
         }
 
         try {
             Thread.sleep(speed);
+            // Thread.sleep(step == 0 ? speed: step * speed);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

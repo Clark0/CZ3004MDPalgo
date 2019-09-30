@@ -2,14 +2,13 @@ package mdpalgo.models;
 
 import mdpalgo.constants.CommConstants;
 import mdpalgo.constants.Direction;
+import mdpalgo.simulator.Simulator;
 import mdpalgo.utils.Connection;
 
 public class Sensor {
     private final String id;
     private int lowerRange;
     private int upperRange;
-    private int iDirection;
-    private int iTaken = 0;
 
     public Sensor(int lowerRange, int upperRange, String id) {
         this.lowerRange = lowerRange;
@@ -18,7 +17,6 @@ public class Sensor {
     }
 
     public int sense(int row, int col, Direction direction, Grid currentGrid, Grid realGrid) {
-        // TODO
         if (lowerRange > 1) {
             for (int i = 1; i < this.lowerRange; i++) {
                 int[] pos = direction.forward(row, col, i);
@@ -62,28 +60,8 @@ public class Sensor {
 
             if (sensorVal == i) {
                 // obstacle position
-
-            	switch (direction) {
-	                case NORTH:
-	                	iDirection = 0;
-	                	break;
-	                case EAST:
-	                	iDirection = 1;
-	                	break;
-	                case SOUTH:
-	                	iDirection = 2;
-	                	break;
-	                case WEST:
-	                	iDirection = 3;
-	                	break;
-	            }
-            	
-            	if (this.id.equals("SF") && iTaken != 5) {
-	            	if (currentGrid.getImageObstacle(x, y, iDirection) != 0 || currentGrid.getImageObstacle(x, y, iDirection) != 1) {
-	            		if (sensorVal != 1) {
-	            			takePhoto(currentGrid, x, y, iDirection, sensorVal);
-	            		}
-	            	}       		
+            	if (Simulator.testImage && this.id.equals("SF")) {
+            	    takePhoto(x, y, sensorVal, direction);
             	}
             	
                 currentGrid.setObstacle(x, y);
@@ -92,25 +70,17 @@ public class Sensor {
         }
     }
     
-    public void takePhoto(Grid grid, int x, int y, int z, int range) {
-    	
+    private void takePhoto(int x, int y, int range, Direction direction) {
     	Connection connect = Connection.getConnection();
-		connect.sendMessage(CommConstants.IMAGE, "img:" + x + "," + y + "," + range);
+		connect.sendMessage(CommConstants.IMAGE, x + "," + y + "," + range + "," + direction.toString());
 
-		System.out.println("img:" + x + "," + y + "," + range);
-		
-    	String msg = connect.receiveMessage();
-        String[] msgArr = msg.split(":");
-        String[] msgArr2 = msgArr[1].split(",");
-
-        if (msgArr[0].equals(-1)) {
-        	grid.setImageObstacle(Integer.parseInt(msgArr2[1]), Integer.parseInt(msgArr2[2]), z, 0);
-			System.out.println(msgArr2[0] + " " + msgArr2[1] + " " + msgArr2[2]);
-        } else {
-        	iTaken++;
-			for (int oDir = 0; oDir < 4; oDir++) {
-				grid.setImageObstacle(Integer.parseInt(msgArr2[1]), Integer.parseInt(msgArr2[2]), oDir, 1);
-			}
+		// wait for image taken
+		while (true) {
+		    String msg = connect.receiveMessage();
+		    String[] msgArr = msg.split(":");
+		    if (msgArr[0].equals(CommConstants.IMAGE) && msgArr[1].equals("taken")) {
+		        break;
+            }
         }
     }
 }

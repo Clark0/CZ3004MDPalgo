@@ -38,6 +38,7 @@ public class Simulator {
     private int[] wayPoint;
     public static boolean testRobot = false;
     public static boolean testAndroid = false;
+    public static boolean testImage = false;
 
 
     public Simulator() {
