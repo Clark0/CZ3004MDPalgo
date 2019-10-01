@@ -19,7 +19,14 @@ public class SendUtil {
     }
 
     public static void sendMoveRobotCommand(Movement movement, int step) {
+        if (step > 15) {
+            System.out.println("Arduino does not accept steps larger than 15");
+            return;
+        }
+
+        String encodedStep = step < 10 ? String.valueOf(step) : String.valueOf((char)('A' + step - 10));
+        System.out.println(encodedStep);
         connect = Connection.getConnection();
-        connect.sendMessage(CommConstants.MOVE, Movement.print(movement) + "," + step);
+        connect.sendMessage(CommConstants.MOVE, Movement.print(movement) + "," + encodedStep);
     }
 }

@@ -32,8 +32,13 @@ public class Simulator {
 
     private int timeLimit;
     private int coverage;
+    private int startRow;
+    private int startCol;
+    private boolean hasWayPoint;
+    private int[] wayPoint;
     public static boolean testRobot = false;
     public static boolean testAndroid = false;
+    public static boolean testImage = false;
 
 
     public Simulator() {
@@ -42,6 +47,10 @@ public class Simulator {
         arena = new Arena(currentGrid, robot);
         timeLimit = RobotConstant.TIME_LIMIT;
         coverage = 100;
+        startRow = 1;
+        startCol = 1;
+        hasWayPoint = false;
+        wayPoint = new int[2];
     }
 
     public void simulate() {
@@ -84,17 +93,41 @@ public class Simulator {
                     cl.show(_mapCards, "EXPLORATION");
                     System.out.println("exploration");
                     new ExplorationDisplay().execute();
-                }
+                    break;
 
-                if (receivedMsg.equals(CommConstants.FP_START)) {
+                } else if (receivedMsg.equals(CommConstants.FP_START)) {
                     System.out.println("fastestPath");
                     CardLayout cl = ((CardLayout) _mapCards.getLayout());
                     cl.show(_mapCards, "REAL_MAP");
                     new FastestPathDisplay().execute();
-                }
+                    break;
 
-                if (receivedMsg.equals("msg:init pc")) {
+                } else if (receivedMsg.equals("msg:init pc")) {
                     connection.sendMessage("msg", "pc up");
+
+                } else if (receivedMsg.contains(CommConstants.START_POINT)) {
+                    String[] values = receivedMsg.split(":");
+                    values = values[1].split(",");
+                    startRow = Integer.parseInt(values[1]);
+                    startCol = Integer.parseInt(values[2]);
+
+                    robot.setRobotPosition(startRow , startCol);
+                    robot.setDirection(RobotConstant.START_DIR);
+                    currentGrid = Grid.initCurrentGrid(robot);
+
+                    arena.update(currentGrid, robot);
+                    arena.repaint();
+
+                } else if (receivedMsg.contains(CommConstants.WAY_POINT)) {
+                    String[] values = receivedMsg.split(":");
+                    if (values[0].equals("alg")) {
+                        values = values[1].split(",");
+                        if (values[0].equals(CommConstants.WAY_POINT)) {
+                            hasWayPoint = true;
+                            wayPoint[0] = Integer.parseInt(values[1]);
+                            wayPoint[1] = Integer.parseInt(values[2]);
+                        }
+                    }
                 }
             }
         }
@@ -116,39 +149,22 @@ public class Simulator {
         protected Integer doInBackground() throws Exception {
             // for android test
 
-            robot.setRobotPosition(Grid.START_ROW, Grid.START_COL);
+            robot.setRobotPosition(startRow , startCol);
             robot.setDirection(RobotConstant.START_DIR);
             currentGrid = Grid.initCurrentGrid(robot);
 
             arena.update(currentGrid, robot);
             Exploration exploration = new Exploration(currentGrid, realGrid, robot, timeLimit, coverage);
             exploration.explore(arena);
+
+            startRow = 1;
+            startCol = 1;
             return 111;
         }
     }
 
     class FastestPathDisplay extends SwingWorker<Integer, String> {
         protected Integer doInBackground() throws Exception {
-            boolean hasWayPoint = false;
-            int[] wayPoint = new int[2];
-
-            if (testAndroid) {
-                connection = Connection.getConnection();
-                // dirty code of paring the message from android
-                // expect the way point
-                // alg:swp,5,6
-                String message = connection.receiveMessage();
-                String[] values = message.split(":");
-                if (values[0].equals("alg")) {
-                    values = values[1].split(",");
-                    if (values[0].equals("swp")) {
-                        hasWayPoint = true;
-                        wayPoint[0] = Integer.parseInt(values[1]);
-                        wayPoint[1] = Integer.parseInt(values[2]);
-                    }
-                }
-            }
-
             robot.setRobotPosition(Grid.START_ROW, Grid.START_COL);
             robot.setDirection(RobotConstant.START_DIR);
 
@@ -165,6 +181,7 @@ public class Simulator {
             arena.update(realGrid, robot);
             fastestPath.runFastestPath(arena);
 
+            hasWayPoint = false;
             return 111;
         }
     }

@@ -1,6 +1,5 @@
 package mdpalgo.models;
 
-import com.sun.rowset.internal.Row;
 import mdpalgo.utils.GridDescriptor;
 
 
@@ -10,7 +9,6 @@ public class Grid {
     private int[][] grid;
     private boolean[][] virtualWall;
     private int exploredCount;
-    private int[][][] image;
 
     public static final int ROWS = 20;
     public static final int COLS = 15;
@@ -30,7 +28,6 @@ public class Grid {
         this.cols = COLS;
         this.grid = new int[rows][cols];
         this.exploredCount = 0;
-        this.image = new int[rows][cols][4];
         initVirtualWall();
     }
 
@@ -151,13 +148,5 @@ public class Grid {
 
     public int countExplored() {
         return this.exploredCount;
-    }
-    
-    public int getImageObstacle(int i, int j, int k) {
-        return image[i][j][k];
-    }
-    
-    public void setImageObstacle(int i, int j, int k, int status) {
-        this.image[i][j][k] = status;
     }
 }
