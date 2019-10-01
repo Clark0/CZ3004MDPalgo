@@ -38,7 +38,13 @@ public class Simulator {
     private int[] wayPoint;
     public static boolean testRobot = false;
     public static boolean testAndroid = false;
-    public static boolean testImage = false;
+    public static boolean testImage = true;
+    public static boolean sensorRight = false;
+    public static boolean sensorLeft = false;
+    public static boolean sensorLong = false;
+    public static boolean obsLeft = false;
+    public static int[] frontLeftPos = new int[2];
+    public static int[] backLeftPos = new int[2];
 
 
     public Simulator() {
@@ -155,10 +161,13 @@ public class Simulator {
 
             arena.update(currentGrid, robot);
             Exploration exploration = new Exploration(currentGrid, realGrid, robot, timeLimit, coverage);
-            exploration.explore(arena);
 
             startRow = 1;
             startCol = 1;
+            if (testImage)
+            	exploration.exploreImage(arena);
+        	else
+            	exploration.explore(arena);
             return 111;
         }
     }

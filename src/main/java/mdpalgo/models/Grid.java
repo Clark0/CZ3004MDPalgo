@@ -9,6 +9,8 @@ public class Grid {
     private int[][] grid;
     private boolean[][] virtualWall;
     private int exploredCount;
+    private int[][][] image;
+    private int imageCount;
 
     public static final int ROWS = 20;
     public static final int COLS = 15;
@@ -28,6 +30,8 @@ public class Grid {
         this.cols = COLS;
         this.grid = new int[rows][cols];
         this.exploredCount = 0;
+        this.image = new int[rows][cols][4];
+        this.imageCount = 0;
         initVirtualWall();
     }
 
@@ -54,7 +58,7 @@ public class Grid {
 
     public void initVirtualWall() {
         this.virtualWall = new boolean[ROWS][COLS];
-        for (int i = 0; i < ROWS; i++) {
+        /*for (int i = 0; i < ROWS; i++) {
             this.setVirtualWall(i, 0);
             this.setVirtualWall(i, COLS - 1);
         }
@@ -62,7 +66,7 @@ public class Grid {
         for (int j = 0; j < COLS; j++) {
             this.setVirtualWall(0, j);
             this.setVirtualWall(ROWS - 1, j);
-        }
+        }*/
     }
 
     public boolean isValid(int x, int y) {
@@ -148,5 +152,21 @@ public class Grid {
 
     public int countExplored() {
         return this.exploredCount;
+    }
+    
+    public int getImageObstacle(int i, int j, int k) {
+        return image[i][j][k];
+    }
+    
+    public void setImageObstacle(int i, int j, int k, int status) {
+        this.image[i][j][k] = status;
+    }
+    
+    public void setImageCount() {
+        imageCount++;
+    }
+    
+    public int countImage() {
+        return this.imageCount;
     }
 }
