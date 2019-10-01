@@ -97,7 +97,7 @@ public class Sensor {
         return sense(pos[0], pos[1], direction, currentGrid, realGrid, sensorPos);
     }
     
-    public void senseReal(int[] pos, Direction direction, Grid currentGrid, int sensorVal) {
+    public void senseReal(int[] pos, Direction direction, Grid currentGrid, int sensorVal, String sensorPos) {
         // Update map according to sensor's value.
     	for (int i = this.lowerRange; i <= this.upperRange; i++) {
             int[] position = direction.forward(pos[0], pos[1], i);
@@ -155,10 +155,10 @@ public class Sensor {
             }
         }
     }
-    
-    private void takePhoto(int x, int y, int range, Direction direction) {
+    	
+    public void takePhoto(Grid grid, int x, int y, int z, int range) {  	
     	Connection connect = Connection.getConnection();
-		connect.sendMessage(CommConstants.IMAGE, x + "," + y + "," + range + "," + direction.toString());
+		connect.sendMessage(CommConstants.IMAGE, "img:" + x + "," + y + "," + range);
 
 		System.out.println("img:" + x + "," + y + "," + range);
 		

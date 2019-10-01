@@ -113,12 +113,12 @@ public class Robot {
 			    result[4] = Integer.parseInt(msgArr2[4]);
 			    result[5] = Integer.parseInt(msgArr2[5]);
 
-                lLeft.senseReal(direction.getLeft(posRow, posCol), direction.turnLeft(), currentGrid, result[0]);
-                sLeft.senseReal(direction.getFrontLeft(posRow, posCol), direction.turnLeft(), currentGrid, result[1]);
-                sFrontLeft.senseReal(direction.getFrontLeft(posRow, posCol), direction, currentGrid, result[2]);
-	    		sFront.senseReal(direction.forward(posRow, posCol), direction, currentGrid, result[3]);
-                sFrontRight.senseReal(direction.getFrontRight(posRow, posCol), direction, currentGrid, result[4]);
-                sRight.senseReal(direction.getFrontRight(posRow, posCol), direction.turnRight(), currentGrid, result[5]);
+                lLeft.senseReal(direction.getLeft(posRow, posCol), direction.turnLeft(), currentGrid, result[0], "LL");
+                sLeft.senseReal(direction.getFrontLeft(posRow, posCol), direction.turnLeft(), currentGrid, result[1], "SL");
+                sFrontLeft.senseReal(direction.getFrontLeft(posRow, posCol), direction, currentGrid, result[2], "SFL");
+	    		sFront.senseReal(direction.forward(posRow, posCol), direction, currentGrid, result[3], "SF");
+                sFrontRight.senseReal(direction.getFrontRight(posRow, posCol), direction, currentGrid, result[4], "SFR");
+                sRight.senseReal(direction.getFrontRight(posRow, posCol), direction.turnRight(), currentGrid, result[5], "SR");
             }
         }
     }
