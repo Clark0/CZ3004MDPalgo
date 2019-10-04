@@ -19,7 +19,7 @@ public class Sensor {
         this.id = id;
     }
 
-    public int sense(int row, int col, Direction direction, Grid currentGrid, Grid realGrid, String sensorPos) {
+    public int sense(int row, int col, Direction direction, Grid currentGrid, Grid realGrid) {
         // TODO
         if (lowerRange > 1) {
             for (int i = 1; i < this.lowerRange; i++) {
@@ -33,6 +33,7 @@ public class Sensor {
             int[] position = direction.forward(row, col, i);
             int x = position[0];
             int y = position[1];
+            int[] position2 = direction.forward(row, col, i-1);
             // out of range
             if (!realGrid.isValid(x, y)) {
                 return i;
@@ -42,46 +43,46 @@ public class Sensor {
             if (realGrid.isObstacle(x, y)){
             	
             	
-            	if (sensorPos == "SF" || sensorPos == "SFL" || sensorPos == "SFR") {
-	            	if (currentGrid.getImageObstacle(x, y, ((direction.ordinal() + 2) % 4)) == 0) {
-                        int[] position2 = direction.forward(row, col, i-1);
-            			currentGrid.setImageObstacle(position[0], position[1], ((direction.ordinal() + 2) % 4), 1);
-            			currentGrid.setImageObstacle(position2[0], position2[1], ((direction.ordinal() + 2) % 4), 1);
-	            	}       		
+            	if (id == "SF" || id == "SFL" || id == "SFR") {
+            		if (i == 3) {
+	            		if (currentGrid.getImageObstacle(position2[0], position2[1], ((direction.ordinal() + 2) % 4)) != 1) {
+	            			currentGrid.setImageObstacle(position[0], position[1], ((direction.ordinal() + 2) % 4), 1);
+	            			currentGrid.setImageObstacle(position2[0], position2[1], ((direction.ordinal() + 2) % 4), 1);
+		            	}   
+            		}
+            		if (Simulator.obsSide) {
+		            	if (currentGrid.getImageObstacle(position2[0], position2[1], ((direction.ordinal() + 2) % 4)) != 1) {
+	            			currentGrid.setImageObstacle(position[0], position[1], ((direction.ordinal() + 2) % 4), 1);
+	            			currentGrid.setImageObstacle(position2[0], position2[1], ((direction.ordinal() + 2) % 4), 1);
+		            	}  
+            		}
             	}
             	
-            	if (sensorPos == "LL") {
-	            	if (currentGrid.getImageObstacle(x, y, ((direction.ordinal() + 2) % 4)) == 0) {
-	            		if (i == 3) {
-		            		Simulator.sensorLong = true;
-	            		}
-	            	}       		
-            	}
-            	
-            	if (sensorPos == "SR") {
-	            	if (currentGrid.getImageObstacle(x, y, ((direction.ordinal() + 2) % 4)) == 0) {
-	            		Simulator.sensorRight = true;
-	            	}
-            	}
-            	
-            	if (sensorPos == "SL") {
-	            	if (currentGrid.getImageObstacle(x, y, ((direction.ordinal() + 2) % 4)) == 0) {
-	            		Simulator.sensorLeft = true;
-	            		
+            	if (id == "LL") {
+	            	if (currentGrid.getImageObstacle(position2[0], position2[1], ((direction.ordinal() + 2) % 4)) == 0) {
+            			Simulator.sensorLeft = i;
+            		
 	            		if (i == 1) {
 	            			if (!Simulator.obsLeft) {
-	            				if (currentGrid.getImageObstacle(x, y, ((direction.ordinal() + 2) % 4)) != 1) {
+	        	            	if (currentGrid.getImageObstacle(position2[0], position2[1], ((direction.ordinal() + 2) % 4)) == 0) {
+		            				System.out.println("LL LEFT STICK "+position2[0]+","+ position2[1]+","+((direction.ordinal() + 2) % 4));
+	            					System.out.println("LL " +((direction.ordinal() + 2) % 4));
 	            					Simulator.frontLeftPos[0] = direction.forward(x, y, -1)[0];
 	            					Simulator.frontLeftPos[1] = direction.forward(x, y, -1)[1];
 			            			Direction newDirection = direction.turnLeft();			            	        
 			            			Simulator.backLeftPos[0] = newDirection.forward(Simulator.frontLeftPos[0], Simulator.frontLeftPos[1], 2)[0];
-			            			Simulator.backLeftPos[1] = newDirection.forward(Simulator.frontLeftPos[0], Simulator.frontLeftPos[1], 2)[1];          	
- 				            		Simulator.obsLeft = true;
-			            		}
-	            			}
-		            		
-		            		
+			            			Simulator.backLeftPos[1] = newDirection.forward(Simulator.frontLeftPos[0], Simulator.frontLeftPos[1], 2)[1];   	
+			            			Simulator.obsLeft = true;
+	        	            	}
+		            		}
+	            			
 	            		}
+	            	}   		
+            	}
+            	
+            	if (id == "SRC" || id == "SRL") {
+	            	if (currentGrid.getImageObstacle(position2[0], position2[1], ((direction.ordinal() + 2) % 4)) == 0) {
+	            		Simulator.sensorRight = i;
 	            	}
             	}
             	
@@ -93,11 +94,11 @@ public class Sensor {
         return -1;
     }
 
-    public int sense(int[] pos, Direction direction, Grid currentGrid, Grid realGrid, String sensorPos) {
-        return sense(pos[0], pos[1], direction, currentGrid, realGrid, sensorPos);
+    public int sense(int[] pos, Direction direction, Grid currentGrid, Grid realGrid) {
+        return sense(pos[0], pos[1], direction, currentGrid, realGrid);
     }
     
-    public void senseReal(int[] pos, Direction direction, Grid currentGrid, int sensorVal, String sensorPos) {
+    public void senseReal(int[] pos, Direction direction, Grid currentGrid, int sensorVal) {
         // Update map according to sensor's value.
     	for (int i = this.lowerRange; i <= this.upperRange; i++) {
             int[] position = direction.forward(pos[0], pos[1], i);
@@ -125,14 +126,14 @@ public class Sensor {
 	                	break;
 	            }
             	
-            	if (sensorPos == "SF" && currentGrid.countImage() != 5) {
+            	if (id == "SF" && currentGrid.countImage() != 5) {
 	            	if (currentGrid.getImageObstacle(x, y, iDirection) != 0 || currentGrid.getImageObstacle(x, y, iDirection) != 1) {
 	            		if (sensorVal != 1 && sensorVal != 5) {
 	            			takePhoto(currentGrid, x, y, iDirection, sensorVal);
 	            		}
 	            	}       		
             	}
-            	if (sensorPos == "LL" && currentGrid.countImage() != 5) {
+            	if (id == "LL" && currentGrid.countImage() != 5) {
 	            	if (currentGrid.getImageObstacle(x, y, iDirection) != 0 || currentGrid.getImageObstacle(x, y, iDirection) != 1) {
 	            		if (sensorVal != 1 && sensorVal != 5) {
 	                        SendUtil.sendMoveRobotCommand(Movement.LEFT, 0);
@@ -141,7 +142,7 @@ public class Sensor {
 	            		}
 	            	}       		
             	}
-            	if (sensorPos == "SR" && currentGrid.countImage() != 5) {
+            	if (id == "SR" && currentGrid.countImage() != 5) {
 	            	if (currentGrid.getImageObstacle(x, y, iDirection) != 0 || currentGrid.getImageObstacle(x, y, iDirection) != 1) {
 	            		if (sensorVal != 1 && sensorVal != 5) {
 	                        SendUtil.sendMoveRobotCommand(Movement.RIGHT, 0);

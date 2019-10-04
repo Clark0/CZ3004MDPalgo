@@ -39,8 +39,9 @@ public class Simulator {
     public static boolean testRobot = false;
     public static boolean testAndroid = false;
     public static boolean testImage = true;
-    public static boolean sensorRight = false;
-    public static boolean sensorLeft = false;
+    public static int sensorRight = 0;
+    public static int sensorLeft = 0;
+    public static boolean obsSide = false;
     public static boolean sensorLong = false;
     public static boolean obsLeft = false;
     public static int[] frontLeftPos = new int[2];
