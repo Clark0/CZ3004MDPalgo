@@ -10,8 +10,8 @@ import mdpalgo.utils.Connection;
 /**
  *          ^   ^   ^
  *         SR  SR  SR
- *   < SR [X] [X] [X] SR >
- *   < LR [X] [X] [X]
+ *   < LR [X] [X] [X] SR >
+ *        [X] [X] [X] SR >
  *        [X] [X] [X]
  *
  * SR = Short Range Sensor, LR = Long Range Sensor
@@ -26,13 +26,13 @@ public class Robot {
     private Sensor sFrontRight;
     private Sensor sFrontLeft;
     private Sensor sFront;
-    private Sensor sLeft;
     private Sensor lLeft;
+    private Sensor sRightFront;
     private Sensor sRight;
 
     private static final int SENSOR_SHORT_RANGE_L = 1;
     private static final int SENSOR_SHORT_RANGE_H = 3;
-    private static final int SENSOR_LONG_RANGE_L = 3;
+    private static final int SENSOR_LONG_RANGE_L = 1;
     private static final int SENSOR_LONG_RANGE_H = 5;
 
     public Robot(int row, int col, Direction direction) {
@@ -44,10 +44,9 @@ public class Robot {
         sFrontRight = new Sensor(SENSOR_SHORT_RANGE_L, SENSOR_SHORT_RANGE_H, "SFR");
         sFrontLeft = new Sensor(SENSOR_SHORT_RANGE_L, SENSOR_SHORT_RANGE_H, "SFL");
         sFront = new Sensor(SENSOR_SHORT_RANGE_L, SENSOR_SHORT_RANGE_H, "SF");
-        sLeft = new Sensor(SENSOR_SHORT_RANGE_L, SENSOR_SHORT_RANGE_H, "SL");
         lLeft = new Sensor(SENSOR_LONG_RANGE_L, SENSOR_LONG_RANGE_H, "LL");
+        sRightFront = new Sensor(SENSOR_SHORT_RANGE_L, SENSOR_SHORT_RANGE_H, "SRF");
         sRight = new Sensor(SENSOR_SHORT_RANGE_L, SENSOR_SHORT_RANGE_H, "SR");
-
     }
 
     public void move(Movement movement, int step) {
@@ -88,20 +87,24 @@ public class Robot {
     }
 
     public void sense(Grid currentGrid, Grid realGrid) {
-    	
     	if(!Simulator.testRobot) {
-    		
     		sFrontRight.sense(direction.getFrontRight(posRow, posCol), direction, currentGrid, realGrid);
     		sFrontLeft.sense(direction.getFrontLeft(posRow, posCol), direction, currentGrid, realGrid);
     		sFront.sense(direction.forward(posRow, posCol), direction, currentGrid, realGrid);
-    		sLeft.sense(direction.getFrontLeft(posRow, posCol), direction.turnLeft(), currentGrid, realGrid);
-    		lLeft.sense(direction.getLeft(posRow, posCol), direction.turnLeft(), currentGrid, realGrid);
-    		sRight.sense(direction.getFrontRight(posRow, posCol), direction.turnRight(), currentGrid, realGrid);    
+            sRight.sense(direction.getRight(posRow, posCol), direction.turnRight(), currentGrid, realGrid);
+            sRightFront.sense(direction.getFrontRight(posRow, posCol), direction.turnRight(), currentGrid, realGrid);
+            lLeft.sense(direction.getFrontRight(posRow, posCol), direction.turnLeft(), currentGrid, realGrid);
+
 		} else {
     		int[] result = new int[6];
-    		
+
     		Connection connect = Connection.getConnection();
-        	String msg = connect.receiveMessage();
+
+    		String msg = null;
+    		do {
+    		    msg = connect.receiveMessage();
+            } while (!msg.contains(CommConstants.OBS));
+
             String[] msgArr = msg.split(":");
             String[] msgArr2 = msgArr[1].split("\\|");
 
@@ -113,12 +116,12 @@ public class Robot {
 			    result[4] = Integer.parseInt(msgArr2[4]);
 			    result[5] = Integer.parseInt(msgArr2[5]);
 
-                lLeft.senseReal(direction.getLeft(posRow, posCol), direction.turnLeft(), currentGrid, result[0]);
-                sLeft.senseReal(direction.getFrontLeft(posRow, posCol), direction.turnLeft(), currentGrid, result[1]);
-                sFrontLeft.senseReal(direction.getFrontLeft(posRow, posCol), direction, currentGrid, result[2]);
-	    		sFront.senseReal(direction.forward(posRow, posCol), direction, currentGrid, result[3]);
-                sFrontRight.senseReal(direction.getFrontRight(posRow, posCol), direction, currentGrid, result[4]);
-                sRight.senseReal(direction.getFrontRight(posRow, posCol), direction.turnRight(), currentGrid, result[5]);
+                lLeft.senseReal(direction.getFrontLeft(posRow, posCol), direction.turnLeft(), currentGrid, result[0]);
+                sFrontLeft.senseReal(direction.getFrontLeft(posRow, posCol), direction, currentGrid, result[1]);
+                sFront.senseReal(direction.forward(posRow, posCol), direction, currentGrid, result[2]);
+                sFrontRight.senseReal(direction.getFrontRight(posRow, posCol), direction, currentGrid, result[3]);
+                sRightFront.senseReal(direction.getFrontRight(posRow, posCol), direction.turnRight(), currentGrid, result[4]);
+                sRight.senseReal(direction.getRight(posRow, posCol), direction.turnRight(), currentGrid, result[5]);
             }
         }
     }

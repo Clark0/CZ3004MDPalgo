@@ -25,8 +25,25 @@ public class SendUtil {
         }
 
         String encodedStep = step < 10 ? String.valueOf(step) : String.valueOf((char)('A' + step - 10));
-        System.out.println(encodedStep);
         connect = Connection.getConnection();
         connect.sendMessage(CommConstants.MOVE, Movement.print(movement) + "," + encodedStep);
+    }
+
+    public static void sendCalibrateRight() {
+        System.out.println("Calibrate robot, right side");
+        connect = Connection.getConnection();
+        connect.sendMessage(CommConstants.MOVE, CommConstants.CALIBRATE_RIGHT);
+        connect.receiveMessage();
+    }
+
+    public static void sendCalibrateFrontRight() {
+        connect = Connection.getConnection();
+        connect.sendMessage(CommConstants.MOVE, CommConstants.CALIBRATE_FRONT_RIGHT);
+        connect.receiveMessage();
+    }
+
+    public static void sendSenseCommand() {
+        connect = Connection.getConnection();
+        connect.sendMessage(CommConstants.MOVE, CommConstants.SENSE);
     }
 }

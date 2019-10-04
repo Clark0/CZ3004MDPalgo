@@ -181,7 +181,7 @@ public class FastestPath {
             State state = iter.next();
             Direction direction = state.direction;
             // Arduino can only take one digit
-            Movement movement = Direction.getMovementByDirections(direction, robot.getDirection());
+            Movement movement = Direction.getMovementByDirections(robot.getDirection(), direction);
             if (movement == Movement.FORWARD) {
                 forwardCount += 1;
                 if (forwardCount < 15 && iter.hasNext()) {

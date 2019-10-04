@@ -33,7 +33,6 @@ public class Grid {
 
     public static Grid initCurrentGrid(Robot robot) {
         Grid grid = new Grid();
-        // initialize start zone
 //        for (int row = START_ROW - 1; row <= START_ROW + 1; row++) {
 //            for (int col = START_COL - 1; col <= START_COL + 1; col++) {
 //                grid.setExplored(row, col);
@@ -89,6 +88,15 @@ public class Grid {
                 }
             }
         }
+    }
+
+    public boolean isWall(int row, int col) {
+        return row == -1 || row == Grid.ROWS || col == -1 || col == Grid.COLS;
+    }
+
+    public boolean isWallOrObstable(int row, int col) {
+        return isWall(row, col)
+                || (isValid(row, col) && isObstacle(row, col));
     }
 
     public boolean isObstacle(int x, int y) {

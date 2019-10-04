@@ -13,4 +13,7 @@ public class CommConstants {
     public static final String IMAGE = "img";
     public static final String WAY_POINT = "swp";
     public static final String START_POINT = "start";
+    public static final String CALIBRATE_FRONT_RIGHT = "H";
+    public static final String CALIBRATE_RIGHT = "I";
+    public static final String SENSE = "R";
 }

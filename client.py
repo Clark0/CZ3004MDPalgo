@@ -1,20 +1,20 @@
 import socket
 
-HOST = "localhost"
+# HOST = "localhost"
+HOST = "192.168.5.5"
 PORT = 5182
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 print('Socket create')
 
 try:
-    s.bind((HOST, PORT))
+    s.connect((HOST, PORT))
 except socket.error as err:
     print(err)
-s.listen(10)
 print("Socket listening HOST: {} PORT: {}".format(HOST, PORT))
-conn, addr = s.accept()
+# conn, addr = s.accept()
 while(True):
-    msg = input("Send message: ").rstrip() + "\n"
-    conn.send(msg.encode())
+    msg = "mov:" + input("Send command: ").rstrip() + "\n"
+    s.sendall(msg.encode())
 
     # data = conn.recv(2048)
     # if data:

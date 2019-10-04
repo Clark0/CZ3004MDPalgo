@@ -1,12 +1,16 @@
 package mdpalgo.algorithm;
 
+import mdpalgo.constants.Direction;
 import mdpalgo.constants.Movement;
 import mdpalgo.constants.RobotConstant;
 import mdpalgo.models.Grid;
 import mdpalgo.models.Robot;
 import mdpalgo.simulator.Arena;
 import mdpalgo.simulator.Simulator;
+import mdpalgo.utils.Connection;
 import mdpalgo.utils.SendUtil;
+
+import java.util.List;
 
 
 public class Exploration {
@@ -15,6 +19,7 @@ public class Exploration {
     private Robot robot;
     private Movement preMovement;
     private int turningCount = 0;
+    private int calibrateCount = 0;
     private int timeLimit;
     private int coverage;
     private Arena arena;
@@ -34,10 +39,16 @@ public class Exploration {
         long startTime = System.currentTimeMillis();
         long endTime = startTime + timeLimit;
         this.arena = arena;
+        if (Simulator.testRobot) {
+            SendUtil.sendSenseCommand();
+        }
+
+        robot.sense(currentGrid, realGrid);
+        refreshArena();
+
         while (currentGrid.countExplored() * 1.0 / Grid.GRID_SIZE < coverage / 100.0
                 && System.currentTimeMillis() + RobotConstant.ESTIMATED_RETURN_TIME < endTime) {
-        	
-            robot.sense(currentGrid, realGrid);
+
             if (Simulator.testAndroid) {
                 SendUtil.sendGrid(currentGrid);
             }
@@ -57,7 +68,7 @@ public class Exploration {
                 newStrategy = !newStrategy;
         	}
 
-            System.out.println("Area explored : " + currentGrid.countExplored());
+            // System.out.println("Area explored : " + currentGrid.countExplored());
         }
 
         returnStart();
@@ -66,21 +77,84 @@ public class Exploration {
 
     public void returnStart() {
         FastestPath returnStartPath = new FastestPath(currentGrid, robot, Grid.START_ROW, Grid.START_COL);
-        returnStartPath.runFastestPath(arena);
+        List<FastestPath.State> path = returnStartPath.findFastestPath();
+        if (path == null || path.isEmpty()) {
+            System.out.println("Unable to find the way home");
+            return;
+        }
+        arena.setPath(path);
+        refreshArena();
+        for (FastestPath.State state : path) {
+            Direction target = state.direction;
+            Movement movement = Direction.getMovementByDirections(robot.getDirection(), target);
+            moveRobot(movement);
+            if (Simulator.testRobot) {
+                // remove unwanted obs data
+                Connection connection = Connection.getConnection();
+                connection.receiveMessage();
+            }
+
+            if (movement != Movement.FORWARD) {
+                moveRobot(Movement.FORWARD);
+                // remove unwanted obs data
+                if (Simulator.testRobot) {
+                    Connection connection = Connection.getConnection();
+                    connection.receiveMessage();
+                }
+            }
+        }
+
+        // Calibrate at the start zone
+        if (robot.getPosRow() == Grid.START_ROW && robot.getPosCol() == Grid.START_COL) {
+            Direction target = Direction.SOUTH;
+            Movement movement = Direction.getMovementByDirections(robot.getDirection(), target);
+            // rotate the robot to south
+            if (movement != Movement.FORWARD) {
+                moveRobot(movement);
+            }
+            if (Simulator.testRobot) {
+                SendUtil.sendCalibrateFrontRight();
+            }
+            this.calibrateCount = 0;
+            moveRobot(Movement.LEFT);
+        }
+    }
+
+    private void refreshArena() {
+        if (this.arena != null)
+            arena.repaint();
     }
 
     private void moveRobot(Movement movement) {
-        robot.move(movement);
-        if (Simulator.testRobot) {
+        //if (Simulator.testRobot) {
+            // check whether the robot can calibrate
+            if (this.canCalibrateFrontRight(robot, currentGrid)) {
+                this.calibrateCount = 0;
+                System.out.println("Calibrate corner, robot: " + robot.getPosRow() + " " + robot.getPosCol());
+                SendUtil.sendCalibrateFrontRight();
+            } else {
+                calibrateCount++;
+                if (calibrateCount > 3) {
+                    SendUtil.sendCalibrateRight();
+                    calibrateCount = 0;
+                }
+            }
+
             SendUtil.sendMoveRobotCommand(movement, 1);
-        }
-        if (Simulator.testAndroid) {
-            SendUtil.sendRobotPos(robot);
+        //}
+
+        robot.move(movement);
+        robot.sense(currentGrid, realGrid);
+        refreshArena();
+        if (movement == Movement.BACKWARD) {
+            SendUtil.sendCalibrateRight();
         }
 
         preMovement = movement;
-        if (arena != null)
-            arena.repaint();
+
+        if (Simulator.testAndroid) {
+            SendUtil.sendRobotPos(robot);
+        }
     }
 
     private void nextMove() {
@@ -140,5 +214,30 @@ public class Exploration {
             }
             recoverWallFollow = false;
         }
+    }
+
+    public boolean canCalibrateFrontRight(Robot robot, Grid currentGrid) {
+        int row = robot.getPosRow();
+        int col = robot.getPosCol();
+
+        Direction direction = robot.getDirection();
+        // right side is wall or obs
+        int[] pos = direction.getFrontRight(row, col);
+        int[] rightFront = direction.turnRight().forward(pos[0], pos[1]);
+
+        pos = direction.getRight(row, col);
+        int[] right = direction.turnRight().forward(pos[0], pos[1]);
+
+        // front side is wall or obs
+        pos = direction.getFrontRight(row, col);
+        int[] frontRight = direction.forward(pos[0], pos[1]);
+
+        pos = direction.getFrontLeft(row, col);
+        int[] frontLeft = direction.forward(pos[0], pos[1]);
+
+        return currentGrid.isWallOrObstable(rightFront[0], rightFront[1])
+                && currentGrid.isWallOrObstable(right[0], right[1])
+                && currentGrid.isWallOrObstable(frontRight[0], frontRight[1])
+                && currentGrid.isWallOrObstable(frontLeft[0], frontLeft[1]);
     }
 }

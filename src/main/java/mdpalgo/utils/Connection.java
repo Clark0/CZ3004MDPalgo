@@ -32,6 +32,10 @@ public class Connection {
     }
 
     public void openConnection() {
+        if (socket != null) {
+            return;
+        }
+
         try {
             socket = new Socket(HOST, PORT);
             writer = new BufferedWriter(new OutputStreamWriter(new BufferedOutputStream(socket.getOutputStream())));

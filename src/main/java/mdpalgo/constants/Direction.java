@@ -36,7 +36,7 @@ public enum Direction {
     }
 
     public static Movement getMovementByDirections(Direction currentDirection, Direction targetDirection) {
-        int diff = getDirectionDiff(targetDirection, currentDirection);
+        int diff = getDirectionDiff(currentDirection, targetDirection);
         switch (diff) {
             case 1:
                 return Movement.RIGHT;
@@ -115,6 +115,21 @@ public enum Direction {
             case 3:
                 return "w";
         }
+        return null;
+    }
+
+    public static Direction getDirectionByName(String n) {
+        switch (n) {
+            case "n":
+                return NORTH;
+            case "e":
+                return EAST;
+            case "s":
+                return SOUTH;
+            case "w":
+                return WEST;
+        }
+        System.out.println("unsupported direction name");
         return null;
     }
 }

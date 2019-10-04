@@ -58,22 +58,20 @@ public class Arena extends JPanel {
             for (int mapCol = 0; mapCol < COLS; mapCol++) {
                 Color cellColor;
 
-                if (grid.inStartZone(mapRow, mapCol))
+                if (onPath(mapRow, mapCol))
+                    cellColor = GraphicsConstants.C_PATH;
+                else if (grid.inStartZone(mapRow, mapCol))
                     cellColor = GraphicsConstants.C_START;
-                else {
-                    if (!grid.isExplored(mapRow, mapCol))
-                        cellColor = GraphicsConstants.C_UNEXPLORED;
-                    else if (grid.isObstacle(mapRow, mapCol))
-                        cellColor = GraphicsConstants.C_OBSTACLE;
-//                    else if (grid.isVirtualWall(mapRow, mapCol))
-//                        cellColor = GraphicsConstants.C_VIRTUAL_WALL;
-                    else if (onPath(mapRow, mapCol))
-                        cellColor = GraphicsConstants.C_PATH;
-                    else if (grid.inGoalZone(mapRow, mapCol))
-                        cellColor = GraphicsConstants.C_GOAL;
-                    else
-                        cellColor = GraphicsConstants.C_FREE;
-                }
+                else if (!grid.isExplored(mapRow, mapCol))
+                    cellColor = GraphicsConstants.C_UNEXPLORED;
+                else if (grid.isObstacle(mapRow, mapCol))
+                    cellColor = GraphicsConstants.C_OBSTACLE;
+//              else if (grid.isVirtualWall(mapRow, mapCol))
+//                  cellColor = GraphicsConstants.C_VIRTUAL_WALL;
+                else if (grid.inGoalZone(mapRow, mapCol))
+                    cellColor = GraphicsConstants.C_GOAL;
+                else
+                    cellColor = GraphicsConstants.C_FREE;
 
                 g.setColor(cellColor);
                 g.fillRect(_mapCells[mapRow][mapCol].cellX + GraphicsConstants.MAP_X_OFFSET, _mapCells[mapRow][mapCol].cellY, _mapCells[mapRow][mapCol].cellSize, _mapCells[mapRow][mapCol].cellSize);
