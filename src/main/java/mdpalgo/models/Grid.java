@@ -8,6 +8,7 @@ public class Grid {
     private int cols;
     private int[][] grid;
     private boolean[][] virtualWall;
+    private boolean[][] visitedCells;
     private int exploredCount;
 
     public static final int ROWS = 20;
@@ -27,17 +28,13 @@ public class Grid {
         this.rows = ROWS;
         this.cols = COLS;
         this.grid = new int[rows][cols];
+        this.visitedCells = new boolean[rows][cols];
         this.exploredCount = 0;
         initVirtualWall();
     }
 
     public static Grid initCurrentGrid(Robot robot) {
         Grid grid = new Grid();
-//        for (int row = START_ROW - 1; row <= START_ROW + 1; row++) {
-//            for (int col = START_COL - 1; col <= START_COL + 1; col++) {
-//                grid.setExplored(row, col);
-//            }
-//        }
         for (int row = robot.getPosRow() - 1; row <= robot.getPosRow() + 1; row++) {
             for (int col = robot.getPosCol() - 1; col <= robot.getPosCol() + 1; col++) {
                 grid.setExplored(row, col);
@@ -156,5 +153,25 @@ public class Grid {
 
     public int countExplored() {
         return this.exploredCount;
+    }
+
+    /**
+     * mark all robot occupied cells as visited
+     * to prevent phantom block updating
+     * @param robot
+     */
+    public void setVisited(Robot robot) {
+        int row = robot.getPosRow();
+        int col = robot.getPosCol();
+
+        for (int i = row - 1; row < row + 1; row++) {
+            for (int j = col - 1; j < col + 1; col++) {
+                this.visitedCells[i][j] = true;
+            }
+        }
+    }
+
+    public boolean isVisited(int row, int col) {
+        return this.visitedCells[row][col];
     }
 }

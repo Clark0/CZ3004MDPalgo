@@ -74,8 +74,11 @@ public class Sensor {
             	if (Simulator.testImage && this.id.equals("SF")) {
             	    takePhoto(x, y, sensorVal, direction);
             	}
-            	
-                currentGrid.setObstacle(x, y);
+
+            	// set the cell to obstacle only when it was never occupied by the robot before.
+            	if (!currentGrid.isVisited(x, y)) {
+                    currentGrid.setObstacle(x, y);
+                }
                 break;
             }
         }

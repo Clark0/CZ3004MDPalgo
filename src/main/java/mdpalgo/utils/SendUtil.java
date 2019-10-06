@@ -33,12 +33,15 @@ public class SendUtil {
         System.out.println("Calibrate robot, right side");
         connect = Connection.getConnection();
         connect.sendMessage(CommConstants.MOVE, CommConstants.CALIBRATE_RIGHT);
+        // waiting for robot calibration finish
         connect.receiveMessage();
     }
 
     public static void sendCalibrateFrontRight() {
+        System.out.println("Calibrate robot, corner");
         connect = Connection.getConnection();
         connect.sendMessage(CommConstants.MOVE, CommConstants.CALIBRATE_FRONT_RIGHT);
+        // waiting for robot calibration finish
         connect.receiveMessage();
     }
 

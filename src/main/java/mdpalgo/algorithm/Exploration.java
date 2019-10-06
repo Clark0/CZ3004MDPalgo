@@ -126,32 +126,36 @@ public class Exploration {
     }
 
     private void moveRobot(Movement movement) {
-        //if (Simulator.testRobot) {
-            // check whether the robot can calibrate
+        if (Simulator.testRobot) {
+            // check calibration
             if (this.canCalibrateFrontRight(robot, currentGrid)) {
+                // do corner calibration
                 this.calibrateCount = 0;
-                System.out.println("Calibrate corner, robot: " + robot.getPosRow() + " " + robot.getPosCol());
                 SendUtil.sendCalibrateFrontRight();
             } else {
                 calibrateCount++;
                 if (calibrateCount > 3) {
+                    // do right calibration
                     SendUtil.sendCalibrateRight();
                     calibrateCount = 0;
                 }
             }
 
+            // move the robot
             SendUtil.sendMoveRobotCommand(movement, 1);
-        //}
+        }
 
         robot.move(movement);
+        currentGrid.setVisited(robot);
         robot.sense(currentGrid, realGrid);
         refreshArena();
-        if (movement == Movement.BACKWARD) {
+
+        // do right calibrate the robot after a U turn
+        if (Simulator.testRobot && movement == Movement.BACKWARD) {
             SendUtil.sendCalibrateRight();
         }
 
         preMovement = movement;
-
         if (Simulator.testAndroid) {
             SendUtil.sendRobotPos(robot);
         }
@@ -215,6 +219,14 @@ public class Exploration {
             recoverWallFollow = false;
         }
     }
+
+    /**
+     * Check whether the robot is at the corner and
+     * is able to do the corner calibration
+     * @param robot
+     * @param currentGrid
+     * @return
+     */
 
     public boolean canCalibrateFrontRight(Robot robot, Grid currentGrid) {
         int row = robot.getPosRow();
