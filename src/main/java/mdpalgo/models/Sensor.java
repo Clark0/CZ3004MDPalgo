@@ -59,29 +59,41 @@ public class Sensor {
             	}
             	
             	if (id == "LL") {
-	            	if (currentGrid.getImageObstacle(position2[0], position2[1], ((direction.ordinal() + 2) % 4)) == 0) {
+	            	if (currentGrid.getImageObstacle(position2[0], position2[1], ((direction.ordinal() + 2) % 4)) != 1) {
             			Simulator.sensorLeft = i;
             		
 	            		if (i == 1) {
 	            			if (!Simulator.obsLeft) {
 	        	            	if (currentGrid.getImageObstacle(position2[0], position2[1], ((direction.ordinal() + 2) % 4)) == 0) {
-		            				System.out.println("LL LEFT STICK "+position2[0]+","+ position2[1]+","+((direction.ordinal() + 2) % 4));
-	            					System.out.println("LL " +((direction.ordinal() + 2) % 4));
 	            					Simulator.frontLeftPos[0] = direction.forward(x, y, -1)[0];
 	            					Simulator.frontLeftPos[1] = direction.forward(x, y, -1)[1];
 			            			Direction newDirection = direction.turnLeft();			            	        
 			            			Simulator.backLeftPos[0] = newDirection.forward(Simulator.frontLeftPos[0], Simulator.frontLeftPos[1], 2)[0];
-			            			Simulator.backLeftPos[1] = newDirection.forward(Simulator.frontLeftPos[0], Simulator.frontLeftPos[1], 2)[1];   	
+			            			Simulator.backLeftPos[1] = newDirection.forward(Simulator.frontLeftPos[0], Simulator.frontLeftPos[1], 2)[1];
 			            			Simulator.obsLeft = true;
 	        	            	}
 		            		}
-	            			
+	            		}
+	            		
+	            		if (i == 2) {
+	            			if (!Simulator.obsLeft) {
+	        	            	if (currentGrid.getImageObstacle(position2[0], position2[1], ((direction.ordinal() + 2) % 4)) == 0) {
+	            					Simulator.frontLeftPos[0] = direction.forward(x, y, -1)[0];
+	            					Simulator.frontLeftPos[1] = direction.forward(x, y, -1)[1];
+			            			Direction newDirection = direction.turnLeft();			            	        
+			            			Simulator.backLeftPos[0] = newDirection.forward(Simulator.frontLeftPos[0], Simulator.frontLeftPos[1], 2)[0];
+			            			Simulator.backLeftPos[1] = newDirection.forward(Simulator.frontLeftPos[0], Simulator.frontLeftPos[1], 2)[1];
+			            			Simulator.obsLeft = true;
+			            			Simulator.sensorLong = true;
+	        	            	}
+		            		}
 	            		}
 	            	}   		
             	}
             	
             	if (id == "SRC" || id == "SRL") {
-	            	if (currentGrid.getImageObstacle(position2[0], position2[1], ((direction.ordinal() + 2) % 4)) == 0) {
+            		System.out.println(position2[0]+","+ position2[1]);
+	            	if (currentGrid.getImageObstacle(position2[0], position2[1], ((direction.ordinal() + 2) % 4)) != 1) {
 	            		Simulator.sensorRight = i;
 	            	}
             	}

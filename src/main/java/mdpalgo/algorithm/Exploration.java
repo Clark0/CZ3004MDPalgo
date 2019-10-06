@@ -80,18 +80,30 @@ public class Exploration {
             	Simulator.frontLeftPos[1] = 0;
             	Simulator.backLeftPos[0] = 0;
             	Simulator.backLeftPos[1] = 0;
+            	if (Simulator.sensorLong) {
+                    moveRobot(Movement.RIGHT);
+                    moveRobot(Movement.FORWARD);
+                    moveRobot(Movement.LEFT);
+        			Simulator.sensorLong = false;
+            	}
 	    	}
             
             if (Simulator.obsLeft) {
             	leftRightImage();
             	nextMoveLeft();
-	        	if (robot.getFrontLeft()[0] == Simulator.frontLeftPos[0] && robot.getFrontLeft()[1] == Simulator.frontLeftPos[1]) {
-                	Simulator.obsLeft = false;
+	        	if (circleLoop == 4 && robot.getFrontLeft()[0] == Simulator.frontLeftPos[0] && robot.getFrontLeft()[1] == Simulator.frontLeftPos[1]) {
+	        		Simulator.obsLeft = false;
             		circleLoop = 0;
                 	Simulator.frontLeftPos[0] = 0;
                 	Simulator.frontLeftPos[1] = 0;
                 	Simulator.backLeftPos[0] = 0;
                 	Simulator.backLeftPos[1] = 0;
+                	if (Simulator.sensorLong) {
+                        moveRobot(Movement.RIGHT);
+                        moveRobot(Movement.FORWARD);
+                        moveRobot(Movement.LEFT);
+            			Simulator.sensorLong = false;
+                	}
 	        	}	
             }
             else {
@@ -176,7 +188,6 @@ public class Exploration {
 	            	circleLoop++;
 	            }
 	        } else if (robot.isSafeMovement(Movement.FORWARD, currentGrid)) {
-	        	System.out.println(robot.getPosRow() +","+robot.getPosCol());
 	        	if (robot.checkImageObs(Movement.LEFT, currentGrid)) {
 	        		if (robot.imagePossible(Movement.RIGHT, currentGrid, 1)) {
 	        			moveRobot(Movement.RIGHT);
@@ -223,6 +234,8 @@ public class Exploration {
 	        moveRobot(Movement.LEFT);
 	        if (robot.isSafeMovement(Movement.FORWARD, currentGrid)) {
 	            moveRobot(Movement.FORWARD);
+		        moveRobot(Movement.RIGHT);
+            	robot.sense(currentGrid, realGrid);
 	        }
 	    }
     }
@@ -286,13 +299,10 @@ public class Exploration {
     }
     
     public void leftRightImage() {
-        System.out.println(Simulator.sensorLeft+","+Simulator.sensorRight);
-        System.out.println("pos ,"+robot.getPosRow()+","+robot.getPosCol());
-    	if (Simulator.sensorLeft != 0) {
+    	if (Simulator.sensorLeft != 0) { 
     		if (robot.isSideObstacle(Movement.RIGHT, currentGrid)) {
 	    		if (Simulator.sensorLeft == 1) {
 	    			moveRobot(Movement.RIGHT);
-	    	        System.out.println("right");
 	        		robot.sense(currentGrid, realGrid);
 	        		
 	    			if (robot.imagePossible(Movement.FORWARD, currentGrid, Simulator.sensorLeft)) {
@@ -307,6 +317,7 @@ public class Exploration {
 	    			}
 	    			else {
 	    				moveRobot(Movement.LEFT);
+		            	Simulator.sensorLeft = 1;
 	    				robot.noImage(Movement.LEFT, currentGrid, Simulator.sensorLeft);
 		            	Simulator.sensorLeft = 0;
 	    			}
@@ -325,11 +336,12 @@ public class Exploration {
 	    			}
 	    			else {
 	    				moveRobot(Movement.LEFT);
+		            	Simulator.sensorLeft = 2;
 	    				robot.noImage(Movement.LEFT, currentGrid, Simulator.sensorLeft);
 		            	Simulator.sensorLeft = 0;
 	    			}
 	    		}
-	    		if (Simulator.sensorLeft >= 3) {
+	    		if (Simulator.sensorLeft == 3) {
 	            	moveRobot(Movement.LEFT);
 	            	Simulator.obsSide = true;
 	                robot.sense(currentGrid, realGrid);
@@ -339,8 +351,7 @@ public class Exploration {
 	    		}
     		} 
     		else {
-    			System.out.println("3 grid"+ Simulator.sensorLeft);
-				robot.noImage(Movement.LEFT, currentGrid, Simulator.sensorLeft);
+				robot.noImage(Movement.LEFT, currentGrid, 0);
             	Simulator.sensorLeft = 0;
     		}
         }
@@ -362,6 +373,7 @@ public class Exploration {
 	    			}
 	    			else {
 	    				moveRobot(Movement.RIGHT);
+		            	Simulator.sensorRight = 1;
 	    				robot.noImage(Movement.RIGHT, currentGrid, Simulator.sensorRight);
 		            	Simulator.sensorRight = 0;
 	    			}
@@ -380,21 +392,22 @@ public class Exploration {
 	    			}
 	    			else {
 	    				moveRobot(Movement.RIGHT);
+		            	Simulator.sensorRight = 2;
 	    				robot.noImage(Movement.RIGHT, currentGrid, Simulator.sensorRight);
 		            	Simulator.sensorRight = 0;
 	    			}
 	    		}
-	    		if (Simulator.sensorRight == 3) {
+	        	if (Simulator.sensorRight == 3) {
 	            	moveRobot(Movement.LEFT);
 	            	Simulator.obsSide = true;
 	                robot.sense(currentGrid, realGrid);
 	            	Simulator.obsSide = false;
 	            	moveRobot(Movement.RIGHT);
 	            	Simulator.sensorRight = 0;
-	    		}
+	    		} 
     		}
     		else {
-				robot.noImage(Movement.RIGHT, currentGrid, Simulator.sensorRight);
+				robot.noImage(Movement.RIGHT, currentGrid, 0);
             	Simulator.sensorRight = 0;
     		}
         }
