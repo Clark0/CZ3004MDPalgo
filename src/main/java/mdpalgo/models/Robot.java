@@ -27,9 +27,9 @@ public class Robot {
     private Sensor sFrontRight;
     private Sensor sFrontLeft;
     private Sensor sFront;
-    private Sensor sRightLeft;
+    private Sensor sRightFront;
     private Sensor lLeft;
-    private Sensor sRightCenter;
+    private Sensor sRight;
 
     private static final int SENSOR_SHORT_RANGE_L = 1;
     private static final int SENSOR_SHORT_RANGE_H = 3;
@@ -46,8 +46,8 @@ public class Robot {
         sFrontLeft = new Sensor(SENSOR_SHORT_RANGE_L, SENSOR_SHORT_RANGE_H, "SFL");
         sFront = new Sensor(SENSOR_SHORT_RANGE_L, SENSOR_SHORT_RANGE_H, "SF");
         sFrontRight = new Sensor(SENSOR_SHORT_RANGE_L, SENSOR_SHORT_RANGE_H, "SFR");
-        sRightLeft = new Sensor(SENSOR_SHORT_RANGE_L, SENSOR_SHORT_RANGE_H, "SRL");
-        sRightCenter = new Sensor(SENSOR_SHORT_RANGE_L, SENSOR_SHORT_RANGE_H, "SRC");
+        sRightFront = new Sensor(SENSOR_SHORT_RANGE_L, SENSOR_SHORT_RANGE_H, "SRF");
+        sRight = new Sensor(SENSOR_SHORT_RANGE_L, SENSOR_SHORT_RANGE_H, "SR");
 
     }
 
@@ -96,8 +96,8 @@ public class Robot {
     		sFrontLeft.sense(direction.getFrontLeft(posRow, posCol), direction, currentGrid, realGrid);
     		sFront.sense(direction.forward(posRow, posCol), direction, currentGrid, realGrid);
     		sFrontRight.sense(direction.getFrontRight(posRow, posCol), direction, currentGrid, realGrid);
-    		sRightLeft.sense(direction.getFrontRight(posRow, posCol), direction.turnRight(), currentGrid, realGrid);
-    		sRightCenter.sense(direction.getRight(posRow, posCol), direction.turnRight(), currentGrid, realGrid);    
+    		sRightFront.sense(direction.getFrontRight(posRow, posCol), direction.turnRight(), currentGrid, realGrid);
+    		sRight.sense(direction.getRight(posRow, posCol), direction.turnRight(), currentGrid, realGrid);    
 		} else {
     		int[] result = new int[6];
     		
@@ -118,8 +118,8 @@ public class Robot {
                 sFrontLeft.senseReal(direction.getFrontLeft(posRow, posCol), direction, currentGrid, result[1]);
 	    		sFront.senseReal(direction.forward(posRow, posCol), direction, currentGrid, result[2]);
                 sFrontRight.senseReal(direction.getFrontRight(posRow, posCol), direction, currentGrid, result[3]);
-                sRightLeft.senseReal(direction.getFrontRight(posRow, posCol), direction.turnRight(), currentGrid, result[4]);
-                sRightCenter.senseReal(direction.getRight(posRow, posCol), direction.turnRight(), currentGrid, result[5]);
+                sRightFront.senseReal(direction.getFrontRight(posRow, posCol), direction.turnRight(), currentGrid, result[4]);
+                sRight.senseReal(direction.getRight(posRow, posCol), direction.turnRight(), currentGrid, result[5]);
             }
         }
     }
@@ -143,17 +143,6 @@ public class Robot {
                 && !grid.isObstacle(newPosRight[0], newPosRight[1])
                 && grid.isExplored(newPosLeft[0], newPosLeft[1])
                 && !grid.isObstacle(newPosLeft[0], newPosLeft[1]);
-    }
-    
-    public boolean isSafeImage(Movement movement, Grid grid) {
-        Direction newDirection = this.direction.rotate(movement);
-        int[] pos = newDirection.forward(this.posRow, this.posCol);
-        int[] newPos = newDirection.forward(pos[0], pos[1]);
-        if (grid.isValid(newPos[0], newPos[1]) && grid.isExplored(newPos[0], newPos[1]) && grid.isObstacle(newPos[0], newPos[1]))
-        	if (grid.getImageObstacle(newPos[0], newPos[1], ((direction.turnLeft().ordinal() + 2) % 4)) != 1) {
-        		return true;
-        	}
-    	return false;
     }
     
     public boolean isSideObstacle(Movement movement, Grid grid) {
@@ -219,7 +208,6 @@ public class Robot {
                 newPos = newDirection.forward(newPos[0], newPos[1]);
                 newPosRight = newDirection.forward(newPosRight[0], newPosRight[1]);
                 newPosLeft = newDirection.forward(newPosLeft[0], newPosLeft[1]);
-            	
                 return 	grid.isValid(newPos[0], newPos[1])
                         && grid.isValid(newPosRight[0], newPosRight[1])
                         && grid.isValid(newPosLeft[0], newPosLeft[1])
@@ -236,7 +224,6 @@ public class Robot {
             newPos = newDirection.forward(newPos[0], newPos[1], 2);
             newPosRight = newDirection.forward(newPosRight[0], newPosRight[1],2);
             newPosLeft = newDirection.forward(newPosLeft[0], newPosLeft[1],2);
-            
             return 	grid.isValid(newPos[0], newPos[1])
                     && grid.isValid(newPosRight[0], newPosRight[1])
                     && grid.isValid(newPosLeft[0], newPosLeft[1])
@@ -295,14 +282,14 @@ public class Robot {
             else {
             	status = 2;
             }
-            if (movement == Movement.RIGHT && grid.isValid(newPosLeft2[0], newPosLeft2[1]) && grid.isObstacle(newPosLeft2[0], newPosLeft2[1]) && grid.getImageObstacle(newPosLeft[0], newPosLeft[1], ((direction.ordinal() + 3) % 4))  == 0)
-            	grid.setImageObstacle(newPosLeft[0], newPosLeft[1], ((direction.ordinal() + 3) % 4), status);
-            if (movement == Movement.RIGHT && grid.isValid(newPos2[0], newPos2[1]) && grid.isObstacle(newPos2[0], newPos2[1]) && grid.getImageObstacle(newPos[0], newPos[1], ((direction.ordinal() + 3) % 4))  == 0)
-            	grid.setImageObstacle(newPos[0], newPos[1], ((direction.ordinal() + 3) % 4), status);
-            if (movement == Movement.LEFT && grid.isValid(newPosRight2[0], newPosRight2[1]) && grid.isObstacle(newPosRight2[0], newPosRight2[1]) && grid.getImageObstacle(newPosRight[0], newPosRight[1], ((direction.ordinal() + 1) % 4))  == 0)
-            	grid.setImageObstacle(newPosRight[0], newPosRight[1], ((direction.ordinal() + 1) % 4), status);
-            if (movement == Movement.LEFT && grid.isValid(newPos2[0], newPos2[1]) && grid.isObstacle(newPos2[0], newPos2[1]) && grid.getImageObstacle(newPos[0], newPos[1], ((direction.ordinal() + 1) % 4))  == 0)
-            	grid.setImageObstacle(newPos[0], newPos[1], ((direction.ordinal() + 1) % 4), status);
+            if (movement == Movement.RIGHT && grid.isValid(newPosLeft2[0], newPosLeft2[1]) && grid.isObstacle(newPosLeft2[0], newPosLeft2[1]) && grid.getImageObstacle(newPosLeft2[0], newPosLeft2[1], ((direction.ordinal() + 3) % 4))  == 0)
+            	grid.setImageObstacle(newPosLeft2[0], newPosLeft2[1], ((direction.ordinal() + 3) % 4), status);
+            if (movement == Movement.RIGHT && grid.isValid(newPos2[0], newPos2[1]) && grid.isObstacle(newPos2[0], newPos2[1]) && grid.getImageObstacle(newPos2[0], newPos2[1], ((direction.ordinal() + 3) % 4))  == 0)
+            	grid.setImageObstacle(newPos2[0], newPos2[1], ((direction.ordinal() + 3) % 4), status);
+            if (movement == Movement.LEFT && grid.isValid(newPosRight2[0], newPosRight2[1]) && grid.isObstacle(newPosRight2[0], newPosRight2[1]) && grid.getImageObstacle(newPosRight2[0], newPosRight2[1], ((direction.ordinal() + 1) % 4))  == 0)
+            	grid.setImageObstacle(newPosRight2[0], newPosRight2[1], ((direction.ordinal() + 1) % 4), status);
+            if (movement == Movement.LEFT && grid.isValid(newPos2[0], newPos2[1]) && grid.isObstacle(newPos2[0], newPos2[1]) && grid.getImageObstacle(newPos2[0], newPos2[1], ((direction.ordinal() + 1) % 4))  == 0)
+            	grid.setImageObstacle(newPos2[0], newPos2[1], ((direction.ordinal() + 1) % 4), status);
         }
         if (Simulator.sensorRight == 2 || Simulator.sensorLeft == 2) {
         	newPos = newDirection.forward(newPos[0], newPos[1]);
@@ -317,14 +304,14 @@ public class Robot {
             else {
             	status = 2;
             }
-            if (movement == Movement.RIGHT && grid.isValid(newPosLeft2[0], newPosLeft2[1]) && grid.isObstacle(newPosLeft2[0], newPosLeft2[1]) && grid.getImageObstacle(newPosLeft[0], newPosLeft[1], ((direction.ordinal() + 3) % 4))  == 0)
-            	grid.setImageObstacle(newPosLeft[0], newPosLeft[1], ((direction.ordinal() + 3) % 4), status);
-            if (movement == Movement.RIGHT && grid.isValid(newPos2[0], newPos2[1]) && grid.isObstacle(newPos2[0], newPos2[1]) && grid.getImageObstacle(newPos[0], newPos[1], ((direction.ordinal() + 3) % 4))  == 0)
-            	grid.setImageObstacle(newPos[0], newPos[1], ((direction.ordinal() + 3) % 4), status);
-            if (movement == Movement.LEFT && grid.isValid(newPosRight2[0], newPosRight2[1]) && grid.isObstacle(newPosRight2[0], newPosRight2[1]) && grid.getImageObstacle(newPosRight[0], newPosRight[1], ((direction.ordinal() + 1) % 4))  == 0)
-            	grid.setImageObstacle(newPosRight[0], newPosRight[1], ((direction.ordinal() + 1) % 4), status);
-            if (movement == Movement.LEFT && grid.isValid(newPos2[0], newPos2[1]) && grid.isObstacle(newPos2[0], newPos2[1]) && grid.getImageObstacle(newPos[0], newPos[1], ((direction.ordinal() + 1) % 4)) == 0)
-            	grid.setImageObstacle(newPos[0], newPos[1], ((direction.ordinal() + 1) % 4), status);
+            if (movement == Movement.RIGHT && grid.isValid(newPosLeft2[0], newPosLeft2[1]) && grid.isObstacle(newPosLeft2[0], newPosLeft2[1]) && grid.getImageObstacle(newPosLeft2[0], newPosLeft2[1], ((direction.ordinal() + 3) % 4))  == 0)
+            	grid.setImageObstacle(newPosLeft2[0], newPosLeft2[1], ((direction.ordinal() + 3) % 4), status);
+            if (movement == Movement.RIGHT && grid.isValid(newPos2[0], newPos2[1]) && grid.isObstacle(newPos2[0], newPos2[1]) && grid.getImageObstacle(newPos2[0], newPos2[1], ((direction.ordinal() + 3) % 4))  == 0)
+            	grid.setImageObstacle(newPos2[0], newPos2[1], ((direction.ordinal() + 3) % 4), status);
+            if (movement == Movement.LEFT && grid.isValid(newPosRight2[0], newPosRight2[1]) && grid.isObstacle(newPosRight2[0], newPosRight2[1]) && grid.getImageObstacle(newPosRight2[0], newPosRight2[1], ((direction.ordinal() + 1) % 4))  == 0)
+            	grid.setImageObstacle(newPosRight2[0], newPosRight2[1], ((direction.ordinal() + 1) % 4), status);
+            if (movement == Movement.LEFT && grid.isValid(newPos2[0], newPos2[1]) && grid.isObstacle(newPos2[0], newPos2[1]) && grid.getImageObstacle(newPos2[0], newPos2[1], ((direction.ordinal() + 1) % 4)) == 0)
+            	grid.setImageObstacle(newPos2[0], newPos2[1], ((direction.ordinal() + 1) % 4), status);
         }
     }
 

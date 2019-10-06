@@ -11,7 +11,6 @@ public class Sensor {
     private final String id;
     private int lowerRange;
     private int upperRange;
-    private int iDirection;
 
     public Sensor(int lowerRange, int upperRange, String id) {
         this.lowerRange = lowerRange;
@@ -91,8 +90,7 @@ public class Sensor {
 	            	}   		
             	}
             	
-            	if (id == "SRC" || id == "SRL") {
-            		System.out.println(position2[0]+","+ position2[1]);
+            	if (id == "SRF" || id == "SR") {
 	            	if (currentGrid.getImageObstacle(position2[0], position2[1], ((direction.ordinal() + 2) % 4)) != 1) {
 	            		Simulator.sensorRight = i;
 	            	}
@@ -116,52 +114,63 @@ public class Sensor {
             int[] position = direction.forward(pos[0], pos[1], i);
             int x = position[0];
             int y = position[1];
+            int[] position2 = direction.forward(pos[0], pos[1], i-1);
 
             if (!currentGrid.isValid(x, y)) return;
             currentGrid.setExplored(x, y);
 
             if (sensorVal == i) {
                 // obstacle position
-
-            	switch (direction) {
-	                case NORTH:
-	                	iDirection = 0;
-	                	break;
-	                case EAST:
-	                	iDirection = 1;
-	                	break;
-	                case SOUTH:
-	                	iDirection = 2;
-	                	break;
-	                case WEST:
-	                	iDirection = 3;
-	                	break;
-	            }
             	
-            	if (id == "SF" && currentGrid.countImage() != 5) {
-	            	if (currentGrid.getImageObstacle(x, y, iDirection) != 0 || currentGrid.getImageObstacle(x, y, iDirection) != 1) {
-	            		if (sensorVal != 1 && sensorVal != 5) {
-	            			takePhoto(currentGrid, x, y, iDirection, sensorVal);
+            	if (Simulator.testImage) {
+	            	if (id == "SF" || id == "SFL" || id == "SFR") {
+	            		if (currentGrid.countImage() != 5) {
+			            	if (currentGrid.getImageObstacle(x, y, ((direction.ordinal() + 2) % 4)) == 0 || currentGrid.getImageObstacle(x, y, ((direction.ordinal() + 2) % 4)) == 2) {
+			            		if (i == 3 || Simulator.obsSide) {
+			            			takePhoto(currentGrid, x, y, ((direction.ordinal() + 2) % 4), sensorVal);
+			            		}
+			            	}       
 	            		}
-	            	}       		
-            	}
-            	if (id == "LL" && currentGrid.countImage() != 5) {
-	            	if (currentGrid.getImageObstacle(x, y, iDirection) != 0 || currentGrid.getImageObstacle(x, y, iDirection) != 1) {
-	            		if (sensorVal != 1 && sensorVal != 5) {
-	                        SendUtil.sendMoveRobotCommand(Movement.LEFT, 0);
-	            			takePhoto(currentGrid, x, y, iDirection, sensorVal);
-	                        SendUtil.sendMoveRobotCommand(Movement.RIGHT, 0);
+	            	}
+	            	if (id == "LL" && currentGrid.countImage() != 5) {
+		            	if (currentGrid.getImageObstacle(x, y, ((direction.ordinal() + 2) % 4)) == 0 || currentGrid.getImageObstacle(x, y, ((direction.ordinal() + 2) % 4)) == 2) {
+		            		Simulator.sensorLeft = i;
+		            		
+		            		if (i == 1) {
+		            			if (!Simulator.obsLeft) {
+		        	            	if (currentGrid.getImageObstacle(x, y, ((direction.ordinal() + 2) % 4)) == 0) {
+		            					Simulator.frontLeftPos[0] = direction.forward(x, y, -1)[0];
+		            					Simulator.frontLeftPos[1] = direction.forward(x, y, -1)[1];
+				            			Direction newDirection = direction.turnLeft();			            	        
+				            			Simulator.backLeftPos[0] = newDirection.forward(Simulator.frontLeftPos[0], Simulator.frontLeftPos[1], 2)[0];
+				            			Simulator.backLeftPos[1] = newDirection.forward(Simulator.frontLeftPos[0], Simulator.frontLeftPos[1], 2)[1];
+				            			Simulator.obsLeft = true;
+		        	            	}
+			            		}
+		            		}
+		            		
+		            		if (i == 2) {
+		            			if (!Simulator.obsLeft) {
+		        	            	if (currentGrid.getImageObstacle(x, y, ((direction.ordinal() + 2) % 4)) == 0) {
+		            					Simulator.frontLeftPos[0] = direction.forward(x, y, -1)[0];
+		            					Simulator.frontLeftPos[1] = direction.forward(x, y, -1)[1];
+				            			Direction newDirection = direction.turnLeft();			            	        
+				            			Simulator.backLeftPos[0] = newDirection.forward(Simulator.frontLeftPos[0], Simulator.frontLeftPos[1], 2)[0];
+				            			Simulator.backLeftPos[1] = newDirection.forward(Simulator.frontLeftPos[0], Simulator.frontLeftPos[1], 2)[1];
+				            			Simulator.obsLeft = true;
+				            			Simulator.sensorLong = true;
+		        	            	}
+			            		}
+		            		}
+		            	}       		
+	            	}
+	            	if (id == "SR" || id == "SRF") {
+	            		if (currentGrid.countImage() != 5) {
+			            	if (currentGrid.getImageObstacle(x, y, ((direction.ordinal() + 2) % 4)) == 0 || currentGrid.getImageObstacle(x, y, ((direction.ordinal() + 2) % 4)) == 2) {
+				            	Simulator.sensorRight = i;
+			            	}       
 	            		}
-	            	}       		
-            	}
-            	if (id == "SR" && currentGrid.countImage() != 5) {
-	            	if (currentGrid.getImageObstacle(x, y, iDirection) != 0 || currentGrid.getImageObstacle(x, y, iDirection) != 1) {
-	            		if (sensorVal != 1 && sensorVal != 5) {
-	                        SendUtil.sendMoveRobotCommand(Movement.RIGHT, 0);
-	            			takePhoto(currentGrid, x, y, iDirection, sensorVal);
-	                        SendUtil.sendMoveRobotCommand(Movement.LEFT, 0);
-	            		}
-	            	}       		
+	            	}
             	}
                 currentGrid.setObstacle(x, y);
                 break;
@@ -180,13 +189,14 @@ public class Sensor {
         String[] msgArr2 = msgArr[1].split(",");
 
         if (msgArr2[0].equals(-1)) {
-        	grid.setImageObstacle(Integer.parseInt(msgArr2[1]), Integer.parseInt(msgArr2[2]), z, 0);
+        	grid.setImageObstacle(x, y, z, 4);
 			System.out.println(msgArr2[0] + " " + msgArr2[1] + " " + msgArr2[2]);
         } else {
         	grid.setImageCount();
 			for (int oDir = 0; oDir < 4; oDir++) {
-				grid.setImageObstacle(Integer.parseInt(msgArr2[1]), Integer.parseInt(msgArr2[2]), oDir, 1);
+				grid.setImageObstacle(x, y, oDir, 1);
 			}
+			System.out.println(msgArr2[0] + " " + msgArr2[1] + " " + msgArr2[2]);
         }
     }
 }

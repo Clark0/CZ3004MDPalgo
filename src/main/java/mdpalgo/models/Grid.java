@@ -161,6 +161,11 @@ public class Grid {
     public void setImageObstacle(int i, int j, int k, int status) {
         this.image[i][j][k] = status;
     }
+    // 0 Default, no action yet
+    // 1 Taken and img there
+    // 2 Haven take yet
+    // 3 Cannot take
+    // 4 Taken and nothing
     
     public void setImageCount() {
         imageCount++;
