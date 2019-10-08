@@ -11,8 +11,8 @@ import mdpalgo.utils.Connection;
  *          ^   ^   ^
  *         SR  SR  SR
  *   < LR [X] [X] [X] SR >
- *        [X] [X] [X] SR >
  *        [X] [X] [X]
+ *        [X] [X] [X] SR >
  *
  * SR = Short Range Sensor, LR = Long Range Sensor
  *
@@ -121,7 +121,7 @@ public class Robot {
                 sFront.senseReal(direction.forward(posRow, posCol), direction, currentGrid, result[2]);
                 sFrontRight.senseReal(direction.getFrontRight(posRow, posCol), direction, currentGrid, result[3]);
                 sRightFront.senseReal(direction.getFrontRight(posRow, posCol), direction.turnRight(), currentGrid, result[4]);
-                sRight.senseReal(direction.getRight(posRow, posCol), direction.turnRight(), currentGrid, result[5]);
+                sRight.senseReal(direction.getBackRight(posRow, posCol), direction.turnRight(), currentGrid, result[5]);
             }
         }
     }

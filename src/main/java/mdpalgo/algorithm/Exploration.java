@@ -237,7 +237,7 @@ public class Exploration {
         int[] pos = direction.getFrontRight(row, col);
         int[] rightFront = direction.turnRight().forward(pos[0], pos[1]);
 
-        pos = direction.getRight(row, col);
+        pos = direction.getBackRight(row, col);
         int[] right = direction.turnRight().forward(pos[0], pos[1]);
 
         // front side is wall or obs

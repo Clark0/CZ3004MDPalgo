@@ -73,6 +73,11 @@ public enum Direction {
         return getRight(frontPos[0], frontPos[1]);
     }
 
+    public int[] getBackRight(int x, int y) {
+        int[] backPos = backward(x, y, 1);
+        return getRight(backPos[0], backPos[1]);
+    }
+
     public int[] getFrontLeft(int x, int y) {
         int[] frontPos = forward(x, y);
         return getLeft(frontPos[0], frontPos[1]);
