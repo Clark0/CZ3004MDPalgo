@@ -153,7 +153,7 @@ public class Exploration {
         refreshArena();
 
         // do right calibrate the robot after a U turn
-        if (Simulator.testRobot && movement == Movement.BACKWARD) {
+        if (Simulator.testRobot && movement == Movement.BACKWARD && canCalibrateFrontRight(robot, currentGrid)) {
             SendUtil.sendCalibrateRight();
         }
 

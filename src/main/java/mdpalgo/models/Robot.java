@@ -56,7 +56,7 @@ public class Robot {
             return;
         }
 
-        if (!Simulator.testRobot) {
+        if (Simulator.testRobot) {
             try {
                 Thread.sleep(speed);
                 // Thread.sleep(step == 0 ? speed: step * speed);
@@ -73,7 +73,7 @@ public class Robot {
     }
 
     public void move(Movement movement) {
-        if (!Simulator.testRobot) {
+        if (Simulator.testRobot) {
             try {
                 Thread.sleep(speed);
             } catch (InterruptedException e) {
