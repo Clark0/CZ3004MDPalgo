@@ -184,5 +184,4 @@ public class Robot {
     public int getSpeed() {
         return speed;
     }
-
 }

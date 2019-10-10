@@ -22,7 +22,7 @@ public class Exploration {
     private int timeLimit;
     private int coverage;
     private Arena arena;
-    private boolean leftWallFollow = false;
+    private boolean passedStartZone = false;
     private boolean recoverWallFollow = false;
 
     public Exploration(Grid currentGrid, Grid realGrid, Robot robot, int timeLimit, int coverage) {
@@ -44,13 +44,11 @@ public class Exploration {
         robot.sense(currentGrid, realGrid);
         refreshArena();
 
-        while (currentGrid.countExplored() * 1.0 / Grid.GRID_SIZE < coverage / 100.0
+        while (!passedStartZone && currentGrid.countExplored() * 1.0 / Grid.GRID_SIZE < coverage / 100.0
                 && System.currentTimeMillis() + RobotConstant.ESTIMATED_RETURN_TIME < endTime) {
 
-            // Choose the next move strategy
-            if (this.leftWallFollow) {
-                nextMoveLeftWall();
-            } else if (this.recoverWallFollow) {
+
+            if (this.recoverWallFollow) {
                 recoverWallFollow();
             } else {
                 nextMoveRightWall();
@@ -62,14 +60,24 @@ public class Exploration {
             }
 
             // Change to follow left wall
-            if (!recoverWallFollow && currentGrid.inStartZone(robot.getPosRow(), robot.getPosCol())
-                    && currentGrid.countExplored() != Grid.GRID_SIZE
-                    && currentGrid.countExplored() > (Grid.GRID_SIZE / 2)) {
-                moveRobot(Movement.BACKWARD);
-                leftWallFollow = !leftWallFollow;
+            if (!recoverWallFollow && robot.getPosRow() == Grid.START_ROW && robot.getPosCol() == Grid.START_COL) {
+                passedStartZone = true;
             }
 
             // System.out.println("Area explored : " + currentGrid.countExplored());
+        }
+
+        if (passedStartZone) {
+            while (currentGrid.countExplored() * 1.0 / Grid.GRID_SIZE < coverage / 100.0
+                    && System.currentTimeMillis() + RobotConstant.ESTIMATED_RETURN_TIME < endTime) {
+                FastestPath fastestPath = new FastestPath(currentGrid, robot);
+                List<FastestPath.State> path = findNearestUnexplored(fastestPath);
+                if (path != null) {
+                    executePathSlow(path);
+                } else {
+                    break;
+                }
+            }
         }
 
         returnStartFast();
@@ -88,26 +96,14 @@ public class Exploration {
         calibrateAtStartZone();
     }
 
-    public void returnStart() {
+    public void returnStartSlow() {
         FastestPath returnStartPath = new FastestPath(currentGrid, robot, Grid.START_ROW, Grid.START_COL);
         List<FastestPath.State> path = returnStartPath.findFastestPath();
         if (path == null || path.isEmpty()) {
             System.out.println("Unable to find the way home");
             return;
         }
-        arena.setPath(path);
-        refreshArena();
-        for (FastestPath.State state : path) {
-            Direction target = state.direction;
-            Movement movement = Direction.getMovementByDirections(robot.getDirection(), target);
-            moveRobot(movement);
-
-            if (movement != Movement.FORWARD) {
-                moveRobot(Movement.FORWARD);
-            }
-        }
-
-
+        executePathSlow(path);
     }
 
     public void returnStartFast() {
@@ -135,7 +131,9 @@ public class Exploration {
         if (sense) {
             robot.sense(currentGrid, realGrid);
         } else {
-            Connection.getConnection().receiveMessage();
+            if (Simulator.testRobot) {
+                Connection.getConnection().receiveMessage();
+            }
         }
 
         refreshArena();
@@ -167,25 +165,6 @@ public class Exploration {
                 moveRobot(Movement.RIGHT);
             }
             turningCount = 0;
-        }
-    }
-
-    private void nextMoveLeftWall() {
-        if (robot.isSafeMovement(Movement.LEFT, currentGrid)) {
-            moveRobot(Movement.LEFT);
-            if (robot.isSafeMovement(Movement.FORWARD, currentGrid)) {
-                moveRobot(Movement.FORWARD);
-            }
-        } else if (robot.isSafeMovement(Movement.FORWARD, currentGrid)) {
-            moveRobot(Movement.FORWARD);
-        } else if (robot.isSafeMovement(Movement.RIGHT, currentGrid)) {
-            moveRobot(Movement.RIGHT);
-            if (robot.isSafeMovement(Movement.FORWARD, currentGrid)) {
-                moveRobot(Movement.FORWARD);
-            }
-        } else {
-            moveRobot(Movement.LEFT);
-            moveRobot(Movement.LEFT);
         }
     }
 
@@ -283,5 +262,58 @@ public class Exploration {
         }
         this.calibrateCount = 0;
         moveRobot(Movement.LEFT, false);
+    }
+
+    private List<FastestPath.State> findNearestUnexplored(FastestPath fastestPath) {
+        GoalState goalState = state -> {
+            Direction direction = state.direction;
+            // goal state is a free place
+            for (int i = state.row - 1; i <= state.row + 1; i++) {
+                for (int j = state.col - 1; j <= state.col + 1; j++) {
+                    if (!currentGrid.isValid(i, j)
+                            || !currentGrid.isExplored(i, j)
+                            || currentGrid.isObstacle(i, j)) {
+                        return false;
+                    }
+                }
+            }
+
+            int[] head = direction.forward(state.row, state.col);
+            if (currentGrid.isValidAndUnknown(direction.getFrontRight(head[0], head[1]))
+                    || currentGrid.isValidAndUnknown(direction.forward(head[0], head[1]))
+                    || currentGrid.isValidAndUnknown(direction.getFrontLeft(head[0], head[1]))) {
+
+                return true;
+            }
+
+            int[] headRight = direction.getRight(state.row, state.col);
+            if (currentGrid.isValidAndUnknown(direction.turnRight().getFrontRight(headRight[0], headRight[1]))
+                    || currentGrid.isValidAndUnknown(direction.turnRight().getFrontLeft(headRight[0], headRight[1]))) {
+                return true;
+            }
+
+            int[] headLeft = direction.getLeft(state.row, state.col);
+            if (currentGrid.isValidAndUnknown(direction.turnLeft().getFrontRight(headLeft[0], headLeft[1]))) {
+                return true;
+            }
+
+            return false;
+        };
+
+        return fastestPath.findFastestPath(goalState);
+    }
+
+    private void executePathSlow(List<FastestPath.State> path) {
+        arena.setPath(path);
+        refreshArena();
+        for (FastestPath.State state : path) {
+            Direction target = state.direction;
+            Movement movement = Direction.getMovementByDirections(robot.getDirection(), target);
+            moveRobot(movement);
+
+            if (movement != Movement.FORWARD) {
+                moveRobot(Movement.FORWARD);
+            }
+        }
     }
 }

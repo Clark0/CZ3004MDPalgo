@@ -52,6 +52,10 @@ public class Grid {
         return x >= 0 && x < ROWS && y >= 0 && y < COLS;
     }
 
+    public boolean isValid(int[] pos) {
+        return isValid(pos[0], pos[1]);
+    }
+
     public boolean inStartZone(int x, int y) {
         return x >= START_ROW - 1 && x <= START_ROW + 1 && y >= START_ROW - 1 && y <= START_COL + 1;
     }
@@ -115,6 +119,14 @@ public class Grid {
 
     public boolean isUnknown(int i, int j) {
         return grid[i][j] == UNKNOWN;
+    }
+
+    public boolean isUnknown(int[] pos) {
+        return isUnknown(pos[0], pos[1]);
+    }
+
+    public boolean isValidAndUnknown(int[] pos) {
+        return isValid(pos) && isUnknown(pos);
     }
 
     public int countExplored() {
