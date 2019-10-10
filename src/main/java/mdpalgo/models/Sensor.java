@@ -78,10 +78,14 @@ public class Sensor {
             	}
 
             	// set the cell to obstacle only when it was never occupied by the robot before.
-                currentGrid.setObstacle(x, y);
+                if (!currentGrid.isVisited(x, y)) {
+                    currentGrid.setObstacle(x, y);
+                }
+
                 break;
             }
 
+            // override with front sensors
             if (currentGrid.isObstacle(x, y)) {
                 if (id.equals("SFR") || id.equals("SF") || id.equals("SFL")) {
                     currentGrid.setExplored(x, y);

@@ -164,6 +164,10 @@ public class Grid {
         int row = robot.getPosRow();
         int col = robot.getPosCol();
 
+        setVisited(row, col);
+    }
+
+    public void setVisited(int row, int col) {
         for (int i = row - 1; i < row + 1; i++) {
             for (int j = col - 1; j < col + 1; j++) {
                 this.visitedCells[i][j] = true;

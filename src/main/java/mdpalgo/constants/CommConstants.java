@@ -15,5 +15,7 @@ public class CommConstants {
     public static final String START_POINT = "start";
     public static final String CALIBRATE_FRONT_RIGHT = "H";
     public static final String CALIBRATE_RIGHT = "I";
+    public static final String CALIBRATE_FRONT = "G";
     public static final String SENSE = "R";
+    public static final String CALIBRATE_DONE = "obs:done";
 }
