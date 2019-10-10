@@ -116,6 +116,7 @@ public class Simulator {
         protected Integer doInBackground() throws Exception {
             countTimer.start();
             robot.setRobotPosition(startRow , startCol);
+
             robot.setDirection(startDirection);
             currentGrid = Grid.initCurrentGrid(robot);
 

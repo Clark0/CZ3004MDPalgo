@@ -67,7 +67,9 @@ public class Sensor {
             if (!currentGrid.isValid(x, y))
                 return;
 
-            currentGrid.setExplored(x, y);
+            if (!currentGrid.isObstacle(x, y)) {
+                currentGrid.setExplored(x, y);
+            }
 
             if (sensorVal == i) {
                 // obstacle position
@@ -76,10 +78,16 @@ public class Sensor {
             	}
 
             	// set the cell to obstacle only when it was never occupied by the robot before.
-            	if (!currentGrid.isVisited(x, y)) {
-                    currentGrid.setObstacle(x, y);
-                }
+                currentGrid.setObstacle(x, y);
                 break;
+            }
+
+            if (currentGrid.isObstacle(x, y)) {
+                if (id.equals("SFR") || id.equals("SF") || id.equals("SFL")) {
+                    currentGrid.setExplored(x, y);
+                } else {
+                    break;
+                }
             }
         }
     }
