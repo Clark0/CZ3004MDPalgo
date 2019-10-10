@@ -113,12 +113,16 @@ public class Simulator {
     }
 
     class ExplorationDisplay extends SwingWorker<Integer, String> {
+        @Override
         protected Integer doInBackground() throws Exception {
             countTimer.start();
             robot.setRobotPosition(startRow , startCol);
 
             robot.setDirection(startDirection);
             currentGrid = Grid.initCurrentGrid(robot);
+            if (hasWayPoint) {
+                currentGrid.setVisited(wayPoint[0], wayPoint[1]);
+            }
 
             arena.update(currentGrid, robot);
             Exploration exploration = new Exploration(currentGrid, realGrid, robot, timeLimit, coverage);

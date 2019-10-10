@@ -7,7 +7,6 @@ import mdpalgo.models.Grid;
 import mdpalgo.models.Robot;
 import mdpalgo.simulator.Arena;
 import mdpalgo.simulator.Simulator;
-import mdpalgo.utils.Connection;
 import mdpalgo.utils.SendUtil;
 
 import java.util.List;
@@ -73,6 +72,7 @@ public class Exploration {
 
         returnStart();
         realGrid = currentGrid;
+        System.out.println("Exploration Finished");
     }
 
     public void returnStart() {
@@ -88,19 +88,19 @@ public class Exploration {
             Direction target = state.direction;
             Movement movement = Direction.getMovementByDirections(robot.getDirection(), target);
             moveRobot(movement);
-            if (Simulator.testRobot) {
-                // remove unwanted obs data
-                Connection connection = Connection.getConnection();
-                connection.receiveMessage();
-            }
+//            if (Simulator.testRobot) {
+//                // remove unwanted obs data
+//                Connection connection = Connection.getConnection();
+//                connection.receiveMessage();
+//            }
 
             if (movement != Movement.FORWARD) {
                 moveRobot(Movement.FORWARD);
                 // remove unwanted obs data
-                if (Simulator.testRobot) {
-                    Connection connection = Connection.getConnection();
-                    connection.receiveMessage();
-                }
+//                if (Simulator.testRobot) {
+//                    Connection connection = Connection.getConnection();
+//                    connection.receiveMessage();
+//                }
             }
         }
 
@@ -120,6 +120,11 @@ public class Exploration {
         }
     }
 
+    public void returnStartFast() {
+        FastestPath returnStartFast = new FastestPath(currentGrid, robot, Grid.START_ROW, Grid.START_COL);
+        returnStartFast.runFastestPath(arena);
+    }
+
     private void refreshArena() {
         if (this.arena != null)
             arena.repaint();
@@ -127,23 +132,7 @@ public class Exploration {
 
     private void moveRobot(Movement movement) {
         if (Simulator.testRobot) {
-            // check calibration
-            if (this.canCalibrateFrontRight(robot, currentGrid)) {
-                // do corner calibration
-                this.calibrateCount = 0;
-                SendUtil.sendCalibrateFrontRight();
-            } else {
-                calibrateCount++;
-                if (calibrateCount > 3) {
-                    // do right calibration
-                    if (canCalibrateRight(robot, currentGrid)) {
-                        SendUtil.sendCalibrateRight();
-                        calibrateCount = 0;
-                    }
-                }
-            }
-
-            // move the robot
+            doCalibrate();
             SendUtil.sendMoveRobotCommand(movement, 1);
         }
 
@@ -151,11 +140,6 @@ public class Exploration {
         currentGrid.setVisited(robot);
         robot.sense(currentGrid, realGrid);
         refreshArena();
-
-        // do right calibrate the robot after a U turn
-        if (Simulator.testRobot && movement == Movement.BACKWARD && canCalibrateFrontRight(robot, currentGrid)) {
-            SendUtil.sendCalibrateRight();
-        }
 
         preMovement = movement;
         if (Simulator.testAndroid) {
@@ -169,7 +153,7 @@ public class Exploration {
             if (robot.isSafeMovement(Movement.FORWARD, currentGrid)) {
                 moveRobot(Movement.FORWARD);
                 turningCount += 1;
-                if (turningCount >= 4) {
+                if (turningCount >= 8) {
                     recoverWallFollow = true;
                 }
             }
@@ -182,7 +166,8 @@ public class Exploration {
                     moveRobot(Movement.FORWARD);
                 }
             } else {
-                moveRobot(Movement.BACKWARD);
+                moveRobot(Movement.RIGHT);
+                moveRobot(Movement.RIGHT);
             }
             turningCount = 0;
         }
@@ -202,7 +187,8 @@ public class Exploration {
     	        moveRobot(Movement.FORWARD);
             }
     	} else {
-    	    moveRobot(Movement.BACKWARD);
+    	    moveRobot(Movement.LEFT);
+    	    moveRobot(Movement.LEFT);
         }
     }
 
@@ -265,5 +251,21 @@ public class Exploration {
     private boolean canCalibrateFrontRight(Robot robot, Grid currentGrid) {
         return canCalibrateRight(robot, currentGrid)
                 && canCalibrateFront(robot, currentGrid);
+    }
+
+    private void doCalibrate() {
+        if (canCalibrateFrontRight(robot, currentGrid) && robot.isSafeMovement(Movement.LEFT, currentGrid)) {
+            this.calibrateCount = 0;
+            SendUtil.sendCalibrateFrontRight();
+        } else if (canCalibrateFront(robot, currentGrid)) {
+            this.calibrateCount = 0;
+            SendUtil.sendCalibrateFront();
+        } else {
+            calibrateCount++;
+            if (calibrateCount > 3 && canCalibrateRight(robot, currentGrid)) {
+                SendUtil.sendCalibrateRight();
+                calibrateCount = 0;
+            }
+        }
     }
 }
