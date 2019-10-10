@@ -47,7 +47,7 @@ public class Simulator {
 
     public Simulator() {
         robot = new Robot(Grid.START_ROW, Grid.START_COL, RobotConstant.START_DIR);
-        currentGrid = new Grid();
+        currentGrid = Grid.initCurrentGrid(robot);
         arena = new Arena(currentGrid, robot);
         timeLimit = RobotConstant.TIME_LIMIT;
         coverage = 100;
@@ -120,8 +120,10 @@ public class Simulator {
 
             robot.setDirection(startDirection);
             currentGrid = Grid.initCurrentGrid(robot);
+
             if (hasWayPoint) {
                 currentGrid.setVisited(wayPoint[0], wayPoint[1]);
+                currentGrid.setExploredWithCenter(wayPoint[0], wayPoint[1]);
             }
 
             arena.update(currentGrid, robot);
@@ -143,8 +145,12 @@ public class Simulator {
 
     class FastestPathDisplay extends SwingWorker<Integer, String> {
         protected Integer doInBackground() throws Exception {
+            System.out.println("Run FP");
             robot.setRobotPosition(Grid.START_ROW, Grid.START_COL);
             robot.setDirection(RobotConstant.START_DIR);
+            if (realGrid == null) {
+                realGrid = currentGrid;
+            }
 
             FastestPath fastestPath;
             if (hasWayPoint) {
@@ -216,7 +222,7 @@ public class Simulator {
                         hasWayPoint = true;
                         wayPoint[0] = Integer.parseInt(values[1]);
                         wayPoint[1] = Integer.parseInt(values[2]);
-                        System.out.println("waypoint set,  row: " + wayPoint[0] + " col: " + wayPoint[1]);
+                        System.out.println("waypoint set, row: " + wayPoint[0] + " col: " + wayPoint[1]);
                     }
                 }
             }

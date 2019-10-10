@@ -87,7 +87,9 @@ public class Sensor {
 
             // override with front sensors
             if (currentGrid.isObstacle(x, y)) {
-                if (id.equals("SFR") || id.equals("SF") || id.equals("SFL")) {
+                if ((id.equals("SFR") || id.equals("SF") || id.equals("SFL")
+                        || id.equals("SRF") || id.equals("SR")) && i <= 2
+                    || (id.equals("LL") && i <= 3)){
                     currentGrid.setExplored(x, y);
                 } else {
                     break;
