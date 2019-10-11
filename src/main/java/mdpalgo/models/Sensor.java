@@ -34,10 +34,18 @@ public class Sensor {
                 return i;
             }
 
-            currentGrid.setExplored(x, y);
+            int confidence = mapOBStoConfidence(i);
             if (realGrid.isObstacle(x, y)){
-                currentGrid.setObstacle(x, y);
-                return i;
+                currentGrid.updateCellConfidence(x, y, confidence);
+                if (currentGrid.getCellConfidence(x, y) > 0 && !currentGrid.isVisited(x, y)) {
+                    currentGrid.setObstacle(x, y);
+                }
+                break;
+            } else {
+                currentGrid.updateCellConfidence(x, y, -confidence);
+                if (currentGrid.getCellConfidence(x, y) <= 0) {
+                    currentGrid.setExplored(x, y);
+                }
             }
         }
 
@@ -54,6 +62,11 @@ public class Sensor {
                 int[] front = direction.forward(pos[0], pos[1], i);
                 if (!currentGrid.isValid(front[0], front[1]) || currentGrid.isObstacle(front[0], front[1])) {
                     return;
+
+
+
+
+
                 }
             }
         }
@@ -67,32 +80,20 @@ public class Sensor {
             if (!currentGrid.isValid(x, y))
                 return;
 
-            if (!currentGrid.isObstacle(x, y)) {
-                currentGrid.setExplored(x, y);
-            }
-
+            int confidence = mapOBStoConfidence(i);
             if (sensorVal == i) {
-                // obstacle position
-            	if (Simulator.testImage && this.id.equals("SF")) {
-            	    takePhoto(x, y, sensorVal, direction);
-            	}
-
-            	// set the cell to obstacle only when it was never occupied by the robot before.
-                if (!currentGrid.isVisited(x, y)) {
+                currentGrid.updateCellConfidence(x, y, confidence);
+                if (currentGrid.getCellConfidence(x, y) > 0 && !currentGrid.isVisited(x, y)) {
                     currentGrid.setObstacle(x, y);
+                    if (Simulator.testImage && this.id.equals("SF")) {
+                        takePhoto(x, y, sensorVal, direction);
+                    }
                 }
-
                 break;
-            }
-
-            // override with front sensors
-            if (currentGrid.isObstacle(x, y)) {
-                if ((id.equals("SFR") || id.equals("SF") || id.equals("SFL")
-                        || id.equals("SRF") || id.equals("SR")) && i <= 2
-                    || (id.equals("LL") && i <= 3)){
+            } else {
+                currentGrid.updateCellConfidence(x, y, -confidence);
+                if (currentGrid.getCellConfidence(x, y) <= 0) {
                     currentGrid.setExplored(x, y);
-                } else {
-                    break;
                 }
             }
         }
@@ -110,5 +111,31 @@ public class Sensor {
 		        break;
             }
         }
+    }
+
+    private int mapOBStoConfidence(int obsValue) {
+        if (id.equals("LL")) {
+            if (obsValue == 1)
+                return 4;
+            else if (obsValue == 2){
+                return 4;
+            } else if (obsValue == 3) {
+                return 2;
+            } else if (obsValue == 4) {
+                return 2;
+            } else if (obsValue == 5) {
+                return 1;
+            }
+        } else {
+            if (obsValue == 1) {
+                return 7;
+            } else if (obsValue == 2) {
+                return 5;
+            } else if (obsValue == 3) {
+                return 2;
+            }
+        }
+        System.out.println("Invalid obsValue");
+        return 0;
     }
 }

@@ -148,8 +148,13 @@ public class Exploration {
             if (robot.isSafeMovement(Movement.FORWARD, currentGrid)) {
                 moveRobot(Movement.FORWARD);
                 turningCount += 1;
-                if (turningCount >= 6) {
+                if (turningCount >= 10) {
                     recoverWallFollow = true;
+                    Direction targetDirection = currentGrid.countExplored() < Grid.GRID_SIZE / 2 ? Direction.NORTH : Direction.SOUTH;
+                    Movement movement = Direction.getMovementByDirections(robot.getDirection(), targetDirection);
+                    if (movement != Movement.FORWARD) {
+                        moveRobot(movement);
+                    }
                 }
             }
         } else {
@@ -239,7 +244,7 @@ public class Exploration {
             SendUtil.sendCalibrateFront();
         } else {
             calibrateCount++;
-            if (calibrateCount > 3 && canCalibrateRight(robot, currentGrid)) {
+            if (calibrateCount >= 3 && canCalibrateRight(robot, currentGrid)) {
                 SendUtil.sendCalibrateRight();
                 calibrateCount = 0;
             }
@@ -254,12 +259,11 @@ public class Exploration {
         Direction target = Direction.SOUTH;
         Movement movement = Direction.getMovementByDirections(robot.getDirection(), target);
         // rotate the robot to south
-        if (movement != Movement.FORWARD) {
+        if (movement != Movement.FORWARD && Simulator.testRobot) {
             moveRobot(movement, false);
-        }
-        if (Simulator.testRobot) {
             SendUtil.sendCalibrateFrontRight();
         }
+
         this.calibrateCount = 0;
         moveRobot(Movement.LEFT, false);
     }
@@ -278,6 +282,7 @@ public class Exploration {
                 }
             }
 
+            // Check front sensors
             int[] head = direction.forward(state.row, state.col);
             if (currentGrid.isValidAndUnknown(direction.getFrontRight(head[0], head[1]))
                     || currentGrid.isValidAndUnknown(direction.forward(head[0], head[1]))
@@ -286,12 +291,14 @@ public class Exploration {
                 return true;
             }
 
+            // Check right sensors
             int[] headRight = direction.getRight(state.row, state.col);
             if (currentGrid.isValidAndUnknown(direction.turnRight().getFrontRight(headRight[0], headRight[1]))
                     || currentGrid.isValidAndUnknown(direction.turnRight().getFrontLeft(headRight[0], headRight[1]))) {
                 return true;
             }
 
+            // Check left sensor
             int[] headLeft = direction.getLeft(state.row, state.col);
             if (currentGrid.isValidAndUnknown(direction.turnLeft().getFrontRight(headLeft[0], headLeft[1]))) {
                 return true;

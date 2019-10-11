@@ -8,6 +8,7 @@ public class Grid {
     private int cols;
     private int[][] grid;
     private boolean[][] visitedCells;
+    private int[][] confidence;
     private int exploredCount;
 
     public static final int ROWS = 20;
@@ -28,6 +29,7 @@ public class Grid {
         this.cols = COLS;
         this.grid = new int[rows][cols];
         this.visitedCells = new boolean[rows][cols];
+        this.confidence = new int[rows][cols];
         this.exploredCount = 0;
     }
 
@@ -155,5 +157,18 @@ public class Grid {
 
     public boolean isVisited(int row, int col) {
         return this.visitedCells[row][col];
+    }
+
+    public int getCellConfidence(int row, int col) {
+        return this.confidence[row][col];
+    }
+
+    public void setCellConfidence(int row, int col, int value) {
+        this.confidence[row][col] = value;
+    }
+
+    public void updateCellConfidence(int row, int col, int update) {
+        // this.confidence[row][col] = this.confidence[row][col] + update > 0 ? this.confidence[row][col] + update : 0;
+        this.confidence[row][col] = this.confidence[row][col] + update;
     }
 }
