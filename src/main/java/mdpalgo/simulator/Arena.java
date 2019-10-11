@@ -66,10 +66,10 @@ public class Arena extends JPanel {
                     cellColor = GraphicsConstants.C_UNEXPLORED;
                 else if (grid.isObstacle(mapRow, mapCol))
                     cellColor = GraphicsConstants.C_OBSTACLE;
-//              else if (grid.isVirtualWall(mapRow, mapCol))
-//                  cellColor = GraphicsConstants.C_VIRTUAL_WALL;
                 else if (grid.inGoalZone(mapRow, mapCol))
                     cellColor = GraphicsConstants.C_GOAL;
+                else if (grid.isVisited(mapRow, mapCol))
+                    cellColor = GraphicsConstants.C_VISITED;
                 else
                     cellColor = GraphicsConstants.C_FREE;
 

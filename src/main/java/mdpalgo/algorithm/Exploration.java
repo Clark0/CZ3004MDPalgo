@@ -7,6 +7,7 @@ import mdpalgo.models.Grid;
 import mdpalgo.models.Robot;
 import mdpalgo.simulator.Arena;
 import mdpalgo.simulator.Simulator;
+import mdpalgo.utils.Connection;
 import mdpalgo.utils.SendUtil;
 
 import java.util.List;
@@ -16,20 +17,18 @@ public class Exploration {
     private Grid currentGrid;
     private Grid realGrid;
     private Robot robot;
-    private Movement preMovement;
     private int turningCount = 0;
     private int calibrateCount = 0;
     private int timeLimit;
     private int coverage;
     private Arena arena;
-    private boolean newStrategy = false;
+    private boolean leftWallFollow = false;
     private boolean recoverWallFollow = false;
 
     public Exploration(Grid currentGrid, Grid realGrid, Robot robot, int timeLimit, int coverage) {
         this.currentGrid = currentGrid;
         this.realGrid = realGrid;
         this.robot = robot;
-        this.preMovement = null;
         this.timeLimit = timeLimit;
         this.coverage = coverage;
     }
@@ -48,31 +47,45 @@ public class Exploration {
         while (currentGrid.countExplored() * 1.0 / Grid.GRID_SIZE < coverage / 100.0
                 && System.currentTimeMillis() + RobotConstant.ESTIMATED_RETURN_TIME < endTime) {
 
+            // Choose the next move strategy
+            if (this.leftWallFollow) {
+                nextMoveLeftWall();
+            } else if (this.recoverWallFollow) {
+                recoverWallFollow();
+            } else {
+                nextMoveRightWall();
+            }
+
+            // Send map descriptor to Android
             if (Simulator.testAndroid) {
                 SendUtil.sendGrid(currentGrid);
             }
 
-            if (newStrategy) {
-                nextMoveNew();
-            } else if (recoverWallFollow){
-                recoverWallFollow();
-            } else {
-            	nextMove();
-            }
-            
+            // Change to follow left wall
             if (!recoverWallFollow && currentGrid.inStartZone(robot.getPosRow(), robot.getPosCol())
                     && currentGrid.countExplored() != Grid.GRID_SIZE
-            		&& currentGrid.countExplored() > (Grid.GRID_SIZE / 2)) {
+                    && currentGrid.countExplored() > (Grid.GRID_SIZE / 2)) {
                 moveRobot(Movement.BACKWARD);
-                newStrategy = !newStrategy;
-        	}
+                leftWallFollow = !leftWallFollow;
+            }
 
             // System.out.println("Area explored : " + currentGrid.countExplored());
         }
 
-        returnStart();
+        returnStartFast();
+
+        // if FastestPath fails, follow right wall to start zone
+        while (!currentGrid.inStartZone(robot.getPosRow(), robot.getPosCol())) {
+            if (Simulator.testAndroid) {
+                SendUtil.sendGrid(currentGrid);
+            }
+
+            nextMoveRightWall();
+        }
+
         realGrid = currentGrid;
         System.out.println("Exploration Finished");
+        calibrateAtStartZone();
     }
 
     public void returnStart() {
@@ -88,36 +101,13 @@ public class Exploration {
             Direction target = state.direction;
             Movement movement = Direction.getMovementByDirections(robot.getDirection(), target);
             moveRobot(movement);
-//            if (Simulator.testRobot) {
-//                // remove unwanted obs data
-//                Connection connection = Connection.getConnection();
-//                connection.receiveMessage();
-//            }
 
             if (movement != Movement.FORWARD) {
                 moveRobot(Movement.FORWARD);
-                // remove unwanted obs data
-//                if (Simulator.testRobot) {
-//                    Connection connection = Connection.getConnection();
-//                    connection.receiveMessage();
-//                }
             }
         }
 
-        // Calibrate at the start zone
-        if (robot.getPosRow() == Grid.START_ROW && robot.getPosCol() == Grid.START_COL) {
-            Direction target = Direction.SOUTH;
-            Movement movement = Direction.getMovementByDirections(robot.getDirection(), target);
-            // rotate the robot to south
-            if (movement != Movement.FORWARD) {
-                moveRobot(movement);
-            }
-            if (Simulator.testRobot) {
-                SendUtil.sendCalibrateFrontRight();
-            }
-            this.calibrateCount = 0;
-            moveRobot(Movement.LEFT);
-        }
+
     }
 
     public void returnStartFast() {
@@ -131,6 +121,10 @@ public class Exploration {
     }
 
     private void moveRobot(Movement movement) {
+        moveRobot(movement, true);
+    }
+
+    private void moveRobot(Movement movement, boolean sense) {
         if (Simulator.testRobot) {
             doCalibrate();
             SendUtil.sendMoveRobotCommand(movement, 1);
@@ -138,22 +132,25 @@ public class Exploration {
 
         robot.move(movement);
         currentGrid.setVisited(robot);
-        robot.sense(currentGrid, realGrid);
-        refreshArena();
+        if (sense) {
+            robot.sense(currentGrid, realGrid);
+        } else {
+            Connection.getConnection().receiveMessage();
+        }
 
-        preMovement = movement;
+        refreshArena();
         if (Simulator.testAndroid) {
             SendUtil.sendRobotPos(robot);
         }
     }
 
-    private void nextMove() {
+    private void nextMoveRightWall() {
         if (robot.isSafeMovement(Movement.RIGHT, currentGrid)) {
             moveRobot(Movement.RIGHT);
             if (robot.isSafeMovement(Movement.FORWARD, currentGrid)) {
                 moveRobot(Movement.FORWARD);
                 turningCount += 1;
-                if (turningCount >= 8) {
+                if (turningCount >= 6) {
                     recoverWallFollow = true;
                 }
             }
@@ -173,22 +170,22 @@ public class Exploration {
         }
     }
 
-    private void nextMoveNew() {
-    	if (robot.isSafeMovement(Movement.LEFT, currentGrid)) {
+    private void nextMoveLeftWall() {
+        if (robot.isSafeMovement(Movement.LEFT, currentGrid)) {
             moveRobot(Movement.LEFT);
             if (robot.isSafeMovement(Movement.FORWARD, currentGrid)) {
                 moveRobot(Movement.FORWARD);
             }
         } else if (robot.isSafeMovement(Movement.FORWARD, currentGrid)) {
             moveRobot(Movement.FORWARD);
-        } else if (robot.isSafeMovement(Movement.RIGHT , currentGrid)) {
-    	    moveRobot(Movement.RIGHT);
-    	    if (robot.isSafeMovement(Movement.FORWARD, currentGrid)) {
-    	        moveRobot(Movement.FORWARD);
+        } else if (robot.isSafeMovement(Movement.RIGHT, currentGrid)) {
+            moveRobot(Movement.RIGHT);
+            if (robot.isSafeMovement(Movement.FORWARD, currentGrid)) {
+                moveRobot(Movement.FORWARD);
             }
-    	} else {
-    	    moveRobot(Movement.LEFT);
-    	    moveRobot(Movement.LEFT);
+        } else {
+            moveRobot(Movement.LEFT);
+            moveRobot(Movement.LEFT);
         }
     }
 
@@ -211,6 +208,7 @@ public class Exploration {
     /**
      * Check whether the robot is at the corner and
      * is able to do the corner calibration
+     *
      * @param robot
      * @param currentGrid
      * @return
@@ -267,5 +265,23 @@ public class Exploration {
                 calibrateCount = 0;
             }
         }
+    }
+
+    private void calibrateAtStartZone() {
+        if (robot.getPosRow() != Grid.START_ROW || robot.getPosCol() != Grid.START_COL) {
+            return;
+        }
+
+        Direction target = Direction.SOUTH;
+        Movement movement = Direction.getMovementByDirections(robot.getDirection(), target);
+        // rotate the robot to south
+        if (movement != Movement.FORWARD) {
+            moveRobot(movement, false);
+        }
+        if (Simulator.testRobot) {
+            SendUtil.sendCalibrateFrontRight();
+        }
+        this.calibrateCount = 0;
+        moveRobot(Movement.LEFT, false);
     }
 }

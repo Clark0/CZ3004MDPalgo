@@ -56,13 +56,10 @@ public class Robot {
             return;
         }
 
-        if (!Simulator.testRobot) {
-            try {
-                Thread.sleep(speed);
-                // Thread.sleep(step == 0 ? speed: step * speed);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+        try {
+            Thread.sleep(speed);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
 
         // Move the robot 'step' steps in any case
@@ -104,10 +101,8 @@ public class Robot {
 
     		Connection connect = Connection.getConnection();
 
-    		String msg = null;
-    		do {
-    		    msg = connect.receiveMessage();
-            } while (!msg.contains(CommConstants.OBS));
+    		String msg = connect.receiveMessage();
+            if (!msg.contains(CommConstants.OBS)) return;
 
             String[] msgArr = msg.split(":");
             String[] msgArr2 = msgArr[1].split("\\|");
