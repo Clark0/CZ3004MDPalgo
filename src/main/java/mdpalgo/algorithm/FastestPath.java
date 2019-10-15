@@ -6,6 +6,7 @@ import mdpalgo.models.Grid;
 import mdpalgo.models.Robot;
 import mdpalgo.simulator.Arena;
 import mdpalgo.simulator.Simulator;
+import mdpalgo.utils.Connection;
 import mdpalgo.utils.SendUtil;
 
 import java.util.ArrayList;
@@ -75,16 +76,9 @@ public class FastestPath {
         setVisited(robot.getPosRow(), robot.getPosCol());
         pq.offer(initState);
 
-        goalState = state -> {
-            if (this.goalRow == Grid.GOAL_ROW && this.goalCol == Grid.GOAL_COL) {
-                return (state.row == Grid.GOAL_ROW && state.col == Grid.GOAL_COL - 1)
-                        || (state.row == Grid.GOAL_ROW - 1 && state.col == Grid.GOAL_COL)
-                        || (state.row == Grid.GOAL_ROW && state.col == Grid.GOAL_COL);
-            }
-
-            return state.row == this.goalRow && state.col == this.goalCol;
-        };
+        goalState = state -> state.row == this.goalRow && state.col == this.goalCol;
     }
+
     public FastestPath(Grid currentGrid, Robot robot) {
         this(currentGrid, robot, Grid.GOAL_ROW, Grid.GOAL_COL);
     }
@@ -108,7 +102,14 @@ public class FastestPath {
         }
         if (Simulator.testRobot) {
             SendUtil.sendMoveRobotCommand(m, step);
+            Connection.getConnection().receiveMessage();
+            if (robot.canCalibrateFront(currentGrid)) {
+                SendUtil.sendCalibrateFront();
+            } else if (robot.canCalibrateRight(currentGrid)) {
+                SendUtil.sendCalibrateRight();
+            }
         }
+
     }
 
     private boolean reachable(int row, int col) {

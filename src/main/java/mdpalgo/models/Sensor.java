@@ -118,7 +118,7 @@ public class Sensor {
             if (obsValue == 1)
                 return 4;
             else if (obsValue == 2){
-                return 4;
+                return 2;
             } else if (obsValue == 3) {
                 return 2;
             } else if (obsValue == 4) {

@@ -189,62 +189,17 @@ public class Exploration {
         }
     }
 
-    /**
-     * Check whether the robot is at the corner and
-     * is able to do the corner calibration
-     *
-     * @param robot
-     * @param currentGrid
-     * @return
-     */
-
-    private boolean canCalibrateFront(Robot robot, Grid currentGrid) {
-        int row = robot.getPosRow();
-        int col = robot.getPosCol();
-
-        Direction direction = robot.getDirection();
-        // front side is wall or obs
-        int[] pos = direction.getFrontRight(row, col);
-        int[] frontRight = direction.forward(pos[0], pos[1]);
-
-        pos = direction.getFrontLeft(row, col);
-        int[] frontLeft = direction.forward(pos[0], pos[1]);
-
-        return currentGrid.isWallOrObstable(frontRight[0], frontRight[1])
-                && currentGrid.isWallOrObstable(frontLeft[0], frontLeft[1]);
-    }
-
-    private boolean canCalibrateRight(Robot robot, Grid currentGrid) {
-        int row = robot.getPosRow();
-        int col = robot.getPosCol();
-
-        Direction direction = robot.getDirection();
-        // right side is wall or obs
-        int[] pos = direction.getFrontRight(row, col);
-        int[] rightFront = direction.turnRight().forward(pos[0], pos[1]);
-
-        pos = direction.getBackRight(row, col);
-        int[] right = direction.turnRight().forward(pos[0], pos[1]);
-
-        return currentGrid.isWallOrObstable(rightFront[0], rightFront[1])
-                && currentGrid.isWallOrObstable(right[0], right[1]);
-    }
-
-    private boolean canCalibrateFrontRight(Robot robot, Grid currentGrid) {
-        return canCalibrateRight(robot, currentGrid)
-                && canCalibrateFront(robot, currentGrid);
-    }
 
     private void doCalibrate() {
-        if (canCalibrateFrontRight(robot, currentGrid) && robot.isSafeMovement(Movement.LEFT, currentGrid)) {
+        if (robot.canCalibrateFrontRight(currentGrid) && robot.isSafeMovement(Movement.LEFT, currentGrid)) {
             this.calibrateCount = 0;
             SendUtil.sendCalibrateFrontRight();
-        } else if (canCalibrateFront(robot, currentGrid)) {
+        } else if (robot.canCalibrateFront(currentGrid)) {
             this.calibrateCount = 0;
             SendUtil.sendCalibrateFront();
         } else {
             calibrateCount++;
-            if (calibrateCount >= 3 && canCalibrateRight(robot, currentGrid)) {
+            if (calibrateCount >= 3 && robot.canCalibrateRight(currentGrid)) {
                 SendUtil.sendCalibrateRight();
                 calibrateCount = 0;
             }

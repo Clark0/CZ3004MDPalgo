@@ -184,4 +184,51 @@ public class Robot {
     public int getSpeed() {
         return speed;
     }
+
+
+    /**
+     * Check whether the robot is at the corner and
+     * is able to do the corner calibration
+     *
+     * @param currentGrid
+     * @param currentGrid
+     * @return
+     */
+
+    public boolean canCalibrateFront(Grid currentGrid) {
+        int row = getPosRow();
+        int col = getPosCol();
+
+        Direction direction = getDirection();
+        // front side is wall or obs
+        int[] pos = direction.getFrontRight(row, col);
+        int[] frontRight = direction.forward(pos[0], pos[1]);
+
+        pos = direction.getFrontLeft(row, col);
+        int[] frontLeft = direction.forward(pos[0], pos[1]);
+
+        return currentGrid.isWallOrObstable(frontRight[0], frontRight[1])
+                && currentGrid.isWallOrObstable(frontLeft[0], frontLeft[1]);
+    }
+
+    public boolean canCalibrateRight(Grid currentGrid) {
+        int row = getPosRow();
+        int col = getPosCol();
+
+        Direction direction = getDirection();
+        // right side is wall or obs
+        int[] pos = direction.getFrontRight(row, col);
+        int[] rightFront = direction.turnRight().forward(pos[0], pos[1]);
+
+        pos = direction.getBackRight(row, col);
+        int[] right = direction.turnRight().forward(pos[0], pos[1]);
+
+        return currentGrid.isWallOrObstable(rightFront[0], rightFront[1])
+                && currentGrid.isWallOrObstable(right[0], right[1]);
+    }
+
+    public boolean canCalibrateFrontRight(Grid currentGrid) {
+        return canCalibrateRight(currentGrid)
+                && canCalibrateFront(currentGrid);
+    }
 }
