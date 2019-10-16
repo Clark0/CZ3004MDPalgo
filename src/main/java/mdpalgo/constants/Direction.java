@@ -36,7 +36,7 @@ public enum Direction {
     }
 
     public static Movement getMovementByDirections(Direction currentDirection, Direction targetDirection) {
-        int diff = getDirectionDiff(targetDirection, currentDirection);
+        int diff = getDirectionDiff(currentDirection, targetDirection);
         switch (diff) {
             case 1:
                 return Movement.RIGHT;
@@ -71,6 +71,11 @@ public enum Direction {
     public int[] getFrontRight(int x, int y) {
         int[] frontPos = forward(x, y);
         return getRight(frontPos[0], frontPos[1]);
+    }
+
+    public int[] getBackRight(int x, int y) {
+        int[] backPos = backward(x, y, 1);
+        return getRight(backPos[0], backPos[1]);
     }
 
     public int[] getFrontLeft(int x, int y) {
@@ -115,6 +120,21 @@ public enum Direction {
             case 3:
                 return "w";
         }
+        return null;
+    }
+
+    public static Direction getDirectionByName(String n) {
+        switch (n) {
+            case "n":
+                return NORTH;
+            case "e":
+                return EAST;
+            case "s":
+                return SOUTH;
+            case "w":
+                return WEST;
+        }
+        System.out.println("unsupported direction name");
         return null;
     }
 }

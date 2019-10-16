@@ -10,10 +10,9 @@ import mdpalgo.utils.Connection;
 /**
  *          ^   ^   ^
  *         SR  SR  SR
- *               < LR
- *        [X] [X] [X] SR >
- *        [X] [X] [X] SR >
+ *   < LR [X] [X] [X] SR >
  *        [X] [X] [X]
+ *        [X] [X] [X] SR >
  *
  * SR = Short Range Sensor, LR = Long Range Sensor
  *
@@ -27,8 +26,8 @@ public class Robot {
     private Sensor sFrontRight;
     private Sensor sFrontLeft;
     private Sensor sFront;
-    private Sensor sRightFront;
     private Sensor lLeft;
+    private Sensor sRightFront;
     private Sensor sRight;
 
     private static final int SENSOR_SHORT_RANGE_L = 1;
@@ -48,7 +47,6 @@ public class Robot {
         sFrontRight = new Sensor(SENSOR_SHORT_RANGE_L, SENSOR_SHORT_RANGE_H, "SFR");
         sRightFront = new Sensor(SENSOR_SHORT_RANGE_L, SENSOR_SHORT_RANGE_H, "SRF");
         sRight = new Sensor(SENSOR_SHORT_RANGE_L, SENSOR_SHORT_RANGE_H, "SR");
-
     }
 
     public void move(Movement movement, int step) {
@@ -60,7 +58,6 @@ public class Robot {
 
         try {
             Thread.sleep(speed);
-            // Thread.sleep(step == 0 ? speed: step * speed);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -73,10 +70,12 @@ public class Robot {
     }
 
     public void move(Movement movement) {
-        try {
-            Thread.sleep(speed);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        if (!Simulator.testRobot) {
+            try {
+                Thread.sleep(speed);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
 
         this.direction = this.direction.rotate(movement);
@@ -89,20 +88,22 @@ public class Robot {
     }
 
     public void sense(Grid currentGrid, Grid realGrid) {
-    	
     	if(!Simulator.testRobot) {
-    		
-    		lLeft.sense(direction.getFrontLeft(posRow, posCol), direction.turnLeft(), currentGrid, realGrid);
-    		sFrontLeft.sense(direction.getFrontLeft(posRow, posCol), direction, currentGrid, realGrid);
-    		sFront.sense(direction.forward(posRow, posCol), direction, currentGrid, realGrid);
-    		sFrontRight.sense(direction.getFrontRight(posRow, posCol), direction, currentGrid, realGrid);
-    		sRightFront.sense(direction.getFrontRight(posRow, posCol), direction.turnRight(), currentGrid, realGrid);
-    		sRight.sense(direction.getRight(posRow, posCol), direction.turnRight(), currentGrid, realGrid);    
+            lLeft.sense(direction.getFrontLeft(posRow, posCol), direction.turnLeft(), currentGrid, realGrid);
+            sFrontLeft.sense(direction.getFrontLeft(posRow, posCol), direction, currentGrid, realGrid);
+            sFront.sense(direction.forward(posRow, posCol), direction, currentGrid, realGrid);
+            sFrontRight.sense(direction.getFrontRight(posRow, posCol), direction, currentGrid, realGrid);
+            sRightFront.sense(direction.getFrontRight(posRow, posCol), direction.turnRight(), currentGrid, realGrid);
+            sRight.sense(direction.getBackRight(posRow, posCol), direction.turnRight(), currentGrid, realGrid);
+
 		} else {
     		int[] result = new int[6];
-    		
+
     		Connection connect = Connection.getConnection();
-        	String msg = connect.receiveMessage();
+
+    		String msg = connect.receiveMessage();
+            if (!msg.contains(CommConstants.OBS)) return;
+
             String[] msgArr = msg.split(":");
             String[] msgArr2 = msgArr[1].split("\\|");
 
@@ -116,10 +117,10 @@ public class Robot {
 
                 lLeft.senseReal(direction.getFrontLeft(posRow, posCol), direction.turnLeft(), currentGrid, result[0]);
                 sFrontLeft.senseReal(direction.getFrontLeft(posRow, posCol), direction, currentGrid, result[1]);
-	    		sFront.senseReal(direction.forward(posRow, posCol), direction, currentGrid, result[2]);
+                sFront.senseReal(direction.forward(posRow, posCol), direction, currentGrid, result[2]);
                 sFrontRight.senseReal(direction.getFrontRight(posRow, posCol), direction, currentGrid, result[3]);
                 sRightFront.senseReal(direction.getFrontRight(posRow, posCol), direction.turnRight(), currentGrid, result[4]);
-                sRight.senseReal(direction.getRight(posRow, posCol), direction.turnRight(), currentGrid, result[5]);
+                sRight.senseReal(direction.getBackRight(posRow, posCol), direction.turnRight(), currentGrid, result[5]);
             }
         }
     }
@@ -365,4 +366,50 @@ public class Robot {
         return speed;
     }
 
+
+    /**
+     * Check whether the robot is at the corner and
+     * is able to do the corner calibration
+     *
+     * @param currentGrid
+     * @param currentGrid
+     * @return
+     */
+
+    public boolean canCalibrateFront(Grid currentGrid) {
+        int row = getPosRow();
+        int col = getPosCol();
+
+        Direction direction = getDirection();
+        // front side is wall or obs
+        int[] pos = direction.getFrontRight(row, col);
+        int[] frontRight = direction.forward(pos[0], pos[1]);
+
+        pos = direction.getFrontLeft(row, col);
+        int[] frontLeft = direction.forward(pos[0], pos[1]);
+
+        return currentGrid.isWallOrObstable(frontRight[0], frontRight[1])
+                && currentGrid.isWallOrObstable(frontLeft[0], frontLeft[1]);
+    }
+
+    public boolean canCalibrateRight(Grid currentGrid) {
+        int row = getPosRow();
+        int col = getPosCol();
+
+        Direction direction = getDirection();
+        // right side is wall or obs
+        int[] pos = direction.getFrontRight(row, col);
+        int[] rightFront = direction.turnRight().forward(pos[0], pos[1]);
+
+        pos = direction.getBackRight(row, col);
+        int[] right = direction.turnRight().forward(pos[0], pos[1]);
+
+        return currentGrid.isWallOrObstable(rightFront[0], rightFront[1])
+                && currentGrid.isWallOrObstable(right[0], right[1]);
+    }
+
+    public boolean canCalibrateFrontRight(Grid currentGrid) {
+        return canCalibrateRight(currentGrid)
+                && canCalibrateFront(currentGrid);
+    }
 }

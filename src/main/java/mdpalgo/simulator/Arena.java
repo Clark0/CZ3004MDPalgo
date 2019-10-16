@@ -58,30 +58,33 @@ public class Arena extends JPanel {
             for (int mapCol = 0; mapCol < COLS; mapCol++) {
                 Color cellColor;
 
-                if (grid.inStartZone(mapRow, mapCol))
+                if (onPath(mapRow, mapCol))
+                    cellColor = GraphicsConstants.C_PATH;
+                else if (grid.inStartZone(mapRow, mapCol))
                     cellColor = GraphicsConstants.C_START;
-                else {
-                    if (!grid.isExplored(mapRow, mapCol))
-                        cellColor = GraphicsConstants.C_UNEXPLORED;
-                    else if (grid.isObstacle(mapRow, mapCol))
-                        cellColor = GraphicsConstants.C_OBSTACLE;
-//					else if (grid.isVirtualWall(mapRow, mapCol))
-//						cellColor = GraphicsConstants.C_VIRTUAL_WALL;
-                    else if (onPath(mapRow, mapCol))
-                        cellColor = GraphicsConstants.C_PATH;
-                    else if (grid.inGoalZone(mapRow, mapCol))
-                        cellColor = GraphicsConstants.C_GOAL;
-                    else if (grid.getImageObstacle(mapRow, mapCol, 0) == 1
-                    		|| grid.getImageObstacle(mapRow, mapCol, 1) == 1
-                    		|| grid.getImageObstacle(mapRow, mapCol, 2) == 1
-                    		|| grid.getImageObstacle(mapRow, mapCol, 3) == 1)
-                        cellColor = Color.PINK;
-                    else
-                        cellColor = GraphicsConstants.C_FREE;
-                }
+                else if (!grid.isExplored(mapRow, mapCol))
+                    cellColor = GraphicsConstants.C_UNEXPLORED;
+                else if (grid.isObstacle(mapRow, mapCol))
+                    cellColor = GraphicsConstants.C_OBSTACLE;
+                else if (grid.inGoalZone(mapRow, mapCol))
+                    cellColor = GraphicsConstants.C_GOAL;
+                else if (grid.isVisited(mapRow, mapCol))
+                    cellColor = GraphicsConstants.C_VISITED;
+                else
+                    cellColor = GraphicsConstants.C_FREE;
 
                 g.setColor(cellColor);
                 g.fillRect(_mapCells[mapRow][mapCol].cellX + GraphicsConstants.MAP_X_OFFSET, _mapCells[mapRow][mapCol].cellY, _mapCells[mapRow][mapCol].cellSize, _mapCells[mapRow][mapCol].cellSize);
+
+
+                g.setFont(new Font("Arial", Font.PLAIN, 11));
+                FontMetrics fm = g.getFontMetrics();
+                Color confColor = grid.isExplored(mapRow, mapCol) && !grid.isVisited(mapRow, mapCol) ? Color.GREEN : Color.WHITE;
+                g.setColor(confColor);
+                String confidenceValue = String.valueOf(grid.getCellConfidence(mapRow, mapCol));
+                int stringWith = fm.stringWidth(confidenceValue);
+                g.drawString(confidenceValue, _mapCells[mapRow][mapCol].cellX + GraphicsConstants.MAP_X_OFFSET + (_mapCells[mapRow][mapCol].cellSize - stringWith) / 2 , _mapCells[mapRow][mapCol].cellY + (_mapCells[mapRow][mapCol].cellSize + fm.getAscent()) / 2);
+
                 if (mapRow == 0) {
                     g.setColor(Color.black);
                     g.drawString(String.valueOf(mapCol), _mapCells[mapRow][mapCol].cellX + GraphicsConstants.MAP_X_OFFSET + 10, _mapCells[mapRow][mapCol].cellY + 40);

@@ -7,7 +7,8 @@ public class Grid {
     private int rows;
     private int cols;
     private int[][] grid;
-    private boolean[][] virtualWall;
+    private boolean[][] visitedCells;
+    private int[][] confidence;
     private int exploredCount;
     private int[][][] image;
     private int imageCount;
@@ -29,25 +30,22 @@ public class Grid {
         this.rows = ROWS;
         this.cols = COLS;
         this.grid = new int[rows][cols];
+        this.visitedCells = new boolean[rows][cols];
+        this.confidence = new int[rows][cols];
         this.exploredCount = 0;
         this.image = new int[rows][cols][4];
         this.imageCount = 0;
-        initVirtualWall();
     }
 
     public static Grid initCurrentGrid(Robot robot) {
         Grid grid = new Grid();
-        // initialize start zone
-//        for (int row = START_ROW - 1; row <= START_ROW + 1; row++) {
-//            for (int col = START_COL - 1; col <= START_COL + 1; col++) {
-//                grid.setExplored(row, col);
-//            }
-//        }
-        for (int row = robot.getPosRow() - 1; row <= robot.getPosRow() + 1; row++) {
-            for (int col = robot.getPosCol() - 1; col <= robot.getPosCol() + 1; col++) {
-                grid.setExplored(row, col);
-            }
-        }
+        grid.setExploredWithCenter(robot.getPosRow(), robot.getPosCol());
+        grid.setExploredWithCenter(GOAL_ROW, GOAL_COL);
+        grid.setExploredWithCenter(START_ROW, START_COL);
+
+        grid.setVisited(robot);
+        grid.setVisited(Grid.START_ROW, Grid.START_COL);
+        grid.setVisited(Grid.GOAL_ROW, Grid.GOAL_COL);
         return grid;
     }
 
@@ -56,21 +54,12 @@ public class Grid {
         return grid;
     }
 
-    public void initVirtualWall() {
-        this.virtualWall = new boolean[ROWS][COLS];
-        /*for (int i = 0; i < ROWS; i++) {
-            this.setVirtualWall(i, 0);
-            this.setVirtualWall(i, COLS - 1);
-        }
-
-        for (int j = 0; j < COLS; j++) {
-            this.setVirtualWall(0, j);
-            this.setVirtualWall(ROWS - 1, j);
-        }*/
-    }
-
     public boolean isValid(int x, int y) {
         return x >= 0 && x < ROWS && y >= 0 && y < COLS;
+    }
+
+    public boolean isValid(int[] pos) {
+        return isValid(pos[0], pos[1]);
     }
 
     public boolean inStartZone(int x, int y) {
@@ -86,13 +75,15 @@ public class Grid {
             this.exploredCount++;
         }
         this.grid[x][y] = OBSTACLE;
-        for (int i = x - 1; i <= x + 1; i++) {
-            for (int j = y - 1; j <= y + 1; j++) {
-                if (isValid(i, j)) {
-                    this.setVirtualWall(i, j);
-                }
-            }
-        }
+    }
+
+    public boolean isWall(int row, int col) {
+        return row == -1 || row == Grid.ROWS || col == -1 || col == Grid.COLS;
+    }
+
+    public boolean isWallOrObstable(int row, int col) {
+        return isWall(row, col)
+                || (isValid(row, col) && isObstacle(row, col));
     }
 
     public boolean isObstacle(int x, int y) {
@@ -106,20 +97,14 @@ public class Grid {
         this.grid[x][y] = EXPLORED;
     }
 
-    public void markExplored(int x, int y, boolean explored) {
-        if (explored) {
-            this.setExplored(x, y);
-        } else {
-          if (isExplored(x, y)) {
-              this.exploredCount--;
-          }
-          this.grid[x][y] = UNKNOWN;
+    public void setExploredWithCenter(int row, int col) {
+        for (int i = row - 1; i <= row + 1; i++) {
+            for (int j = col - 1; j <= col + 1; j++) {
+                if (isValid(i, j)) {
+                    setExplored(i, j);
+                }
+            }
         }
-    }
-
-    public void markObstacle(int x, int y, boolean isObstacle) {
-        if (isObstacle)
-            setObstacle(x, y);
     }
 
     public double getCoverage() {
@@ -142,12 +127,12 @@ public class Grid {
         return grid[i][j] == UNKNOWN;
     }
 
-    public boolean isVirtualWall(int i, int j) {
-        return this.virtualWall[i][j];
+    public boolean isUnknown(int[] pos) {
+        return isUnknown(pos[0], pos[1]);
     }
 
-    public void setVirtualWall(int i, int j) {
-        this.virtualWall[i][j] = true;
+    public boolean isValidAndUnknown(int[] pos) {
+        return isValid(pos) && isUnknown(pos);
     }
 
     public int countExplored() {
@@ -173,5 +158,41 @@ public class Grid {
     
     public int countImage() {
         return this.imageCount;
+
+    /**
+     * mark all robot occupied cells as visited
+     * to prevent phantom block updating
+     * @param robot
+     */
+    public void setVisited(Robot robot) {
+        int row = robot.getPosRow();
+        int col = robot.getPosCol();
+
+        setVisited(row, col);
+    }
+
+    public void setVisited(int row, int col) {
+        for (int i = row - 1; i <= row + 1; i++) {
+            for (int j = col - 1; j <= col + 1; j++) {
+                this.visitedCells[i][j] = true;
+            }
+        }
+    }
+
+    public boolean isVisited(int row, int col) {
+        return this.visitedCells[row][col];
+    }
+
+    public int getCellConfidence(int row, int col) {
+        return this.confidence[row][col];
+    }
+
+    public void setCellConfidence(int row, int col, int value) {
+        this.confidence[row][col] = value;
+    }
+
+    public void updateCellConfidence(int row, int col, int update) {
+        // this.confidence[row][col] = this.confidence[row][col] + update > 0 ? this.confidence[row][col] + update : 0;
+        this.confidence[row][col] = this.confidence[row][col] + update;
     }
 }

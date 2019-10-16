@@ -6,6 +6,7 @@ import mdpalgo.models.Grid;
 import mdpalgo.models.Robot;
 import mdpalgo.simulator.Arena;
 import mdpalgo.simulator.Simulator;
+import mdpalgo.utils.Connection;
 import mdpalgo.utils.SendUtil;
 
 import java.util.ArrayList;
@@ -56,6 +57,7 @@ public class FastestPath {
     private final int goalCol;
     private boolean[][] visited;
     PriorityQueue<State> pq;
+    public GoalState goalState;
 
     private static final int MOVE_COST = 10;
     private static final int TURN_COST = 10;
@@ -73,11 +75,14 @@ public class FastestPath {
         State initState = new State(robot.getPosRow(), robot.getPosCol(), robot.getDirection());
         setVisited(robot.getPosRow(), robot.getPosCol());
         pq.offer(initState);
+
+        goalState = state -> state.row == this.goalRow && state.col == this.goalCol;
     }
 
     public FastestPath(Grid currentGrid, Robot robot) {
         this(currentGrid, robot, Grid.GOAL_ROW, Grid.GOAL_COL);
     }
+
 
     private double calculateHeuristic(int x, int y) {
         double moveCost = (Math.abs(this.goalRow - x) + Math.abs(this.goalCol - y)) * MOVE_COST;
@@ -97,25 +102,28 @@ public class FastestPath {
         }
         if (Simulator.testRobot) {
             SendUtil.sendMoveRobotCommand(m, step);
+            Connection.getConnection().receiveMessage();
+            if (robot.canCalibrateFront(currentGrid)) {
+                SendUtil.sendCalibrateFront();
+            } else if (robot.canCalibrateRight(currentGrid)) {
+                SendUtil.sendCalibrateRight();
+            }
         }
+
     }
 
-    private boolean isGoalState(State state) {
-        return state.row == this.goalRow && state.col == this.goalCol;
-    }
+    private boolean reachable(int row, int col) {
+        for (int i = row - 1; i <= row + 1; i++) {
+            for (int j = col - 1; j <= col + 1; j++) {
+                if (!currentGrid.isValid(i, j)
+                        || currentGrid.isObstacle(i, j)
+                        || !currentGrid.isExplored(i ,j)) {
+                    return false;
+                }
+            }
+        }
 
-    private boolean reachable(int x, int y, Direction direction) {
-        int[] right = direction.getRight(x, y);
-        int[] left = direction.getLeft(x, y);
-        return currentGrid.isValid(x, y)
-                && currentGrid.isExplored(x, y)
-                && !currentGrid.isObstacle(x, y)
-                && !currentGrid.isVirtualWall(x, y)
-                && currentGrid.isExplored(right[0], right[1])
-                && !currentGrid.isObstacle(right[0], right[1])
-                && currentGrid.isExplored(left[0], left[1])
-                && !currentGrid.isObstacle(left[0], left[1]);
-
+        return true;
     }
 
     private boolean isVisited(int x, int y) {
@@ -131,8 +139,7 @@ public class FastestPath {
         for (int i = 0; i < neighbourX.length; i++) {
             int x = state.row + neighbourX[i];
             int y = state.col + neighbourY[i];
-            Direction direction = Direction.getDirectionByDelta(neighbourX[i], neighbourY[i]);
-            if (reachable(x, y, direction)) {
+            if (reachable(x, y)) {
                 neighbours.add(new State(x, y, state));
             }
         }
@@ -140,9 +147,13 @@ public class FastestPath {
     }
 
     public List<State> findFastestPath() {
+        return findFastestPath(this.goalState);
+    }
+
+    public List<State> findFastestPath(GoalState goalState) {
         while (!pq.isEmpty()) {
             State currentState = pq.poll();
-            if (isGoalState(currentState)) {
+            if (goalState.isGoalState(currentState)) {
                 return constructPath(currentState);
             }
 
@@ -160,10 +171,7 @@ public class FastestPath {
 
     public void runFastestPath(Arena arena) {
         this.arena = arena;
-        if (Simulator.testAndroid) {
-            SendUtil.sendGrid(arena.getGrid());
-        }
-        List<State> path = this.findFastestPath();
+        List<State> path = this.findFastestPath(this.goalState);
         if (path == null) {
             System.out.println("Unable to find the fastest path");
         }
@@ -171,7 +179,6 @@ public class FastestPath {
     }
 
     public void executePath(List<State> path) {
-        // FastestPath(path, currentGrid, robot);
         if (this.arena != null) {
             arena.setPath(path);
         }
@@ -181,7 +188,7 @@ public class FastestPath {
             State state = iter.next();
             Direction direction = state.direction;
             // Arduino can only take one digit
-            Movement movement = Direction.getMovementByDirections(direction, robot.getDirection());
+            Movement movement = Direction.getMovementByDirections(robot.getDirection(), direction);
             if (movement == Movement.FORWARD) {
                 forwardCount += 1;
                 if (forwardCount < 15 && iter.hasNext()) {
@@ -222,12 +229,5 @@ public class FastestPath {
     private void refreshArena() {
         if (this.arena != null)
             arena.repaint();
-    }
-
-    public static void main(String[] args) {
-        Grid currentGrid = Grid.loadGridFromFile("map1");
-        Robot robot = new Robot(Grid.START_ROW, Grid.START_COL, Direction.NORTH);
-        FastestPath fastestPath = new FastestPath(currentGrid, robot, Grid.GOAL_ROW, Grid.GOAL_COL);
-        fastestPath.runFastestPath(null);
     }
 }

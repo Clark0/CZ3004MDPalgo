@@ -3,18 +3,18 @@ package mdpalgo.constants;
 import java.awt.*;
 
 public class GraphicsConstants {
-    public static final int CELL_LINE_WEIGHT = 2;
+    public static final int CELL_LINE_WEIGHT = 1;
 
-    public static final Color C_START = Color.BLUE;
-    public static final Color C_GOAL = Color.GREEN;
-    public static final Color C_UNEXPLORED = Color.LIGHT_GRAY;
+    public static final Color C_START = Color.GREEN;
+    public static final Color C_GOAL = Color.RED;
+    public static final Color C_UNEXPLORED = Color.GRAY;
     public static final Color C_FREE = Color.WHITE;
     public static final Color C_OBSTACLE = Color.BLACK;
     public static final Color C_PATH = Color.CYAN;
-    public static final Color C_VIRTUAL_WALL = Color.GRAY;
-
-    public static final Color C_ROBOT = Color.RED;
+    public static final Color C_ROBOT = Color.BLUE;
     public static final Color C_ROBOT_DIR = Color.WHITE;
+    public static final Color C_VISITED = Color.ORANGE;
+    public static final Color CONFIDENCE_COLOR = Color.GREEN;
 
     public static final int ROBOT_W = 70;
     public static final int ROBOT_H = 70;

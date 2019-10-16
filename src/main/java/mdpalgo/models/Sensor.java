@@ -38,9 +38,8 @@ public class Sensor {
                 return i;
             }
 
-            currentGrid.setExplored(x, y);
+            int confidence = mapOBStoConfidence(i);
             if (realGrid.isObstacle(x, y)){
-            	
             	
             	if (id == "SF" || id == "SFL" || id == "SFR") {
             		if (i == 3) {
@@ -95,9 +94,17 @@ public class Sensor {
 	            		Simulator.sensorRight = i;
 	            	}
             	}
-            	
-                currentGrid.setObstacle(x, y);
-                return i;
+
+                currentGrid.updateCellConfidence(x, y, confidence);
+                if (currentGrid.getCellConfidence(x, y) > 0 && !currentGrid.isVisited(x, y)) {
+                    currentGrid.setObstacle(x, y);
+                }
+                break;
+            } else {
+                currentGrid.updateCellConfidence(x, y, -confidence);
+                if (currentGrid.getCellConfidence(x, y) <= 0) {
+                    currentGrid.setExplored(x, y);
+                }
             }
         }
 
@@ -109,6 +116,20 @@ public class Sensor {
     }
     
     public void senseReal(int[] pos, Direction direction, Grid currentGrid, int sensorVal) {
+        if (lowerRange > 1) {
+            for (int i = 1; i < this.lowerRange; i++) {
+                int[] front = direction.forward(pos[0], pos[1], i);
+                if (!currentGrid.isValid(front[0], front[1]) || currentGrid.isObstacle(front[0], front[1])) {
+                    return;
+
+
+
+
+
+                }
+            }
+        }
+
         // Update map according to sensor's value.
     	for (int i = this.lowerRange; i <= this.upperRange; i++) {
             int[] position = direction.forward(pos[0], pos[1], i);
@@ -116,9 +137,10 @@ public class Sensor {
             int y = position[1];
             int[] position2 = direction.forward(pos[0], pos[1], i-1);
 
-            if (!currentGrid.isValid(x, y)) return;
-            currentGrid.setExplored(x, y);
+            if (!currentGrid.isValid(x, y))
+                return;
 
+            int confidence = mapOBStoConfidence(i);
             if (sensorVal == i) {
                 // obstacle position
             	
@@ -171,9 +193,21 @@ public class Sensor {
 			            	}       
 	            		}
 	            	}
-            	}
-                currentGrid.setObstacle(x, y);
+                }
+                
+                currentGrid.updateCellConfidence(x, y, confidence);
+                if (currentGrid.getCellConfidence(x, y) > 0 && !currentGrid.isVisited(x, y)) {
+                    currentGrid.setObstacle(x, y);
+                    if (Simulator.testImage && this.id.equals("SF")) {
+                        takePhoto(x, y, sensorVal, direction);
+                    }
+                }
                 break;
+            } else {
+                currentGrid.updateCellConfidence(x, y, -confidence);
+                if (currentGrid.getCellConfidence(x, y) <= 0) {
+                    currentGrid.setExplored(x, y);
+                }
             }
         }
     }
@@ -198,5 +232,31 @@ public class Sensor {
 			}
 			System.out.println(msgArr2[0] + " " + msgArr2[1] + " " + msgArr2[2]);
         }
+    }
+
+    private int mapOBStoConfidence(int obsValue) {
+        if (id.equals("LL")) {
+            if (obsValue == 1)
+                return 4;
+            else if (obsValue == 2){
+                return 2;
+            } else if (obsValue == 3) {
+                return 2;
+            } else if (obsValue == 4) {
+                return 2;
+            } else if (obsValue == 5) {
+                return 1;
+            }
+        } else {
+            if (obsValue == 1) {
+                return 7;
+            } else if (obsValue == 2) {
+                return 5;
+            } else if (obsValue == 3) {
+                return 2;
+            }
+        }
+        System.out.println("Invalid obsValue");
+        return 0;
     }
 }
