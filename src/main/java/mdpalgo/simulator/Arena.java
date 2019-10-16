@@ -75,6 +75,16 @@ public class Arena extends JPanel {
 
                 g.setColor(cellColor);
                 g.fillRect(_mapCells[mapRow][mapCol].cellX + GraphicsConstants.MAP_X_OFFSET, _mapCells[mapRow][mapCol].cellY, _mapCells[mapRow][mapCol].cellSize, _mapCells[mapRow][mapCol].cellSize);
+
+
+                g.setFont(new Font("Arial", Font.PLAIN, 11));
+                FontMetrics fm = g.getFontMetrics();
+                Color confColor = grid.isExplored(mapRow, mapCol) && !grid.isVisited(mapRow, mapCol) ? Color.GREEN : Color.WHITE;
+                g.setColor(confColor);
+                String confidenceValue = String.valueOf(grid.getCellConfidence(mapRow, mapCol));
+                int stringWith = fm.stringWidth(confidenceValue);
+                g.drawString(confidenceValue, _mapCells[mapRow][mapCol].cellX + GraphicsConstants.MAP_X_OFFSET + (_mapCells[mapRow][mapCol].cellSize - stringWith) / 2 , _mapCells[mapRow][mapCol].cellY + (_mapCells[mapRow][mapCol].cellSize + fm.getAscent()) / 2);
+
                 if (mapRow == 0) {
                     g.setColor(Color.black);
                     g.drawString(String.valueOf(mapCol), _mapCells[mapRow][mapCol].cellX + GraphicsConstants.MAP_X_OFFSET + 10, _mapCells[mapRow][mapCol].cellY + 40);
