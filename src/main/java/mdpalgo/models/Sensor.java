@@ -43,13 +43,13 @@ public class Sensor {
             	
             	if (id == "SF" || id == "SFL" || id == "SFR") {
             		if (i == 3) {
-	            		if (currentGrid.getImageObstacle(position2[0], position2[1], ((direction.ordinal() + 2) % 4)) != 1) {
+	            		if (currentGrid.getImageObstacle(position[0], position[1], ((direction.ordinal() + 2) % 4)) != 1) {
 	            			currentGrid.setImageObstacle(position[0], position[1], ((direction.ordinal() + 2) % 4), 1);
 	            			currentGrid.setImageObstacle(position2[0], position2[1], ((direction.ordinal() + 2) % 4), 1);
 		            	}   
             		}
             		if (Simulator.obsSide) {
-		            	if (currentGrid.getImageObstacle(position2[0], position2[1], ((direction.ordinal() + 2) % 4)) != 1) {
+		            	if (currentGrid.getImageObstacle(position[0], position[1], ((direction.ordinal() + 2) % 4)) != 1) {
 	            			currentGrid.setImageObstacle(position[0], position[1], ((direction.ordinal() + 2) % 4), 1);
 	            			currentGrid.setImageObstacle(position2[0], position2[1], ((direction.ordinal() + 2) % 4), 1);
 		            	}  
@@ -57,12 +57,12 @@ public class Sensor {
             	}
             	
             	if (id == "LL") {
-	            	if (currentGrid.getImageObstacle(position2[0], position2[1], ((direction.ordinal() + 2) % 4)) != 1) {
+	            	if (currentGrid.getImageObstacle(position[0], position[1], ((direction.ordinal() + 2) % 4)) != 1) {
             			Simulator.sensorLeft = i;
             		
 	            		if (i == 1) {
 	            			if (!Simulator.obsLeft) {
-	        	            	if (currentGrid.getImageObstacle(position2[0], position2[1], ((direction.ordinal() + 2) % 4)) == 0) {
+	        	            	if (currentGrid.getImageObstacle(position[0], position[1], ((direction.ordinal() + 2) % 4)) == 0) {
 	            					Simulator.frontLeftPos[0] = direction.forward(x, y, -1)[0];
 	            					Simulator.frontLeftPos[1] = direction.forward(x, y, -1)[1];
 			            			Direction newDirection = direction.turnLeft();			            	        
@@ -75,7 +75,7 @@ public class Sensor {
 	            		
 	            		if (i == 2) {
 	            			if (!Simulator.obsLeft) {
-	        	            	if (currentGrid.getImageObstacle(position2[0], position2[1], ((direction.ordinal() + 2) % 4)) == 0) {
+	        	            	if (currentGrid.getImageObstacle(position[0], position[1], ((direction.ordinal() + 2) % 4)) == 0) {
 	            					Simulator.frontLeftPos[0] = direction.forward(x, y, -1)[0];
 	            					Simulator.frontLeftPos[1] = direction.forward(x, y, -1)[1];
 			            			Direction newDirection = direction.turnLeft();			            	        
@@ -90,7 +90,7 @@ public class Sensor {
             	}
             	
             	if (id == "SRF" || id == "SR") {
-	            	if (currentGrid.getImageObstacle(position2[0], position2[1], ((direction.ordinal() + 2) % 4)) != 1) {
+	            	if (currentGrid.getImageObstacle(position[0], position[1], ((direction.ordinal() + 2) % 4)) != 1) {
 	            		Simulator.sensorRight = i;
 	            	}
             	}

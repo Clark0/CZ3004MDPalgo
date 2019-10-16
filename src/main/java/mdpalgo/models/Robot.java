@@ -89,13 +89,13 @@ public class Robot {
 
     public void sense(Grid currentGrid, Grid realGrid) {
     	if(!Simulator.testRobot) {
-            lLeft.sense(direction.getFrontLeft(posRow, posCol), direction.turnLeft(), currentGrid, realGrid);
-            sFrontLeft.sense(direction.getFrontLeft(posRow, posCol), direction, currentGrid, realGrid);
-            sFront.sense(direction.forward(posRow, posCol), direction, currentGrid, realGrid);
-            sFrontRight.sense(direction.getFrontRight(posRow, posCol), direction, currentGrid, realGrid);
-            sRightFront.sense(direction.getFrontRight(posRow, posCol), direction.turnRight(), currentGrid, realGrid);
-            sRight.sense(direction.getBackRight(posRow, posCol), direction.turnRight(), currentGrid, realGrid);
-
+    		
+    		lLeft.sense(direction.getFrontLeft(posRow, posCol), direction.turnLeft(), currentGrid, realGrid);
+    		sFrontLeft.sense(direction.getFrontLeft(posRow, posCol), direction, currentGrid, realGrid);
+    		sFront.sense(direction.forward(posRow, posCol), direction, currentGrid, realGrid);
+    		sFrontRight.sense(direction.getFrontRight(posRow, posCol), direction, currentGrid, realGrid);
+    		sRightFront.sense(direction.getFrontRight(posRow, posCol), direction.turnRight(), currentGrid, realGrid);
+    		sRight.sense(direction.getBackRight(posRow, posCol), direction.turnRight(), currentGrid, realGrid);    
 		} else {
     		int[] result = new int[6];
 
