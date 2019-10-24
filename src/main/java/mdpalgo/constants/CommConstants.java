@@ -18,4 +18,5 @@ public class CommConstants {
     public static final String CALIBRATE_FRONT = "G";
     public static final String SENSE = "R";
     public static final String CALIBRATE_DONE = "cali:done";
+    public static final String IMAGE_DONE = "img:done";
 }

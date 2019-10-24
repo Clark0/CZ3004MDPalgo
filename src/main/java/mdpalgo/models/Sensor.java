@@ -85,9 +85,9 @@ public class Sensor {
                 currentGrid.updateCellConfidence(x, y, confidence);
                 if (currentGrid.getCellConfidence(x, y) > 0 && !currentGrid.isVisited(x, y)) {
                     currentGrid.setObstacle(x, y);
-                    if (Simulator.testImage && this.id.equals("SF")) {
-                        takePhoto(x, y, sensorVal, direction);
-                    }
+//                    if (Simulator.testImage && this.id.equals("SF")) {
+//                        takePhoto(x, y, sensorVal, direction);
+//                    }
                 }
                 break;
             } else {
@@ -122,7 +122,7 @@ public class Sensor {
             } else if (obsValue == 3) {
                 return 2;
             } else if (obsValue == 4) {
-                return 2;
+                return 1;
             } else if (obsValue == 5) {
                 return 1;
             }

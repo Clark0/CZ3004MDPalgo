@@ -7,7 +7,7 @@ public class Main {
 
     public static void main(String[] args) {
         Simulator simulator = new Simulator();
-        Simulator.testAndroid = true;
+        Simulator.testAndroid = false;
         Simulator.testRobot = true;
         Simulator.testImage = false;
         Connection.setLocalConnection(false);
