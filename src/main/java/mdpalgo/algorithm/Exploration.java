@@ -59,9 +59,9 @@ public class Exploration {
                 SendUtil.sendGrid(currentGrid);
             }
 
-            if (Simulator.testImage) {
-                SendUtil.sendTakeImage(robot);
-            }
+            //if (Simulator.testImage) {
+                //SendUtil.sendTakeImage(robot);
+            //}
 
             if (!recoverWallFollow && robot.getPosRow() == Grid.START_ROW && robot.getPosCol() == Grid.START_COL) {
                 passedStartZone = true;
@@ -134,9 +134,18 @@ public class Exploration {
 
     private void moveRobot(Movement movement, boolean sense) {
         if (Simulator.testRobot) {
-            doCalibrate();
+    		doCalibrate();
             SendUtil.sendMoveRobotCommand(movement, 1);
         }
+        
+        if (movement == Movement.FORWARD) {
+        	Simulator.imgCount++;
+        	if (Simulator.imgCount >= 3)
+        		Simulator.imgCount = 0;
+        }
+
+        if (movement != Movement.FORWARD)
+            Simulator.imgCount = 0;
 
         robot.move(movement);
         currentGrid.setVisited(robot);
@@ -215,6 +224,12 @@ public class Exploration {
                 SendUtil.sendCalibrateRight();
                 calibrateCount = 0;
             }
+            if (calibrateCount >= 2 && robot.canCalibrateLeft(currentGrid)) {
+            	SendUtil.sendMoveRobotCommand(Movement.LEFT, 1);
+                SendUtil.sendCalibrateFront();
+            	SendUtil.sendMoveRobotCommand(Movement.RIGHT, 1);
+                calibrateCount = 0;
+            }
         }
     }
 
@@ -228,8 +243,9 @@ public class Exploration {
         // rotate the robot to south
         if (movement != Movement.FORWARD && Simulator.testRobot) {
             moveRobot(movement, false);
-            SendUtil.sendCalibrateFrontRight();
         }
+        
+        SendUtil.sendCalibrateFrontRight();
 
         this.calibrateCount = 0;
         moveRobot(Movement.LEFT, false);

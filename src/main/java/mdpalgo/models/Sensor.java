@@ -4,6 +4,7 @@ import mdpalgo.constants.CommConstants;
 import mdpalgo.constants.Direction;
 import mdpalgo.simulator.Simulator;
 import mdpalgo.utils.Connection;
+import mdpalgo.utils.SendUtil;
 
 public class Sensor {
     private final String id;
@@ -85,9 +86,9 @@ public class Sensor {
                 currentGrid.updateCellConfidence(x, y, confidence);
                 if (currentGrid.getCellConfidence(x, y) > 0 && !currentGrid.isVisited(x, y)) {
                     currentGrid.setObstacle(x, y);
-//                    if (Simulator.testImage && this.id.equals("SF")) {
-//                        takePhoto(x, y, sensorVal, direction);
-//                    }
+                    if (Simulator.testImage && this.id.equals("LL") && Simulator.imgCount == 0) {
+                    	SendUtil.sendTakeImage(x, y, direction);
+                    }
                 }
                 break;
             } else {
@@ -118,11 +119,11 @@ public class Sensor {
             if (obsValue == 1)
                 return 4;
             else if (obsValue == 2){
-                return 2;
+                return 3;
             } else if (obsValue == 3) {
-                return 2;
+                return 3;
             } else if (obsValue == 4) {
-                return 1;
+                return 2;
             } else if (obsValue == 5) {
                 return 1;
             }

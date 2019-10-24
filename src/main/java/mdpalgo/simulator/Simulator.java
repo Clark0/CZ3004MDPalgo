@@ -44,7 +44,7 @@ public class Simulator {
     public static boolean testRobot = false;
     public static boolean testAndroid = false;
     public static boolean testImage = false;
-
+    public static int imgCount = 0;
 
     public Simulator() {
         robot = new Robot(Grid.START_ROW, Grid.START_COL, RobotConstant.START_DIR);
