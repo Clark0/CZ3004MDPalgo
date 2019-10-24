@@ -179,12 +179,30 @@ public class Robot {
         int[] newPos = newDirection.forward(this.posRow, this.posCol);
         int[] newPosRight = newDirection.getFrontRight(this.posRow, this.posCol);
         int[] newPosLeft = newDirection.getFrontLeft(this.posRow, this.posCol);
-        return 	grid.isValid(newPos[0], newPos[1])
-                && grid.isValid(newPosRight[0], newPosRight[1])
-                && grid.isValid(newPosLeft[0], newPosLeft[1])
-                && (grid.isVirtualWall(newPosRight[0], newPosRight[1])
-                || grid.isVirtualWall(newPos[0], newPos[1])
-                || grid.isVirtualWall(newPosLeft[0], newPosLeft[1]));
+        int[] newPos2 = newDirection.forward(newPos[0], newPos[1]);
+        int[] newPosRight2 = newDirection.forward(newPosRight[0], newPosRight[1]);
+        int[] newPosLeft2 = newDirection.forward(newPosLeft[0], newPosLeft[1]);
+        int[] newRear = newDirection.getLeft(this.posRow, this.posCol);
+        newRear = newDirection.getFrontLeft(newRear[0], newRear[1]);
+        newRear = newDirection.forward(newRear[0], newRear[1]);
+        System.out.println(newPos2[0] +","+newPos2[1]+","+newPosRight2[0] +","+newPosRight2[1]+","+newPosLeft2[0] +","+newPosLeft2[1]+","+newRear[0] +","+newRear[1]);
+        if (grid.isObstacle(newPosRight2[0], newPosRight2[1])
+                || grid.isObstacle(newPos2[0], newPos2[1])
+                || grid.isObstacle(newPosLeft2[0], newPosLeft2[1]))
+	        return 	grid.isValid(newPos[0], newPos[1])
+	                && grid.isValid(newPosRight[0], newPosRight[1])
+	                && grid.isValid(newPosLeft[0], newPosLeft[1])
+	                && (grid.isObstacle(newPosRight2[0], newPosRight2[1])
+	                || grid.isObstacle(newPos2[0], newPos2[1])
+	                || grid.isObstacle(newPosLeft2[0], newPosLeft2[1]));
+        if (!grid.isObstacle(newPosRight2[0], newPosRight2[1])
+                && !grid.isObstacle(newPos2[0], newPos2[1])
+                && !grid.isObstacle(newPosLeft2[0], newPosLeft2[1]) && grid.isObstacle(newRear[0], newRear[1]))
+	        return 	grid.isValid(newPos[0], newPos[1])
+	                && grid.isValid(newPosRight[0], newPosRight[1])
+	                && grid.isValid(newPosLeft[0], newPosLeft[1]);
+        return false;
+        	
     }
     
     public boolean imagePossible(Movement movement, Grid grid, int range) {
@@ -267,7 +285,7 @@ public class Robot {
         return false;
     }
     
-    public void noImage(Movement movement, Grid grid, int range) {
+    /*public void noImage(Movement movement, Grid grid, int range) {
     	Direction newDirection = this.direction.rotate(movement);
         int[] newPos = newDirection.forward(this.posRow, this.posCol);
         int[] newPosRight = newDirection.getFrontRight(this.posRow, this.posCol);
@@ -313,6 +331,35 @@ public class Robot {
             	grid.setImageObstacle(newPosRight2[0], newPosRight2[1], ((direction.ordinal() + 1) % 4), status);
             if (movement == Movement.LEFT && grid.isValid(newPos2[0], newPos2[1]) && grid.isObstacle(newPos2[0], newPos2[1]) && grid.getImageObstacle(newPos2[0], newPos2[1], ((direction.ordinal() + 1) % 4)) == 0)
             	grid.setImageObstacle(newPos2[0], newPos2[1], ((direction.ordinal() + 1) % 4), status);
+        }
+    }*/
+    
+    public void imgReg(Movement movement, Grid grid) {
+    	Direction newDirection = this.direction.rotate(movement);
+        int[] pos = newDirection.forward(this.posRow, this.posCol);
+        int[] newPos = newDirection.forward(pos[0], pos[1]);
+        int[] newPosRight = newDirection.getFrontRight(pos[0], pos[1]);
+        int[] newPosLeft = newDirection.getFrontLeft(pos[0], pos[1]);
+        System.out.println(this.posRow +"," +this.posCol +"," +newPos[0] +"," +newPos[1] +"," +newPosRight[0] +"," +newPosRight[1] +","+newPosLeft[0] +"," +newPosLeft[1] );
+        if (grid.isValid(newPos[0], newPos[1]) && grid.isValid(newPosRight[0], newPosRight[1]) && grid.isValid(newPosLeft[0], newPosLeft[1])) {
+        	if (movement == Movement.FORWARD) {
+        	System.out.println("ordinal "+((direction.ordinal())));
+        		if (grid.isObstacle(newPos[0], newPos[1]))
+        			grid.setImageObstacle(newPos[0], newPos[1], ((direction.ordinal() + 2) % 4), 1);
+        		if (grid.isObstacle(newPosRight[0], newPosRight[1]))
+        			grid.setImageObstacle(newPosRight[0], newPosRight[1], ((direction.ordinal() + 2) % 4), 1);
+        		if (grid.isObstacle(newPosLeft[0], newPosLeft[1]))
+        			grid.setImageObstacle(newPosLeft[0], newPosLeft[1], ((direction.ordinal() + 2) % 4), 1);
+        	}
+        	if (movement == Movement.RIGHT) {
+        	System.out.println("move "+((direction.ordinal())));
+        		if (grid.isObstacle(newPos[0], newPos[1]))
+        			grid.setImageObstacle(newPos[0], newPos[1], ((direction.ordinal() + 3) % 4), 1);
+        		if (grid.isObstacle(newPosRight[0], newPosRight[1]))
+        			grid.setImageObstacle(newPosRight[0], newPosRight[1], ((direction.ordinal() + 3) % 4), 1);
+        		if (grid.isObstacle(newPosLeft[0], newPosLeft[1]))
+        			grid.setImageObstacle(newPosLeft[0], newPosLeft[1], ((direction.ordinal() + 3) % 4), 1);
+        	}
         }
     }
 

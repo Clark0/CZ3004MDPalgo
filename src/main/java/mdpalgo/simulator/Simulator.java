@@ -43,8 +43,10 @@ public class Simulator {
     public static boolean testRobot = false;
     public static boolean testAndroid = false;
     public static boolean testImage = true;
-    public static int sensorRight = 0;
+    //public static int sensorRight = 0;
     public static int sensorLeft = 0;
+    public static boolean sensorRight = false;
+    public static boolean sensorFront = false;
     public static boolean obsSide = false;
     public static boolean sensorLong = false;
     public static boolean obsLeft = false;
@@ -139,9 +141,9 @@ public class Simulator {
             startRow = 1;
             startCol = 1;
             startDirection = RobotConstant.START_DIR;
-            if (testImage)
+            /*if (testImage)
             	exploration.exploreImage(arena);
-        	else
+        	else*/
             	exploration.explore(arena);
             return 111;
         }

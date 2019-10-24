@@ -9,7 +9,7 @@ public class Main {
         Simulator simulator = new Simulator();
         Simulator.testAndroid = true;
         Simulator.testRobot = true;
-        Simulator.testImage = false;
+        Simulator.testImage = true;
         Connection.setLocalConnection(false);
         simulator.simulate();
     }

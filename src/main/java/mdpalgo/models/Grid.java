@@ -11,7 +11,6 @@ public class Grid {
     private int[][] confidence;
     private int exploredCount;
     private int[][][] image;
-    private int imageCount;
 
     public static final int ROWS = 20;
     public static final int COLS = 15;
@@ -34,7 +33,6 @@ public class Grid {
         this.confidence = new int[rows][cols];
         this.exploredCount = 0;
         this.image = new int[rows][cols][4];
-        this.imageCount = 0;
     }
 
     public static Grid initCurrentGrid(Robot robot) {
@@ -151,13 +149,6 @@ public class Grid {
     // 2 Haven take yet
     // 3 Cannot take
     // 4 Taken and nothing
-    
-    public void setImageCount() {
-        imageCount++;
-    }
-    
-    public int countImage() {
-        return this.imageCount;
 
     /**
      * mark all robot occupied cells as visited
