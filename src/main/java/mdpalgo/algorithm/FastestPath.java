@@ -60,7 +60,7 @@ public class FastestPath {
     public GoalState goalState;
 
     private static final int MOVE_COST = 10;
-    private static final int TURN_COST = 10;
+    private static final int TURN_COST = 15;
     private static final int[] neighbourX = new int[]{1, 0, -1, 0};
     private static final int[] neighbourY = new int[]{0, 1, 0, -1};
 
@@ -229,5 +229,9 @@ public class FastestPath {
     private void refreshArena() {
         if (this.arena != null)
             arena.repaint();
+    }
+
+    public void setArena(Arena arena) {
+        this.arena = arena;
     }
 }

@@ -6,6 +6,8 @@ import mdpalgo.models.Grid;
 import mdpalgo.models.Robot;
 
 import static mdpalgo.constants.CommConstants.CALIBRATE_DONE;
+import static mdpalgo.constants.CommConstants.IMAGE_DONE;
+
 
 public class SendUtil {
     public static Connection connect;
@@ -58,5 +60,11 @@ public class SendUtil {
     public static void sendSenseCommand() {
         connect = Connection.getConnection();
         connect.sendMessage(CommConstants.MOVE, CommConstants.SENSE);
+    }
+
+    public static void sendTakeImage(Robot robot) {
+        connect = Connection.getConnection();
+        connect.sendMessage(CommConstants.IMAGE, robot.getPosRow() + "," + robot.getPosCol() + "," + robot.getDirection().toString());
+        while (!connect.receiveMessage().equals(IMAGE_DONE));
     }
 }

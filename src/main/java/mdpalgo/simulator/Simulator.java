@@ -2,6 +2,7 @@ package mdpalgo.simulator;
 
 import mdpalgo.algorithm.Exploration;
 import mdpalgo.algorithm.FastestPath;
+import mdpalgo.algorithm.GoalState;
 import mdpalgo.constants.Direction;
 import mdpalgo.constants.RobotConstant;
 import mdpalgo.models.Grid;
@@ -161,8 +162,16 @@ public class Simulator {
             }
 
             // move to goal
-            fastestPath = new FastestPath(realGrid, robot, Grid.GOAL_ROW, Grid.GOAL_COL);
+            fastestPath = new FastestPath(realGrid, robot);
+            fastestPath.setArena(arena);
             arena.update(realGrid, robot);
+            GoalState goalState = state -> (state.row == Grid.GOAL_ROW - 1 && state.col == Grid.GOAL_COL - 1)
+                                        || (state.row == Grid.GOAL_ROW - 1 && state.col == Grid.GOAL_COL)
+                                        || (state.row == Grid.GOAL_ROW && state.col == Grid.GOAL_COL - 1);
+            java.util.List<FastestPath.State> path = fastestPath.findFastestPath(goalState);
+            fastestPath.executePath(path);
+            arena.update(realGrid, robot);
+            fastestPath = new FastestPath(realGrid, robot, Grid.GOAL_ROW, Grid.GOAL_COL);
             fastestPath.runFastestPath(arena);
 
             hasWayPoint = false;

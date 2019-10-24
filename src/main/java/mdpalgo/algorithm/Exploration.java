@@ -59,7 +59,10 @@ public class Exploration {
                 SendUtil.sendGrid(currentGrid);
             }
 
-            // Change to follow left wall
+            if (Simulator.testImage) {
+                SendUtil.sendTakeImage(robot);
+            }
+
             if (!recoverWallFollow && robot.getPosRow() == Grid.START_ROW && robot.getPosCol() == Grid.START_COL) {
                 passedStartZone = true;
             }
@@ -80,7 +83,11 @@ public class Exploration {
             }
         }
 
-        returnStartFast();
+        // manually set calibrateCounter to 3 to trigger right calibration
+        calibrateCount = 3;
+        doCalibrate();
+
+        returnStartSlow();
 
         // if FastestPath fails, follow right wall to start zone
         while (!currentGrid.inStartZone(robot.getPosRow(), robot.getPosCol())) {
@@ -94,6 +101,11 @@ public class Exploration {
         realGrid = currentGrid;
         System.out.println("Exploration Finished");
         calibrateAtStartZone();
+
+        // Send map descriptor to Android
+        if (Simulator.testAndroid) {
+            SendUtil.sendGrid(currentGrid);
+        }
     }
 
     public void returnStartSlow() {
@@ -199,7 +211,7 @@ public class Exploration {
             SendUtil.sendCalibrateFront();
         } else {
             calibrateCount++;
-            if (calibrateCount >= 3 && robot.canCalibrateRight(currentGrid)) {
+            if (calibrateCount >= 2 && robot.canCalibrateRight(currentGrid)) {
                 SendUtil.sendCalibrateRight();
                 calibrateCount = 0;
             }
