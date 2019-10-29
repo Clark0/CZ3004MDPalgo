@@ -58,6 +58,22 @@ public class SendUtil {
         while (!connect.receiveMessage().equals(CALIBRATE_DONE));
     }
 
+    public static void sendCalibrateStepRight() {
+        System.out.println("Calibrate robot, Step Right");
+        connect = Connection.getConnection();
+        connect.sendMessage(CommConstants.MOVE, CommConstants.CALIBRATE_STEP_RIGHT);
+        // waiting for robot calibration finish
+        while (!connect.receiveMessage().equals(CALIBRATE_DONE));
+    }
+
+    public static void sendCalibrateStepLeft() {
+        System.out.println("Calibrate robot, Step Left");
+        connect = Connection.getConnection();
+        connect.sendMessage(CommConstants.MOVE, CommConstants.CALIBRATE_STEP_LEFT);
+        // waiting for robot calibration finish
+        while (!connect.receiveMessage().equals(CALIBRATE_DONE));
+    }
+
     public static void sendSenseCommand() {
         connect = Connection.getConnection();
         connect.sendMessage(CommConstants.MOVE, CommConstants.SENSE);

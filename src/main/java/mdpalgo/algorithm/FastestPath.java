@@ -52,7 +52,6 @@ public class FastestPath {
     }
 
     public class StateComparator implements Comparator<State> {
-
         @Override
         public int compare(State o1, State o2) {
             return Double.compare(o1.cost + o1.heuristic, o2.cost + o2.heuristic);
@@ -69,7 +68,7 @@ public class FastestPath {
     public GoalState goalState;
 
     private static final int MOVE_COST = 10;
-    private static final int TURN_COST = 15;
+    private static final int TURN_COST = 30;
     private static final int[] neighbourX = new int[]{1, 0, -1, 0};
     private static final int[] neighbourY = new int[]{0, 1, 0, -1};
 
@@ -94,7 +93,7 @@ public class FastestPath {
 
 
     private double calculateHeuristic(int x, int y) {
-        double moveCost = (Math.abs(this.goalRow - x) + Math.abs(this.goalCol - y)) * MOVE_COST;
+        double moveCost = (Math.abs(this.goalRow - x) + Math.abs(this.goalCol - y)) * 1.0 * MOVE_COST;
         double turnCost = (x == this.goalRow || y == this.goalCol) ?  0 : TURN_COST;
         return moveCost + turnCost;
     }

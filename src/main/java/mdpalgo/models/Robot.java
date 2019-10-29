@@ -199,7 +199,6 @@ public class Robot {
         int row = getPosRow();
         int col = getPosCol();
 
-        Direction direction = getDirection();
         // front side is wall or obs
         int[] pos = direction.getFrontRight(row, col);
         int[] frontRight = direction.forward(pos[0], pos[1]);
@@ -207,15 +206,14 @@ public class Robot {
         pos = direction.getFrontLeft(row, col);
         int[] frontLeft = direction.forward(pos[0], pos[1]);
 
-        return currentGrid.isWallOrObstable(frontRight[0], frontRight[1])
-                && currentGrid.isWallOrObstable(frontLeft[0], frontLeft[1]);
+        return currentGrid.isWallOrObstacle(frontRight[0], frontRight[1])
+                && currentGrid.isWallOrObstacle(frontLeft[0], frontLeft[1]);
     }
 
     public boolean canCalibrateRight(Grid currentGrid) {
         int row = getPosRow();
         int col = getPosCol();
 
-        Direction direction = getDirection();
         // right side is wall or obs
         int[] pos = direction.getFrontRight(row, col);
         int[] rightFront = direction.turnRight().forward(pos[0], pos[1]);
@@ -223,15 +221,14 @@ public class Robot {
         pos = direction.getBackRight(row, col);
         int[] right = direction.turnRight().forward(pos[0], pos[1]);
 
-        return currentGrid.isWallOrObstable(rightFront[0], rightFront[1])
-                && currentGrid.isWallOrObstable(right[0], right[1]);
+        return currentGrid.isWallOrObstacle(rightFront[0], rightFront[1])
+                && currentGrid.isWallOrObstacle(right[0], right[1]);
     }
     
     public boolean canCalibrateLeft(Grid currentGrid) {
         int row = getPosRow();
         int col = getPosCol();
 
-        Direction direction = getDirection();
         // left side is wall or obs
         int[] pos = direction.getFrontLeft(row, col);
         int[] leftFront = direction.turnLeft().forward(pos[0], pos[1]);
@@ -239,12 +236,47 @@ public class Robot {
         pos = direction.getBackLeft(pos[0], pos[1]);
         int[] leftBack = direction.turnLeft().forward(pos[0], pos[1]);
 	
-        return currentGrid.isWallOrObstable(leftFront[0], leftFront[1])
-	                && currentGrid.isWallOrObstable(leftBack[0], leftBack[1]);
+        return currentGrid.isWallOrObstacle(leftFront[0], leftFront[1])
+	                && currentGrid.isWallOrObstacle(leftBack[0], leftBack[1]);
     }
 
     public boolean canCalibrateFrontRight(Grid currentGrid) {
         return canCalibrateRight(currentGrid)
                 && canCalibrateFront(currentGrid);
+    }
+
+    public boolean canCalibrateStepRight(Grid currentGrid) {
+        int row = getPosRow();
+        int col = getPosCol();
+
+        // front Right side is wall or obs
+        int[] pos = direction.getFrontRight(row, col);
+        int[] frontRight = direction.forward(pos[0], pos[1]);
+
+        int[] frontPos = direction.forward(row, col, 2);
+        if (currentGrid.isWallOrObstacle(frontPos[0], frontPos[1])) return false;
+
+        // front right side is wall or obs
+        frontPos = direction.forward(row, col, 3);
+        return currentGrid.isWallOrObstacle(frontRight[0], frontRight[1])
+                && currentGrid.isWallOrObstacle(frontPos[0], frontPos[1]);
+    }
+
+    public boolean canCalibrateStepLeft(Grid currentGrid) {
+        int row = getPosRow();
+        int col = getPosCol();
+
+        // front side is wall or obs
+        int[] pos = direction.getFrontLeft(row, col);
+        int[] frontLeft = direction.forward(pos[0], pos[1]);
+
+        int[] frontPos = direction.forward(row, col, 2);
+        if (currentGrid.isWallOrObstacle(frontPos[0], frontPos[1])) return false;
+
+        // front left side is wall or obs
+        frontPos = direction.forward(row, col, 3);
+        return currentGrid.isWallOrObstacle(frontLeft[0], frontLeft[1])
+                && currentGrid.isWallOrObstacle(frontPos[0], frontPos[1]);
+
     }
 }

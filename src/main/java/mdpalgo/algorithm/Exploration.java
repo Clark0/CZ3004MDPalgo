@@ -224,9 +224,13 @@ public class Exploration {
         } else if (robot.canCalibrateFront(currentGrid)) {
             this.calibrateCount = 0;
             SendUtil.sendCalibrateFront();
+        } else if (robot.canCalibrateStepRight(currentGrid)) {
+            SendUtil.sendCalibrateStepRight();
+        } else if (robot.canCalibrateStepLeft(currentGrid)) {
+            SendUtil.sendCalibrateStepLeft();
         } else {
             calibrateCount++;
-            if (calibrateCount >= 2 && robot.canCalibrateRight(currentGrid)) {
+            if (calibrateCount >= 3 && robot.canCalibrateRight(currentGrid)) {
                 SendUtil.sendCalibrateRight();
                 calibrateCount = 0;
             }

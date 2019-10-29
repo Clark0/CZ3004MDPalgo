@@ -77,7 +77,7 @@ public class Grid {
         return row == -1 || row == Grid.ROWS || col == -1 || col == Grid.COLS;
     }
 
-    public boolean isWallOrObstable(int row, int col) {
+    public boolean isWallOrObstacle(int row, int col) {
         return isWall(row, col)
                 || (isValid(row, col) && isObstacle(row, col));
     }
