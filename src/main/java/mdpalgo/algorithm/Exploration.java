@@ -24,6 +24,7 @@ public class Exploration {
     private Arena arena;
     private boolean passedStartZone = false;
     private boolean recoverWallFollow = false;
+    private boolean caliLeft = false;
 
     public Exploration(Grid currentGrid, Grid realGrid, Robot robot, int timeLimit, int coverage) {
         this.currentGrid = currentGrid;
@@ -89,6 +90,7 @@ public class Exploration {
 
         returnStartSlow();
 
+        this.caliLeft = true;
         // if FastestPath fails, follow right wall to start zone
         while (!currentGrid.inStartZone(robot.getPosRow(), robot.getPosCol())) {
             if (Simulator.testAndroid) {
@@ -212,6 +214,10 @@ public class Exploration {
 
 
     private void doCalibrate() {
+        if (!Simulator.testRobot) {
+            return;
+        }
+
         if (robot.canCalibrateFrontRight(currentGrid) && robot.isSafeMovement(Movement.LEFT, currentGrid)) {
             this.calibrateCount = 0;
             SendUtil.sendCalibrateFrontRight();
@@ -224,7 +230,7 @@ public class Exploration {
                 SendUtil.sendCalibrateRight();
                 calibrateCount = 0;
             }
-            if (calibrateCount >= 2 && robot.canCalibrateLeft(currentGrid)) {
+            if (this.caliLeft && calibrateCount >= 2 && robot.canCalibrateLeft(currentGrid)) {
             	SendUtil.sendMoveRobotCommand(Movement.LEFT, 1);
                 SendUtil.sendCalibrateFront();
             	SendUtil.sendMoveRobotCommand(Movement.RIGHT, 1);

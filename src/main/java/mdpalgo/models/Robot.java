@@ -232,21 +232,15 @@ public class Robot {
         int col = getPosCol();
 
         Direction direction = getDirection();
-        // right side is wall or obs
+        // left side is wall or obs
         int[] pos = direction.getFrontLeft(row, col);
-        int[] right = direction.turnLeft().forward(pos[0], pos[1]);
+        int[] leftFront = direction.turnLeft().forward(pos[0], pos[1]);
 
-        pos = direction.backward(row, col,2);
-        if (currentGrid.isValid(pos)) {
-	        int[] posBack = direction.getFrontLeft(pos[0], pos[1]);
-	        int[] left = direction.turnLeft().forward(posBack[0], posBack[1]);
+        pos = direction.getBackLeft(pos[0], pos[1]);
+        int[] leftBack = direction.turnLeft().forward(pos[0], pos[1]);
 	
-	        return currentGrid.isWallOrObstable(right[0], right[1])
-	                && currentGrid.isWallOrObstable(left[0], left[1]);
-        }
-        else {
-        	return false;
-        }
+        return currentGrid.isWallOrObstable(leftFront[0], leftFront[1])
+	                && currentGrid.isWallOrObstable(leftBack[0], leftBack[1]);
     }
 
     public boolean canCalibrateFrontRight(Grid currentGrid) {

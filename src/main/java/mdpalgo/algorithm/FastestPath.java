@@ -11,6 +11,7 @@ import mdpalgo.utils.SendUtil;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -50,6 +51,14 @@ public class FastestPath {
         }
     }
 
+    public class StateComparator implements Comparator<State> {
+
+        @Override
+        public int compare(State o1, State o2) {
+            return Double.compare(o1.cost + o1.heuristic, o2.cost + o2.heuristic);
+        }
+    }
+
     private Arena arena;
     private Robot robot;
     private Grid currentGrid;
@@ -70,7 +79,7 @@ public class FastestPath {
         this.currentGrid = currentGrid;
         this.robot = robot;
         visited = new boolean[Grid.ROWS][Grid.COLS];
-        pq = new PriorityQueue<>();
+        pq = new PriorityQueue<>(new StateComparator());
 
         State initState = new State(robot.getPosRow(), robot.getPosCol(), robot.getDirection());
         setVisited(robot.getPosRow(), robot.getPosCol());
@@ -86,7 +95,7 @@ public class FastestPath {
 
     private double calculateHeuristic(int x, int y) {
         double moveCost = (Math.abs(this.goalRow - x) + Math.abs(this.goalCol - y)) * MOVE_COST;
-        double turnCost = x == this.goalRow || y == this.goalCol ?  0 : TURN_COST;
+        double turnCost = (x == this.goalRow || y == this.goalCol) ?  0 : TURN_COST;
         return moveCost + turnCost;
     }
 

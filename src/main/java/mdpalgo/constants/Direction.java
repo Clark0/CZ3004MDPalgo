@@ -83,6 +83,11 @@ public enum Direction {
         return getLeft(frontPos[0], frontPos[1]);
     }
 
+    public int[] getBackLeft(int x, int y) {
+        int[] backPos = backward(x, y, 1);
+        return getLeft(backPos[0], backPos[1]);
+    }
+
     public Direction rotate(Movement movement) {
         switch (movement) {
             case LEFT:
