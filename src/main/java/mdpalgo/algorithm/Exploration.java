@@ -45,10 +45,7 @@ public class Exploration {
         robot.sense(currentGrid, realGrid);
         refreshArena();
 
-        while (!passedStartZone && currentGrid.countExplored() * 1.0 / Grid.GRID_SIZE < coverage / 100.0
-                && System.currentTimeMillis() + RobotConstant.ESTIMATED_RETURN_TIME < endTime) {
-
-
+        while (!passedStartZone && System.currentTimeMillis() + RobotConstant.ESTIMATED_RETURN_TIME < endTime) {
             if (this.recoverWallFollow) {
                 recoverWallFollow();
             } else {
@@ -82,17 +79,19 @@ public class Exploration {
                     break;
                 }
             }
+
+            returnStartSlow();
         }
 
         // manually set calibrateCounter to 3 to trigger right calibration
         calibrateCount = 3;
         doCalibrate();
 
-        returnStartSlow();
+        // returnStartSlow();
 
         this.caliLeft = true;
-        // if FastestPath fails, follow right wall to start zone
-        while (!currentGrid.inStartZone(robot.getPosRow(), robot.getPosCol())) {
+        //follow right wall to start zone
+        while (!(robot.getPosRow() == Grid.START_ROW && robot.getPosCol() == Grid.START_COL)) {
             if (Simulator.testAndroid) {
                 SendUtil.sendGrid(currentGrid);
             }
@@ -131,22 +130,24 @@ public class Exploration {
     }
 
     private void moveRobot(Movement movement) {
-        moveRobot(movement, true);
+        moveRobot(movement, true, true);
     }
 
-    private void moveRobot(Movement movement, boolean sense) {
+    private void moveRobot(Movement movement, boolean sense, boolean cali) {
         if (Simulator.testRobot) {
-    		doCalibrate();
+            if (cali) {
+                doCalibrate();
+            }
             SendUtil.sendMoveRobotCommand(movement, 1);
         }
         
-        if (movement == Movement.FORWARD) {
+        if (movement == Movement.FORWARD && Simulator.testImage) {
         	Simulator.imgCount++;
         	if (Simulator.imgCount >= 3)
         		Simulator.imgCount = 0;
         }
 
-        if (movement != Movement.FORWARD)
+        if (movement != Movement.FORWARD && Simulator.testImage)
             Simulator.imgCount = 0;
 
         robot.move(movement);
@@ -224,6 +225,13 @@ public class Exploration {
         } else if (robot.canCalibrateFront(currentGrid)) {
             this.calibrateCount = 0;
             SendUtil.sendCalibrateFront();
+            if (robot.canCalibrateRightStepCase(currentGrid)) {
+                moveRobot(Movement.RIGHT, true, false);
+                if (robot.canCalibrateStepLeft(currentGrid) || robot.canCalibrateStepRight(currentGrid)) {
+                    SendUtil.sendCalibrateStepRight();
+                }
+                moveRobot(Movement.LEFT, true, false);
+            }
         } else if (robot.canCalibrateStepRight(currentGrid)) {
             SendUtil.sendCalibrateStepRight();
         } else if (robot.canCalibrateStepLeft(currentGrid)) {
@@ -234,10 +242,12 @@ public class Exploration {
                 SendUtil.sendCalibrateRight();
                 calibrateCount = 0;
             }
-            if (this.caliLeft && calibrateCount >= 2 && robot.canCalibrateLeft(currentGrid)) {
-            	SendUtil.sendMoveRobotCommand(Movement.LEFT, 1);
-                SendUtil.sendCalibrateFront();
-            	SendUtil.sendMoveRobotCommand(Movement.RIGHT, 1);
+            if (this.caliLeft && calibrateCount >= 3 && robot.canCalibrateLeft(currentGrid)) {
+            	moveRobot(Movement.LEFT, true, false);
+            	if (robot.canCalibrateFront(currentGrid)) {
+                    SendUtil.sendCalibrateFront();
+                }
+                moveRobot(Movement.RIGHT, true, false);
                 calibrateCount = 0;
             }
         }
@@ -252,13 +262,13 @@ public class Exploration {
         Movement movement = Direction.getMovementByDirections(robot.getDirection(), target);
         // rotate the robot to south
         if (movement != Movement.FORWARD && Simulator.testRobot) {
-            moveRobot(movement, false);
+            moveRobot(movement, true, false);
+            // prevent calibrate twice
+            SendUtil.sendCalibrateFrontRight();
         }
-        
-        SendUtil.sendCalibrateFrontRight();
 
         this.calibrateCount = 0;
-        moveRobot(Movement.LEFT, false);
+        moveRobot(Movement.LEFT, true, false);
     }
 
     private List<FastestPath.State> findNearestUnexplored(FastestPath fastestPath) {

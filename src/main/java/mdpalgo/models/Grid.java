@@ -82,6 +82,10 @@ public class Grid {
                 || (isValid(row, col) && isObstacle(row, col));
     }
 
+    public boolean isWallOrObstacle(int[] pos) {
+        return isWallOrObstacle(pos[0], pos[1]);
+    }
+
     public boolean isObstacle(int x, int y) {
         return this.grid[x][y] == OBSTACLE;
     }

@@ -233,7 +233,7 @@ public class Robot {
         int[] pos = direction.getFrontLeft(row, col);
         int[] leftFront = direction.turnLeft().forward(pos[0], pos[1]);
 
-        pos = direction.getBackLeft(pos[0], pos[1]);
+        pos = direction.getBackLeft(row, col);
         int[] leftBack = direction.turnLeft().forward(pos[0], pos[1]);
 	
         return currentGrid.isWallOrObstacle(leftFront[0], leftFront[1])
@@ -278,5 +278,34 @@ public class Robot {
         return currentGrid.isWallOrObstacle(frontLeft[0], frontLeft[1])
                 && currentGrid.isWallOrObstacle(frontPos[0], frontPos[1]);
 
+    }
+
+    public boolean canCalibrateRightStepCase(Grid currentGrid) {
+        int row = getPosRow();
+        int col = getPosCol();
+
+        int[] frontRight = direction.getFrontRight(row, col);
+        int[] right = direction.getRight(row, col);
+        int[] backRight = direction.getBackRight(row, col);
+
+        Direction rightSide = direction.turnRight();
+        frontRight  = rightSide.forward(frontRight[0], frontRight[1]);
+        right = rightSide.forward(right[0], right[1]);
+        backRight = rightSide.forward(backRight[0], backRight[1]);
+
+        if (currentGrid.isWallOrObstacle(frontRight)
+                && !currentGrid.isWallOrObstacle(right)
+                && !currentGrid.isWallOrObstacle(backRight)
+                && currentGrid.isWallOrObstacle(rightSide.forward(right[0], right[1], 1)))
+            return true;
+
+        if (!currentGrid.isWallOrObstacle(frontRight)
+                && currentGrid.isWallOrObstacle(right)
+                && !currentGrid.isWallOrObstacle(backRight)
+                && currentGrid.isWallOrObstacle(rightSide.forward(backRight[0], backRight[1], 1))) {
+            return true;
+        }
+
+        return false;
     }
 }

@@ -118,6 +118,15 @@ public class FastestPath {
             }
         }
 
+        if (m == Movement.FORWARD && Simulator.testRobot && ((this.robot.getPosRow() == Grid.GOAL_ROW - 1 && this.robot.getPosCol() == Grid.GOAL_COL)
+                || (this.robot.getPosRow() == Grid.GOAL_ROW && this.robot.getPosCol() == Grid.GOAL_COL - 1))) {
+            try {
+                Thread.sleep(4000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
     }
 
     private boolean reachable(int row, int col) {
